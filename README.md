@@ -13,3 +13,5 @@ More information can be found <a href="http://www.cs.csub.edu/~phuynh/cs335/proj
 ## How to Play
 
 <a href="#table-of-contents">[Back to Top]</a>
+Move your mouse to control the debris
+Press <b>Space</b> to split apart
