@@ -1,4 +1,4 @@
-# CS335 Project - Super Dank Space Adventure
+# Super Dank Space Adventure
 
 ## Table of Contents
 - [About](#about)
@@ -13,5 +13,5 @@ More information can be found <a href="http://www.cs.csub.edu/~phuynh/cs335/proj
 ## How to Play
 
 <a href="#table-of-contents">[Back to Top]</a>
-Move your mouse to control the debris
+Move your mouse to control the debris<br>
 Press <b>Space</b> to split apart
