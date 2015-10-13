@@ -47,10 +47,10 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "log.h"
-extern "C" {
+/*extern "C" {
 	#include "fonts.h"
 }
-
+*/
 //defined types
 typedef float Flt;
 typedef float Vec[3];
@@ -208,7 +208,7 @@ int main(void)
 		glXSwapBuffers(dpy, win);
 	}
 	cleanupXWindows();
-	cleanup_fonts();
+	//cleanup_fonts();
 	logClose();
 	return 0;
 }
@@ -292,7 +292,7 @@ void init_opengl(void)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
-	initialize_fonts();
+	//initialize_fonts();
 }
 
 void check_resize(XEvent *e)
@@ -709,15 +709,15 @@ void physics(Game *g)
 void render(Game *g)
 {
 	//float wid;
-	Rect r;
+	//Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//
-	r.bot = yres - 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
-	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
-	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
+	//r.bot = yres - 20;
+	//r.left = 10;
+	//r.center = 0;
+	//ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
+	//ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
+	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
 	//-------------------------------------------------------------------------
 	//Draw the ship
 	glColor3fv(g->ship.color);
@@ -727,11 +727,11 @@ void render(Game *g)
 	glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
 	glBegin(GL_TRIANGLES);
 	//glVertex2f(-10.0f, -10.0f);
-	//glVertex2f(  0.0f, 20.0f);
+	//glVertex2f(  0.0f, -20.0f);
 	//glVertex2f( 10.0f, -10.0f);
-	glVertex2f(-12.0f, -10.0f);
-	glVertex2f(  0.0f, 20.0f);
-	glVertex2f(  0.0f, -6.0f);
+	//glVertex2f(-12.0f, -10.0f);
+	//glVertex2f(  0.0f, 20.0f);
+	//glVertex2f(  0.0f, -6.0f);
 	glVertex2f(  0.0f, -6.0f);
 	glVertex2f(  0.0f, 20.0f);
 	glVertex2f( 12.0f, -10.0f);
