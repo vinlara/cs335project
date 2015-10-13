@@ -103,6 +103,7 @@ struct Ship {
 	Vec pos;
 	Vec vel;
 	float angle;
+	Flt radius;
 	float color[3];
 	Ship() {
 		VecZero(dir);
@@ -332,7 +333,7 @@ void init(Game *g) {
 		a->color[2] = 0.7;
 		a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
-		std::cout << "asteroid" << std::endl;
+		//std::cout << "asteroid" << std::endl;
 		//add to front of linked list
 		a->next = g->ahead;
 		if (g->ahead != NULL)
@@ -340,6 +341,7 @@ void init(Game *g) {
 		g->ahead = a;
 		g->nasteroids++;
 	}
+	g->ship.radius = 40.0;
 	clock_gettime(CLOCK_REALTIME, &g->bulletTimer);
 	memset(keys, 0, 65536);
 }
@@ -725,10 +727,20 @@ void render(Game *g)
 	glTranslatef(g->ship.pos[0], g->ship.pos[1], g->ship.pos[2]);
 	//float angle = atan2(ship.dir[1], ship.dir[0]);
 	glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
-	glBegin(GL_TRIANGLES);
-	//glVertex2f(-10.0f, -10.0f);
-	//glVertex2f(  0.0f, 20.0f);
-	//glVertex2f( 10.0f, -10.0f);
+	glBegin(GL_TRIANGLE_FAN);
+	float x = (float)g->ship.radius * cos(499 * 3.14 / 180.f);
+	float y = (float)g->ship.radius * sin(499 * 3.14 / 180.f);
+	for (int i = 0; i <= 500; i++)
+	{
+		glVertex2f(x, y);
+		x = (float)g->ship.radius * cos(i * 3.14 / 180.f);
+		y = (float)g->ship.radius * sin(i * 3.14 / 180.f);
+	}
+	glEnd();
+	/*glBegin(GL_TRIANGLES);
+	glVertex2f(-10.0f, -10.0f);
+	glVertex2f(  0.0f, 20.0f);
+	glVertex2f( 10.0f, -10.0f);
 	glVertex2f(-12.0f, -10.0f);
 	glVertex2f(  0.0f, 20.0f);
 	glVertex2f(  0.0f, -6.0f);
@@ -739,7 +751,7 @@ void render(Game *g)
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glBegin(GL_POINTS);
 	glVertex2f(0.0f, 0.0f);
-	glEnd();
+	glEnd();*/
 	glPopMatrix();
 	if (keys[XK_Up]) {
 		int i;
