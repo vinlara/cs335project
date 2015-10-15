@@ -1,37 +1,13 @@
-//cs335 Spring 2015
-//
-//program: asteroids.cpp
-//author:  Gordon Griesel
-//date:    2014
-//mod spring 2015: added constructors
-//
-//This program is a game starting point for 335
-//
-// Possible requirements:
-// ----------------------
-// welcome screen
-// menu
-// multiple simultaneous key-press
-// show exhaust for thrusting
-// move the asteroids
-// collision detection for bullet on asteroid
-// collision detection for asteroid on ship
-// control of bullet launch point
-// life span for each bullet
-// cleanup the bullets that miss a target
-// split asteroids into pieces when blasted
-// random generation of new asteroids
-// score keeping
-// levels of difficulty
-// sound
-// use of textures
-//
-//
+/*
+	CS 335 Software Engineering Project
 
-/* Program: Lab 2
- * Author: Perry Huynh
- * Purpose: Introduction to frameworks
- */
+	Group Members:
+	Abdulelah Aldeshash
+	Eric Smith
+	Erik Juarez
+	Perry Huynh
+	Vincente Lara
+*/
 
 #include <iostream>
 #include <cstdlib>
@@ -96,7 +72,7 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 }
 //-----------------------------------------------------------------------------
 
-int xres=1024, yres=768;
+int xres=1280, yres=960;
 
 struct Ship {
 	Vec dir;
@@ -592,51 +568,43 @@ void physics(Game *g)
 	a = g->ahead;
 	while (a) {
 		//is there a bullet within its radius?
-		Bullet *b = g->bhead;
-		while (b) {
-			d0 = b->pos[0] - a->pos[0];
-			d1 = b->pos[1] - a->pos[1];
-			dist = (d0*d0 + d1*d1);
-			if (dist < (a->radius*a->radius)) {
-				//std::cout << "asteroid hit." << std::endl;
-				//this asteroid is hit.
-				if (a->radius > 20.0) {
-					//break it into pieces.
-					Asteroid *ta = a;
+		d0 = g->ship.pos[0] - a->pos[0];
+		d1 = g->ship.pos[1] - a->pos[1];
+		dist = (d0*d0 + d1*d1);
+		if (dist < (a->radius*a->radius)) {
+			//std::cout << "asteroid hit." << std::endl;
+			//this asteroid is hit.
+			if (a->radius > 20.0) {
+				//break it into pieces.
+				Asteroid *ta = a;
+				buildAsteroidFragment(ta, a);
+				int r = rand()%10+5;
+				for (int k=0; k<r; k++) {
+					//get the next asteroid position in the array
+					Asteroid *ta = new Asteroid;
 					buildAsteroidFragment(ta, a);
-					int r = rand()%10+5;
-					for (int k=0; k<r; k++) {
-						//get the next asteroid position in the array
-						Asteroid *ta = new Asteroid;
-						buildAsteroidFragment(ta, a);
-						//add to front of asteroid linked list
-						ta->next = g->ahead;
-						if (g->ahead != NULL)
-							g->ahead->prev = ta;
-						g->ahead = ta;
-						g->nasteroids++;
-					}
-				} else {
-					a->color[0] = 1.0;
-					a->color[1] = 0.1;
-					a->color[2] = 0.1;
-					//asteroid is too small to break up
-					//delete the asteroid and bullet
-					Asteroid *savea = a->next;
-					deleteAsteroid(g, a);
-					a = savea;
-					g->nasteroids--;
+					//add to front of asteroid linked list
+					ta->next = g->ahead;
+					if (g->ahead != NULL)
+						g->ahead->prev = ta;
+					g->ahead = ta;
+					g->nasteroids++;
 				}
-				//delete the bullet...
-				Bullet *saveb = b->next;
-				deleteBullet(g, b);
-				b = saveb;
-				g->nbullets--;
-				if (a == NULL)
-					break;
-				continue;
+			} else {
+				a->color[0] = 1.0;
+				a->color[1] = 0.1;
+				a->color[2] = 0.1;
+				//asteroid is too small to break up
+				//delete the asteroid and bullet
+				Asteroid *savea = a->next;
+				deleteAsteroid(g, a);
+				a = savea;
+				g->nasteroids--;
+				g->ship.radius += 10;
 			}
-			b = b->next;
+			if (a == NULL)
+				break;
+			continue;
 		}
 		if (a == NULL)
 			break;
@@ -711,15 +679,15 @@ void physics(Game *g)
 void render(Game *g)
 {
 	//float wid;
-	Rect r;
+	//Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//
-	r.bot = yres - 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
-	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
-	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
+	//r.bot = yres - 20;
+	//r.left = 10;
+	//r.center = 0;
+	//ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
+	//ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
+	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
 	//-------------------------------------------------------------------------
 	//Draw the ship
 	glColor3fv(g->ship.color);
@@ -728,31 +696,17 @@ void render(Game *g)
 	//float angle = atan2(ship.dir[1], ship.dir[0]);
 	glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
 	glBegin(GL_TRIANGLE_FAN);
-	float x = (float)g->ship.radius * cos(499 * 3.14 / 180.f);
-	float y = (float)g->ship.radius * sin(499 * 3.14 / 180.f);
+	float x = (float)g->ship.radius * cos(499 * PI / 180.f);
+	float y = (float)g->ship.radius * sin(499 * PI / 180.f);
 	for (int i = 0; i <= 500; i++)
 	{
 		glVertex2f(x, y);
-		x = (float)g->ship.radius * cos(i * 3.14 / 180.f);
-		y = (float)g->ship.radius * sin(i * 3.14 / 180.f);
+		x = (float)g->ship.radius * cos(i * PI / 180.f);
+		y = (float)g->ship.radius * sin(i * PI / 180.f);
 	}
 	glEnd();
-	/*glBegin(GL_TRIANGLES);
-	glVertex2f(-10.0f, -10.0f);
-	glVertex2f(  0.0f, 20.0f);
-	glVertex2f( 10.0f, -10.0f);
-	glVertex2f(-12.0f, -10.0f);
-	glVertex2f(  0.0f, 20.0f);
-	glVertex2f(  0.0f, -6.0f);
-	glVertex2f(  0.0f, -6.0f);
-	glVertex2f(  0.0f, 20.0f);
-	glVertex2f( 12.0f, -10.0f);
-	glEnd();
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glBegin(GL_POINTS);
-	glVertex2f(0.0f, 0.0f);
-	glEnd();*/
 	glPopMatrix();
+
 	if (keys[XK_Up]) {
 		int i;
 		//draw thrust
@@ -783,12 +737,24 @@ void render(Game *g)
 			glColor3fv(a->color);
 			glPushMatrix();
 			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+			glBegin(GL_TRIANGLE_FAN);
+			float x = (float)a->radius * cos(999 * PI / 180.f);
+			float y = (float)a->radius * sin(999 * PI / 180.f);
+			for (int i = 0; i <= 1000; i++)
+			{
+				glVertex2f(x, y);
+				x = (float)a->radius * cos(i * PI / 180.f);
+				y = (float)a->radius * sin(i * PI / 180.f);
+			}
+			/*glColor3fv(a->color);
+			glPushMatrix();
+			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 			glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
 			glBegin(GL_LINE_LOOP);
 			//Log("%i verts\n",a->nverts);
 			for (int j=0; j<a->nverts; j++) {
 				glVertex2f(a->vert[j][0], a->vert[j][1]);
-			}
+			}*/
 			glEnd();
 			//glBegin(GL_LINES);
 			//	glVertex2f(0,   0);
