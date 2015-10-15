@@ -1,37 +1,13 @@
-//cs335 Spring 2015
-//
-//program: asteroids.cpp
-//author:  Gordon Griesel
-//date:    2014
-//mod spring 2015: added constructors
-//
-//This program is a game starting point for 335
-//
-// Possible requirements:
-// ----------------------
-// welcome screen
-// menu
-// multiple simultaneous key-press
-// show exhaust for thrusting
-// move the asteroids
-// collision detection for bullet on asteroid
-// collision detection for asteroid on ship
-// control of bullet launch point
-// life span for each bullet
-// cleanup the bullets that miss a target
-// split asteroids into pieces when blasted
-// random generation of new asteroids
-// score keeping
-// levels of difficulty
-// sound
-// use of textures
-//
-//
+/*
+	CS 335 Software Engineering Project
 
-/* Program: Lab 2
- * Author: Perry Huynh
- * Purpose: Introduction to frameworks
- */
+	Group Members:
+	Abdulelah Aldeshash
+	Eric Smith
+	Erik Juarez
+	Perry Huynh
+	Vincente Lara
+*/
 
 #include <iostream>
 #include <cstdlib>
@@ -87,16 +63,18 @@ struct timespec timePause;
 double physicsCountdown=0.0;
 double timeSpan=0.0;
 //unsigned int upause=0;
-double timeDiff(struct timespec *start, struct timespec *end) {
+double timeDiff(struct timespec *start, struct timespec *end)
+{
 	return (double)(end->tv_sec - start->tv_sec ) +
 			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
 }
-void timeCopy(struct timespec *dest, struct timespec *source) {
+void timeCopy(struct timespec *dest, struct timespec *source)
+{
 	memcpy(dest, source, sizeof(struct timespec));
 }
 //-----------------------------------------------------------------------------
 
-int xres=1024, yres=768;
+int xres=1280, yres=960;
 
 struct Ship {
 	Vec dir;
@@ -115,19 +93,6 @@ struct Ship {
 		color[0] = 1.0;
 		color[1] = 1.0;
 		color[2] = 1.0;
-	}
-};
-
-struct Bullet {
-	Vec pos;
-	Vec vel;
-	float color[3];
-	struct timespec time;
-	struct Bullet *prev;
-	struct Bullet *next;
-	Bullet() {
-		prev = NULL;
-		next = NULL;
 	}
 };
 
@@ -151,15 +116,11 @@ struct Asteroid {
 struct Game {
 	Ship ship;
 	Asteroid *ahead;
-	Bullet *bhead;
 	int nasteroids;
-	int nbullets;
 	struct timespec bulletTimer;
 	Game() {
 		ahead = NULL;
-		bhead = NULL;
 		nasteroids = 0;
-		nbullets = 0;
 	}
 };
 
@@ -342,7 +303,6 @@ void init(Game *g) {
 		g->nasteroids++;
 	}
 	g->ship.radius = 40.0;
-	clock_gettime(CLOCK_REALTIME, &g->bulletTimer);
 	memset(keys, 0, 65536);
 }
 
@@ -420,28 +380,6 @@ int check_keys(XEvent *e)
 			break;
 	}
 	return 0;
-}
-
-void deleteBullet(Game *g, Bullet *node)
-{
-	//remove a node from linked list
-	if (node->prev == NULL) {
-		if (node->next == NULL) {
-			g->bhead = NULL;
-		} else {
-			node->next->prev = NULL;
-			g->bhead = node->next;
-		}
-	} else {
-		if (node->next == NULL) {
-			node->prev->next = NULL;
-		} else {
-			node->prev->next = node->next;
-			node->next->prev = node->prev;
-		}
-	}
-	delete node;
-	node = NULL;
 }
 
 void deleteAsteroid(Game *g, Asteroid *node)
@@ -526,42 +464,7 @@ void physics(Game *g)
 	else if (g->ship.pos[1] > (float)yres) {
 		g->ship.pos[1] -= (float)yres;
 	}
-	//
-	//
-	//Update bullet positions
-	struct timespec bt;
-	clock_gettime(CLOCK_REALTIME, &bt);
-	Bullet *b = g->bhead;
-	while (b) {
-		//How long has bullet been alive?
-		double ts = timeDiff(&b->time, &bt);
-		if (ts > 2.5) {
-			//time to delete the bullet.
-			Bullet *saveb = b->next;
-			deleteBullet(g, b);
-			b = saveb;
-			g->nbullets--;
-			continue;
-		}
-		//move the bullet
-		b->pos[0] += b->vel[0];
-		b->pos[1] += b->vel[1];
-		//Check for collision with window edges
-		if (b->pos[0] < 0.0) {
-			b->pos[0] += (float)xres;
-		}
-		else if (b->pos[0] > (float)xres) {
-			b->pos[0] -= (float)xres;
-		}
-		else if (b->pos[1] < 0.0) {
-			b->pos[1] += (float)yres;
-		}
-		else if (b->pos[1] > (float)yres) {
-			b->pos[1] -= (float)yres;
-		}
-		b = b->next;
-	}
-	//
+
 	//Update asteroid positions
 	Asteroid *a = g->ahead;
 	while (a) {
@@ -592,51 +495,45 @@ void physics(Game *g)
 	a = g->ahead;
 	while (a) {
 		//is there a bullet within its radius?
-		Bullet *b = g->bhead;
-		while (b) {
-			d0 = b->pos[0] - a->pos[0];
-			d1 = b->pos[1] - a->pos[1];
-			dist = (d0*d0 + d1*d1);
-			if (dist < (a->radius*a->radius)) {
-				//std::cout << "asteroid hit." << std::endl;
-				//this asteroid is hit.
-				if (a->radius > 20.0) {
-					//break it into pieces.
-					Asteroid *ta = a;
+		d0 = g->ship.pos[0] - a->pos[0];
+		d1 = g->ship.pos[1] - a->pos[1];
+		d0 = g->ship.pos[0] - a->pos[0];
+		d1 = g->ship.pos[1] - a->pos[1];
+		dist = (d0*d0 + d1*d1);
+		if (dist < (a->radius*a->radius)) {
+			//std::cout << "asteroid hit." << std::endl;
+			//this asteroid is hit.
+			if (a->radius > 20.0) {
+				//break it into pieces.
+				Asteroid *ta = a;
+				buildAsteroidFragment(ta, a);
+				int r = rand()%10+5;
+				for (int k=0; k<r; k++) {
+					//get the next asteroid position in the array
+					Asteroid *ta = new Asteroid;
 					buildAsteroidFragment(ta, a);
-					int r = rand()%10+5;
-					for (int k=0; k<r; k++) {
-						//get the next asteroid position in the array
-						Asteroid *ta = new Asteroid;
-						buildAsteroidFragment(ta, a);
-						//add to front of asteroid linked list
-						ta->next = g->ahead;
-						if (g->ahead != NULL)
-							g->ahead->prev = ta;
-						g->ahead = ta;
-						g->nasteroids++;
-					}
-				} else {
-					a->color[0] = 1.0;
-					a->color[1] = 0.1;
-					a->color[2] = 0.1;
-					//asteroid is too small to break up
-					//delete the asteroid and bullet
-					Asteroid *savea = a->next;
-					deleteAsteroid(g, a);
-					a = savea;
-					g->nasteroids--;
+					//add to front of asteroid linked list
+					ta->next = g->ahead;
+					if (g->ahead != NULL)
+						g->ahead->prev = ta;
+					g->ahead = ta;
+					g->nasteroids++;
 				}
-				//delete the bullet...
-				Bullet *saveb = b->next;
-				deleteBullet(g, b);
-				b = saveb;
-				g->nbullets--;
-				if (a == NULL)
-					break;
-				continue;
+			} else {
+				a->color[0] = 1.0;
+				a->color[1] = 0.1;
+				a->color[2] = 0.1;
+				//asteroid is too small to break up
+				//delete the asteroid and bullet
+				Asteroid *savea = a->next;
+				deleteAsteroid(g, a);
+				a = savea;
+				g->nasteroids--;
+				g->ship.radius++;
 			}
-			b = b->next;
+			if (a == NULL)
+				break;
+			continue;
 		}
 		if (a == NULL)
 			break;
@@ -672,54 +569,20 @@ void physics(Game *g)
 			g->ship.vel[1] *= speed;
 		}
 	}
-	if (keys[XK_space]) {
-		//a little time between each bullet
-		struct timespec bt;
-		clock_gettime(CLOCK_REALTIME, &bt);
-		double ts = timeDiff(&g->bulletTimer, &bt);
-		if (ts > 0.1) {
-			timeCopy(&g->bulletTimer, &bt);
-			//shoot a bullet...
-			Bullet *b = new Bullet;
-			timeCopy(&b->time, &bt);
-			b->pos[0] = g->ship.pos[0];
-			b->pos[1] = g->ship.pos[1];
-			b->vel[0] = g->ship.vel[0];
-			b->vel[1] = g->ship.vel[1];
-			//convert ship angle to radians
-			Flt rad = ((g->ship.angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			b->pos[0] += xdir*20.0f;
-			b->pos[1] += ydir*20.0f;
-			b->vel[0] += xdir*6.0f + rnd()*0.1;
-			b->vel[1] += ydir*6.0f + rnd()*0.1;
-			b->color[0] = 1.0f;
-			b->color[1] = 1.0f;
-			b->color[2] = 1.0f;
-			//add to front of bullet linked list
-			b->next = g->bhead;
-			if (g->bhead != NULL)
-				g->bhead->prev = b;
-			g->bhead = b;
-			g->nbullets++;
-		}
-	}
 }
 
 void render(Game *g)
 {
 	//float wid;
-	Rect r;
+	//Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//
-	r.bot = yres - 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
-	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
-	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
+	//r.bot = yres - 20;
+	//r.left = 10;
+	//r.center = 0;
+	//ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
+	//ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
+	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
 	//-------------------------------------------------------------------------
 	//Draw the ship
 	glColor3fv(g->ship.color);
@@ -728,31 +591,17 @@ void render(Game *g)
 	//float angle = atan2(ship.dir[1], ship.dir[0]);
 	glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
 	glBegin(GL_TRIANGLE_FAN);
-	float x = (float)g->ship.radius * cos(499 * 3.14 / 180.f);
-	float y = (float)g->ship.radius * sin(499 * 3.14 / 180.f);
+	float x = (float)g->ship.radius * cos(499 * PI / 180.f);
+	float y = (float)g->ship.radius * sin(499 * PI / 180.f);
 	for (int i = 0; i <= 500; i++)
 	{
 		glVertex2f(x, y);
-		x = (float)g->ship.radius * cos(i * 3.14 / 180.f);
-		y = (float)g->ship.radius * sin(i * 3.14 / 180.f);
+		x = (float)g->ship.radius * cos(i * PI / 180.f);
+		y = (float)g->ship.radius * sin(i * PI / 180.f);
 	}
 	glEnd();
-	/*glBegin(GL_TRIANGLES);
-	glVertex2f(-10.0f, -10.0f);
-	glVertex2f(  0.0f, 20.0f);
-	glVertex2f( 10.0f, -10.0f);
-	glVertex2f(-12.0f, -10.0f);
-	glVertex2f(  0.0f, 20.0f);
-	glVertex2f(  0.0f, -6.0f);
-	glVertex2f(  0.0f, -6.0f);
-	glVertex2f(  0.0f, 20.0f);
-	glVertex2f( 12.0f, -10.0f);
-	glEnd();
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glBegin(GL_POINTS);
-	glVertex2f(0.0f, 0.0f);
-	glEnd();*/
 	glPopMatrix();
+
 	if (keys[XK_Up]) {
 		int i;
 		//draw thrust
@@ -783,12 +632,24 @@ void render(Game *g)
 			glColor3fv(a->color);
 			glPushMatrix();
 			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+			glBegin(GL_TRIANGLE_FAN);
+			float x = (float)a->radius * cos(999 * PI / 180.f);
+			float y = (float)a->radius * sin(999 * PI / 180.f);
+			for (int i = 0; i <= 1000; i++)
+			{
+				glVertex2f(x, y);
+				x = (float)a->radius * cos(i * PI / 180.f);
+				y = (float)a->radius * sin(i * PI / 180.f);
+			}
+			/*glColor3fv(a->color);
+			glPushMatrix();
+			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 			glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
 			glBegin(GL_LINE_LOOP);
 			//Log("%i verts\n",a->nverts);
 			for (int j=0; j<a->nverts; j++) {
 				glVertex2f(a->vert[j][0], a->vert[j][1]);
-			}
+			}*/
 			glEnd();
 			//glBegin(GL_LINES);
 			//	glVertex2f(0,   0);
@@ -800,28 +661,6 @@ void render(Game *g)
 			glVertex2f(a->pos[0], a->pos[1]);
 			glEnd();
 			a = a->next;
-		}
-	}
-	//-------------------------------------------------------------------------
-	//Draw the bullets
-	{
-		Bullet *b = g->bhead;
-		while (b) {
-			//Log("draw bullet...\n");
-			glColor3f(1.0, 1.0, 1.0);
-			glBegin(GL_POINTS);
-			glVertex2f(b->pos[0],      b->pos[1]);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-			glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-			glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-			glColor3f(0.8, 0.8, 0.8);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-			glEnd();
-			b = b->next;
 		}
 	}
 }
