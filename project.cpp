@@ -495,13 +495,14 @@ void physics(Game *g)
 	a = g->ahead;
 	while (a) {
 		//is there a bullet within its radius?
-		d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
-		d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
-		d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
-		d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
-		dist = (d0*d0 + d1*d1);
-		if (dist < (a->radius*a->radius)) {
-			//std::cout << "asteroid hit." << std::endl;
+		d0 = g->ship.pos[0] - a->pos[0];
+		d1 = g->ship.pos[1] - a->pos[1];
+		//d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
+		//d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
+		dist = sqrt(d0*d0 + d1*d1);
+		//if (dist < (a->radius*a->radius)){
+		if (dist < (a->radius + g->ship.radius)) {
+			std::cout << "asteroid hit." << std::endl;
 			//this asteroid is hit.
 			//break it into pieces.
 			a->color[0] = 1.0;
