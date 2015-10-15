@@ -495,42 +495,25 @@ void physics(Game *g)
 	a = g->ahead;
 	while (a) {
 		//is there a bullet within its radius?
-		d0 = g->ship.pos[0] - a->pos[0];
-		d1 = g->ship.pos[1] - a->pos[1];
-		d0 = g->ship.pos[0] - a->pos[0];
-		d1 = g->ship.pos[1] - a->pos[1];
+		d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
+		d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
+		d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
+		d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
 		dist = (d0*d0 + d1*d1);
 		if (dist < (a->radius*a->radius)) {
 			//std::cout << "asteroid hit." << std::endl;
 			//this asteroid is hit.
-			if (a->radius > 20.0) {
-				//break it into pieces.
-				Asteroid *ta = a;
-				buildAsteroidFragment(ta, a);
-				int r = rand()%10+5;
-				for (int k=0; k<r; k++) {
-					//get the next asteroid position in the array
-					Asteroid *ta = new Asteroid;
-					buildAsteroidFragment(ta, a);
-					//add to front of asteroid linked list
-					ta->next = g->ahead;
-					if (g->ahead != NULL)
-						g->ahead->prev = ta;
-					g->ahead = ta;
-					g->nasteroids++;
-				}
-			} else {
-				a->color[0] = 1.0;
-				a->color[1] = 0.1;
-				a->color[2] = 0.1;
-				//asteroid is too small to break up
-				//delete the asteroid and bullet
-				Asteroid *savea = a->next;
-				deleteAsteroid(g, a);
-				a = savea;
-				g->nasteroids--;
-				g->ship.radius++;
-			}
+			//break it into pieces.
+			a->color[0] = 1.0;
+			a->color[1] = 0.1;
+			a->color[2] = 0.1;
+			//asteroid is too small to break up
+			//delete the asteroid and bullet
+			Asteroid *savea = a->next;
+			deleteAsteroid(g, a);
+			a = savea;
+			g->nasteroids--;
+			g->ship.radius ++;
 			if (a == NULL)
 				break;
 			continue;
