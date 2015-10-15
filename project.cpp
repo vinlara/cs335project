@@ -132,8 +132,8 @@ void initXWindows(void);
 void init_opengl(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
-void check_mouse(XEvent *e);
-int check_keys(XEvent *e);
+void checkMouse(XEvent *e, Game *g);
+int checkKeys(XEvent *e);
 void init(Game *g);
 void init_sounds(void);
 void physics(Game *game);
@@ -155,8 +155,8 @@ int main(void)
 			XEvent e;
 			XNextEvent(dpy, &e);
 			check_resize(&e);
-			check_mouse(&e);
-			done = check_keys(&e);
+			checkMouse(&e, &game);
+			done = checkKeys(&e);
 		}
 		clock_gettime(CLOCK_REALTIME, &timeCurrent);
 		timeSpan = timeDiff(&timeStart, &timeCurrent);
@@ -214,7 +214,7 @@ void initXWindows(void)
 	Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
 	swa.colormap = cmap;
 	swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
-		StructureNotifyMask | SubstructureNotifyMask;
+		StructureNotifyMask | SubstructureNotifyMask | PointerMotionMask;
 	win = XCreateWindow(dpy, root, 0, 0, xres, yres, 0,
 			vi->depth, InputOutput, vi->visual,
 			CWColormap | CWEventMask, &swa);
@@ -314,11 +314,11 @@ void normalize(Vec v) {
 		return;
 	}
 	len = 1.0f / sqrt(len);
-	v[0] *= len;
-	v[1] *= len;
+	v[0] *= len * 2;
+	v[1] *= len * 2;
 }
 
-void check_mouse(XEvent *e)
+void checkMouse(XEvent *e, Game *g)
 {
 	//Did the mouse move?
 	//Was a mouse button clicked?
@@ -340,10 +340,18 @@ void check_mouse(XEvent *e)
 		//Mouse moved
 		savex = e->xbutton.x;
 		savey = e->xbutton.y;
+		int y = yres - e->xbutton.y;
+		float dx = savex - g->ship.pos[0];
+		float dy = y - g->ship.pos[1];
+		float len = sqrt(dx * dx + dy * dy);
+		g->ship.vel[0] = dx / len;
+		g->ship.vel[1] = dy / len;
+		normalize(g->ship.vel);
+		return;
 	}
 }
 
-int check_keys(XEvent *e)
+int checkKeys(XEvent *e)
 {
 	//keyboard input?
 	static int shift=0;
@@ -524,7 +532,7 @@ void physics(Game *g)
 	}
 	//---------------------------------------------------
 	//check keys pressed now
-	if (keys[XK_Left]) {
+	/*if (keys[XK_Left]) {
 		g->ship.angle += 4.0;
 		if (g->ship.angle >= 360.0f)
 			g->ship.angle -= 360.0f;
@@ -551,21 +559,12 @@ void physics(Game *g)
 			g->ship.vel[0] *= speed;
 			g->ship.vel[1] *= speed;
 		}
-	}
+	}*/
 }
 
 void render(Game *g)
 {
-	//float wid;
-	//Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
-	//
-	//r.bot = yres - 20;
-	//r.left = 10;
-	//r.center = 0;
-	//ggprint8b(&r, 16, 0x00ff0000, "cs335 - Asteroids");
-	//ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g->nbullets);
-	//ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g->nasteroids);
 	//-------------------------------------------------------------------------
 	//Draw the ship
 	glColor3fv(g->ship.color);
