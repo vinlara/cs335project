@@ -63,11 +63,13 @@ struct timespec timePause;
 double physicsCountdown=0.0;
 double timeSpan=0.0;
 //unsigned int upause=0;
-double timeDiff(struct timespec *start, struct timespec *end) {
+double timeDiff(struct timespec *start, struct timespec *end)
+{
 	return (double)(end->tv_sec - start->tv_sec ) +
 			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
 }
-void timeCopy(struct timespec *dest, struct timespec *source) {
+void timeCopy(struct timespec *dest, struct timespec *source)
+{
 	memcpy(dest, source, sizeof(struct timespec));
 }
 //-----------------------------------------------------------------------------
@@ -94,19 +96,6 @@ struct Ship {
 	}
 };
 
-struct Bullet {
-	Vec pos;
-	Vec vel;
-	float color[3];
-	struct timespec time;
-	struct Bullet *prev;
-	struct Bullet *next;
-	Bullet() {
-		prev = NULL;
-		next = NULL;
-	}
-};
-
 struct Asteroid {
 	Vec pos;
 	Vec vel;
@@ -127,15 +116,11 @@ struct Asteroid {
 struct Game {
 	Ship ship;
 	Asteroid *ahead;
-	Bullet *bhead;
 	int nasteroids;
-	int nbullets;
 	struct timespec bulletTimer;
 	Game() {
 		ahead = NULL;
-		bhead = NULL;
 		nasteroids = 0;
-		nbullets = 0;
 	}
 };
 
@@ -318,7 +303,6 @@ void init(Game *g) {
 		g->nasteroids++;
 	}
 	g->ship.radius = 40.0;
-	clock_gettime(CLOCK_REALTIME, &g->bulletTimer);
 	memset(keys, 0, 65536);
 }
 
@@ -396,28 +380,6 @@ int check_keys(XEvent *e)
 			break;
 	}
 	return 0;
-}
-
-void deleteBullet(Game *g, Bullet *node)
-{
-	//remove a node from linked list
-	if (node->prev == NULL) {
-		if (node->next == NULL) {
-			g->bhead = NULL;
-		} else {
-			node->next->prev = NULL;
-			g->bhead = node->next;
-		}
-	} else {
-		if (node->next == NULL) {
-			node->prev->next = NULL;
-		} else {
-			node->prev->next = node->next;
-			node->next->prev = node->prev;
-		}
-	}
-	delete node;
-	node = NULL;
 }
 
 void deleteAsteroid(Game *g, Asteroid *node)
@@ -502,42 +464,7 @@ void physics(Game *g)
 	else if (g->ship.pos[1] > (float)yres) {
 		g->ship.pos[1] -= (float)yres;
 	}
-	//
-	//
-	//Update bullet positions
-	struct timespec bt;
-	clock_gettime(CLOCK_REALTIME, &bt);
-	Bullet *b = g->bhead;
-	while (b) {
-		//How long has bullet been alive?
-		double ts = timeDiff(&b->time, &bt);
-		if (ts > 2.5) {
-			//time to delete the bullet.
-			Bullet *saveb = b->next;
-			deleteBullet(g, b);
-			b = saveb;
-			g->nbullets--;
-			continue;
-		}
-		//move the bullet
-		b->pos[0] += b->vel[0];
-		b->pos[1] += b->vel[1];
-		//Check for collision with window edges
-		if (b->pos[0] < 0.0) {
-			b->pos[0] += (float)xres;
-		}
-		else if (b->pos[0] > (float)xres) {
-			b->pos[0] -= (float)xres;
-		}
-		else if (b->pos[1] < 0.0) {
-			b->pos[1] += (float)yres;
-		}
-		else if (b->pos[1] > (float)yres) {
-			b->pos[1] -= (float)yres;
-		}
-		b = b->next;
-	}
-	//
+
 	//Update asteroid positions
 	Asteroid *a = g->ahead;
 	while (a) {
@@ -570,6 +497,8 @@ void physics(Game *g)
 		//is there a bullet within its radius?
 		d0 = g->ship.pos[0] - a->pos[0];
 		d1 = g->ship.pos[1] - a->pos[1];
+		d0 = g->ship.pos[0] - a->pos[0];
+		d1 = g->ship.pos[1] - a->pos[1];
 		dist = (d0*d0 + d1*d1);
 		if (dist < (a->radius*a->radius)) {
 			//std::cout << "asteroid hit." << std::endl;
@@ -600,7 +529,7 @@ void physics(Game *g)
 				deleteAsteroid(g, a);
 				a = savea;
 				g->nasteroids--;
-				g->ship.radius += 10;
+				g->ship.radius++;
 			}
 			if (a == NULL)
 				break;
@@ -638,40 +567,6 @@ void physics(Game *g)
 			normalize(g->ship.vel);
 			g->ship.vel[0] *= speed;
 			g->ship.vel[1] *= speed;
-		}
-	}
-	if (keys[XK_space]) {
-		//a little time between each bullet
-		struct timespec bt;
-		clock_gettime(CLOCK_REALTIME, &bt);
-		double ts = timeDiff(&g->bulletTimer, &bt);
-		if (ts > 0.1) {
-			timeCopy(&g->bulletTimer, &bt);
-			//shoot a bullet...
-			Bullet *b = new Bullet;
-			timeCopy(&b->time, &bt);
-			b->pos[0] = g->ship.pos[0];
-			b->pos[1] = g->ship.pos[1];
-			b->vel[0] = g->ship.vel[0];
-			b->vel[1] = g->ship.vel[1];
-			//convert ship angle to radians
-			Flt rad = ((g->ship.angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			b->pos[0] += xdir*20.0f;
-			b->pos[1] += ydir*20.0f;
-			b->vel[0] += xdir*6.0f + rnd()*0.1;
-			b->vel[1] += ydir*6.0f + rnd()*0.1;
-			b->color[0] = 1.0f;
-			b->color[1] = 1.0f;
-			b->color[2] = 1.0f;
-			//add to front of bullet linked list
-			b->next = g->bhead;
-			if (g->bhead != NULL)
-				g->bhead->prev = b;
-			g->bhead = b;
-			g->nbullets++;
 		}
 	}
 }
@@ -766,28 +661,6 @@ void render(Game *g)
 			glVertex2f(a->pos[0], a->pos[1]);
 			glEnd();
 			a = a->next;
-		}
-	}
-	//-------------------------------------------------------------------------
-	//Draw the bullets
-	{
-		Bullet *b = g->bhead;
-		while (b) {
-			//Log("draw bullet...\n");
-			glColor3f(1.0, 1.0, 1.0);
-			glBegin(GL_POINTS);
-			glVertex2f(b->pos[0],      b->pos[1]);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]);
-			glVertex2f(b->pos[0],      b->pos[1]-1.0f);
-			glVertex2f(b->pos[0],      b->pos[1]+1.0f);
-			glColor3f(0.8, 0.8, 0.8);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]-1.0f);
-			glVertex2f(b->pos[0]-1.0f, b->pos[1]+1.0f);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]-1.0f);
-			glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
-			glEnd();
-			b = b->next;
 		}
 	}
 }
