@@ -273,7 +273,7 @@ void check_resize(XEvent *e)
 void init(Game *g) {
 	g->ship.radius = 40.0;
 	//build 10 asteroids...
-	for (int j=0; j<10; j++) {
+	for (int j=0; j<30; j++) {
 		Asteroid *a = new Asteroid;
 		a->nverts = 8;
 		a->radius = ( rnd() * 2.0 * g->ship.radius ) - ( rnd() * 0.8 * g->ship.radius  );
@@ -290,18 +290,19 @@ void init(Game *g) {
 		a->pos[2] = 0.0f;
 		a->angle = 0.0;
 		a->rotate = rnd() * 4.0 - 2.0;
-        if ( a->radius < g->ship.radius )
-        {
-            a->color[0] = 0.9;
-		    a->color[1] = 0.6;
-		    a->color[2] = 0.3;
-        }
-        else {
-            a->color[0] = 0.3;
-            a->color[1] = 0.4;
-            a->color[2] = 0.5;
-        }
-        a->vel[0] = (Flt)(rnd()*2.0-1.0);
+    if (a->radius < g->ship.radius)
+    {
+    	a->color[0] = 0.9;
+    	a->color[1] = 0.6;
+    	a->color[2] = 0.3;
+    }
+    else
+		{
+        a->color[0] = 0.3;
+        a->color[1] = 0.4;
+        a->color[2] = 0.5;
+    }
+    a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
 		//std::cout << "asteroid" << std::endl;
 		//add to front of linked list
@@ -435,32 +436,6 @@ void deleteAsteroid(Game *g, Asteroid *node)
 	}
 }
 
-void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
-{
-	//build ta from a
-	ta->nverts = 8;
-	ta->radius = a->radius / 2.0;
-	Flt r2 = ta->radius / 2.0;
-	Flt angle = 0.0f;
-	Flt inc = (PI * 2.0) / (Flt)ta->nverts;
-	for (int i=0; i<ta->nverts; i++) {
-		ta->vert[i][0] = sin(angle) * (r2 + rnd() * ta->radius);
-		ta->vert[i][1] = cos(angle) * (r2 + rnd() * ta->radius);
-		angle += inc;
-	}
-	ta->pos[0] = a->pos[0] + rnd()*10.0-5.0;
-	ta->pos[1] = a->pos[1] + rnd()*10.0-5.0;
-	ta->pos[2] = 0.0f;
-	ta->angle = 0.0;
-	ta->rotate = a->rotate + (rnd() * 4.0 - 2.0);
-	ta->color[0] = 0.8;
-	ta->color[1] = 0.8;
-	ta->color[2] = 0.7;
-	ta->vel[0] = a->vel[0] + (rnd()*2.0-1.0);
-	ta->vel[1] = a->vel[1] + (rnd()*2.0-1.0);
-	//std::cout << "frag" << std::endl;
-}
-
 void physics(Game *g)
 {
 	Flt d0,d1,dist;
@@ -510,19 +485,11 @@ void physics(Game *g)
 		d1 = g->ship.pos[1] - a->pos[1];
 		dist = sqrt(d0*d0 + d1*d1);
 		if (dist < (a->radius + g->ship.radius)) {
-			//std::cout << "asteroid hit." << std::endl;
-			//this asteroid is hit.
-			//break it into pieces.
-			a->color[0] = 1.0;
-			a->color[1] = 0.1;
-			a->color[2] = 0.1;
-			//asteroid is too small to break up
-			//delete the asteroid and bullet
 			Asteroid *savea = a->next;
 			deleteAsteroid(g, a);
 			a = savea;
 			g->nasteroids--;
-			g->ship.radius ++;
+			g->ship.radius++;
 			if (a == NULL)
 				break;
 			continue;
@@ -555,28 +522,26 @@ void render(Game *g)
 	glPopMatrix();
 
 	//Draw the asteroids
-	{
-		Asteroid *a = g->ahead;
-		while (a) {
-			glColor3fv(a->color);
-			glPushMatrix();
-			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-			glBegin(GL_TRIANGLE_FAN);
-			float x = (float)a->radius * cos(999 * PI / 180.f);
-			float y = (float)a->radius * sin(999 * PI / 180.f);
-			for (int i = 0; i <= 1000; i++)
-			{
-				glVertex2f(x, y);
-				x = (float)a->radius * cos(i * PI / 180.f);
-				y = (float)a->radius * sin(i * PI / 180.f);
-			}
-			glEnd();
-			glPopMatrix();
-			glColor3f(1.0f, 0.0f, 0.0f);
-			glBegin(GL_POINTS);
-			glVertex2f(a->pos[0], a->pos[1]);
-			glEnd();
-			a = a->next;
+	Asteroid *a = g->ahead;
+	while (a) {
+		glColor3fv(a->color);
+		glPushMatrix();
+		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+		glBegin(GL_TRIANGLE_FAN);
+		float x = (float)a->radius * cos(999 * PI / 180.f);
+		float y = (float)a->radius * sin(999 * PI / 180.f);
+		for (int i = 0; i <= 1000; i++)
+		{
+			glVertex2f(x, y);
+			x = (float)a->radius * cos(i * PI / 180.f);
+			y = (float)a->radius * sin(i * PI / 180.f);
 		}
+		glEnd();
+		glPopMatrix();
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glBegin(GL_POINTS);
+		glVertex2f(a->pos[0], a->pos[1]);
+		glEnd();
+		a = a->next;
 	}
 }
