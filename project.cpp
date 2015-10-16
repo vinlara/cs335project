@@ -502,21 +502,14 @@ void physics(Game *g)
 		a->angle += a->rotate;
 		a = a->next;
 	}
-	//
-	//Asteroid collision with bullets?
-	//If collision detected:
-	//     1. delete the bullet
-	//     2. break the asteroid into pieces
-	//        if asteroid small, delete it
+
 	a = g->ahead;
 	while (a) {
 		//is there a bullet within its radius?
-		d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
-		d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
-		d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
-		d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
-		dist = (d0*d0 + d1*d1);
-		if (dist < (a->radius*a->radius)) {
+		d0 = g->ship.pos[0] - a->pos[0];
+		d1 = g->ship.pos[1] - a->pos[1];
+		dist = sqrt(d0*d0 + d1*d1);
+		if (dist < (a->radius + g->ship.radius)) {
 			//std::cout << "asteroid hit." << std::endl;
 			//this asteroid is hit.
 			//break it into pieces.
