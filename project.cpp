@@ -360,7 +360,7 @@ void checkMouse(XEvent *e, Game *g)
 	}
 }
 
-int checkKeys(XEvent *e)
+addint checkKeys(XEvent *e)
 {
 	//keyboard input?
 	static int shift=0;
