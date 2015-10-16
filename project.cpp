@@ -271,11 +271,12 @@ void check_resize(XEvent *e)
 }
 
 void init(Game *g) {
+	g->ship.radius = 40.0;
 	//build 10 asteroids...
 	for (int j=0; j<10; j++) {
 		Asteroid *a = new Asteroid;
 		a->nverts = 8;
-		a->radius = rnd()*80.0 + 40.0;
+		a->radius = ( rnd() * 2.0 * g->ship.radius ) - ( rnd() * 0.8 * g->ship.radius  );
 		Flt r2 = a->radius / 2.0;
 		Flt angle = 0.0f;
 		Flt inc = (PI * 2.0) / (Flt)a->nverts;
@@ -289,10 +290,18 @@ void init(Game *g) {
 		a->pos[2] = 0.0f;
 		a->angle = 0.0;
 		a->rotate = rnd() * 4.0 - 2.0;
-		a->color[0] = 0.8;
-		a->color[1] = 0.8;
-		a->color[2] = 0.7;
-		a->vel[0] = (Flt)(rnd()*2.0-1.0);
+        if ( a->radius < g->ship.radius )
+        {
+            a->color[0] = 0.9;
+		    a->color[1] = 0.6;
+		    a->color[2] = 0.3;
+        }
+        else {
+            a->color[0] = 0.3;
+            a->color[1] = 0.4;
+            a->color[2] = 0.5;
+        }
+        a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
 		//std::cout << "asteroid" << std::endl;
 		//add to front of linked list
@@ -302,7 +311,6 @@ void init(Game *g) {
 		g->ahead = a;
 		g->nasteroids++;
 	}
-	g->ship.radius = 40.0;
 	memset(keys, 0, 65536);
 }
 
