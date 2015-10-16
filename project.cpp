@@ -530,36 +530,6 @@ void physics(Game *g)
 			break;
 		a = a->next;
 	}
-	//---------------------------------------------------
-	//check keys pressed now
-	/*if (keys[XK_Left]) {
-		g->ship.angle += 4.0;
-		if (g->ship.angle >= 360.0f)
-			g->ship.angle -= 360.0f;
-	}
-	if (keys[XK_Right]) {
-		g->ship.angle -= 4.0;
-		if (g->ship.angle < 0.0f)
-			g->ship.angle += 360.0f;
-	}
-	if (keys[XK_Up]) {
-		//apply thrust
-		//convert ship angle to radians
-		Flt rad = ((g->ship.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		g->ship.vel[0] += xdir*0.02f;
-		g->ship.vel[1] += ydir*0.02f;
-		Flt speed = sqrt(g->ship.vel[0]*g->ship.vel[0]+
-										g->ship.vel[1]*g->ship.vel[1]);
-		if (speed > 10.0f) {
-			speed = 10.0f;
-			normalize(g->ship.vel);
-			g->ship.vel[0] *= speed;
-			g->ship.vel[1] *= speed;
-		}
-	}*/
 }
 
 void render(Game *g)
@@ -570,7 +540,6 @@ void render(Game *g)
 	glColor3fv(g->ship.color);
 	glPushMatrix();
 	glTranslatef(g->ship.pos[0], g->ship.pos[1], g->ship.pos[2]);
-	//float angle = atan2(ship.dir[1], ship.dir[0]);
 	glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
 	glBegin(GL_TRIANGLE_FAN);
 	float x = (float)g->ship.radius * cos(499 * PI / 180.f);
@@ -584,33 +553,10 @@ void render(Game *g)
 	glEnd();
 	glPopMatrix();
 
-	if (keys[XK_Up]) {
-		int i;
-		//draw thrust
-		Flt rad = ((g->ship.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		Flt xs,ys,xe,ye,r;
-		glBegin(GL_LINES);
-		for (i=0; i<16; i++) {
-			xs = -xdir * 11.0f + rnd() * 4.0 - 2.0;
-			ys = -ydir * 11.0f + rnd() * 4.0 - 2.0;
-			r = rnd()*40.0+40.0;
-			xe = -xdir * r + rnd() * 18.0 - 9.0;
-			ye = -ydir * r + rnd() * 18.0 - 9.0;
-			glColor3f(rnd()*.3+.7, rnd()*.3+.7, 0);
-			glVertex2f(g->ship.pos[0]+xs,g->ship.pos[1]+ys);
-			glVertex2f(g->ship.pos[0]+xe,g->ship.pos[1]+ye);
-		}
-		glEnd();
-	}
-	//-------------------------------------------------------------------------
 	//Draw the asteroids
 	{
 		Asteroid *a = g->ahead;
 		while (a) {
-			//Log("draw asteroid...\n");
 			glColor3fv(a->color);
 			glPushMatrix();
 			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
@@ -623,20 +569,7 @@ void render(Game *g)
 				x = (float)a->radius * cos(i * PI / 180.f);
 				y = (float)a->radius * sin(i * PI / 180.f);
 			}
-			/*glColor3fv(a->color);
-			glPushMatrix();
-			glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-			glRotatef(a->angle, 0.0f, 0.0f, 1.0f);
-			glBegin(GL_LINE_LOOP);
-			//Log("%i verts\n",a->nverts);
-			for (int j=0; j<a->nverts; j++) {
-				glVertex2f(a->vert[j][0], a->vert[j][1]);
-			}*/
 			glEnd();
-			//glBegin(GL_LINES);
-			//	glVertex2f(0,   0);
-			//	glVertex2f(a->radius, 0);
-			//glEnd();
 			glPopMatrix();
 			glColor3f(1.0f, 0.0f, 0.0f);
 			glBegin(GL_POINTS);
