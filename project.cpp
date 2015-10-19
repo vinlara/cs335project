@@ -729,9 +729,9 @@ void render(Game *g)
 	//glVertex2f(-10.0f, -10.0f);
 	//glVertex2f(  0.0f, -20.0f);
 	//glVertex2f( 10.0f, -10.0f);
-	//glVertex2f(-12.0f, -10.0f);
-	//glVertex2f(  0.0f, 20.0f);
-	//glVertex2f(  0.0f, -6.0f);
+	glVertex2f(-12.0f, -10.0f);
+	glVertex2f(  0.0f, 20.0f);
+	glVertex2f(  0.0f, -6.0f);
 	glVertex2f(  0.0f, -6.0f);
 	glVertex2f(  0.0f, 20.0f);
 	glVertex2f( 12.0f, -10.0f);
