@@ -23,9 +23,9 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "log.h"
-extern "C" {
+/*extern "C" {
 	#include "fonts.h"
-}
+}*/
 
 //defined types
 typedef float Flt;
@@ -170,7 +170,7 @@ int main(void)
 		glXSwapBuffers(dpy, win);
 	}
 	cleanupXWindows();
-	cleanup_fonts();
+	//cleanup_fonts();
 	logClose();
 	return 0;
 }
@@ -253,8 +253,8 @@ void init_opengl(void)
 	//Clear the screen to black
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
-	glEnable(GL_TEXTURE_2D);
-	initialize_fonts();
+	//glEnable(GL_TEXTURE_2D);
+	//initialize_fonts();
 }
 
 void check_resize(XEvent *e)
@@ -360,7 +360,7 @@ void checkMouse(XEvent *e, Game *g)
 	}
 }
 
-addint checkKeys(XEvent *e)
+int checkKeys(XEvent *e)
 {
 	//keyboard input?
 	static int shift=0;
