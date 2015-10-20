@@ -253,11 +253,7 @@ void init_opengl(void)
 	//Clear the screen to black
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
-<<<<<<< HEAD
-	glEnable(GL_TEXTURE_2D);
-=======
 	//glEnable(GL_TEXTURE_2D);
->>>>>>> upstream/master
 	//initialize_fonts();
 }
 
