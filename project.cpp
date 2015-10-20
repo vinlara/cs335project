@@ -82,6 +82,7 @@ struct Ship {
 	Vec vel;
 	float angle;
 	float color[3];
+	Flt radius;
 	Ship() {
 		VecZero(dir);
 		pos[0] = (Flt)(xres/2);
