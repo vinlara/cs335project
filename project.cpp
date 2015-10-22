@@ -1,3 +1,4 @@
+// :D
 /*
 	CS 335 Software Engineering Project
 
@@ -23,6 +24,7 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "log.h"
+//#include "perryH.h"
 /*extern "C" {
 	#include "fonts.h"
 }*/
