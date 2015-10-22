@@ -139,7 +139,6 @@ void init(Game *g);
 void init_sounds(void);
 void physics(Game *game);
 void render(Game *game);
-extern void normalize(Vec v);
 
 int main(void)
 {
@@ -317,7 +316,7 @@ void init(Game *g) {
 	memset(keys, 0, 65536);
 }
 
-/*void normalize(Vec v) {
+void normalize(Vec v) {
 	Flt len = v[0]*v[0] + v[1]*v[1];
 	if (len == 0.0f) {
 		v[0] = 1.0;
@@ -327,7 +326,7 @@ void init(Game *g) {
 	len = 1.0f / sqrt(len);
 	v[0] *= len * 2;
 	v[1] *= len * 2;
-}*/
+}
 
 void checkMouse(XEvent *e, Game *g)
 {
