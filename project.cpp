@@ -140,6 +140,7 @@ void init_sounds(void);
 void physics(Game *game);
 void render(Game *game);
 extern void normalize(Vec v);
+extern void deleteAsteroid(Game *game, Asteroid *node);
 
 int main(void)
 {
@@ -401,6 +402,7 @@ int checkKeys(XEvent *e)
 	return 0;
 }
 
+/*
 void deleteAsteroid(Game *g, Asteroid *node)
 {
 	//remove a node from linked list
@@ -437,6 +439,7 @@ void deleteAsteroid(Game *g, Asteroid *node)
 		}
 	}
 }
+*/
 
 void physics(Game *g)
 {
