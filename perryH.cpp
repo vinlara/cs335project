@@ -2,26 +2,13 @@
 // Perry Huynh
 // Lab 6
 //
+#include <cmath>
 
-void checkMouse(XEvent *e, Game *g)
-{
-	if (g->ship.savex != e->xbutton.x || g->ship.savey != e->xbutton.y)
-	{
-		//Mouse moved
-		g->ship.savex = e->xbutton.x;
-		g->ship.savey = e->xbutton.y;
-		int y = yres - e->xbutton.y;
-		float dx = g->ship.savex - g->ship.pos[0];
-		float dy = y - g->ship.pos[1];
-		float len = sqrt(dx * dx + dy * dy);
-		g->ship.vel[0] = dx / len;
-		g->ship.vel[1] = dy / len;
-		normalize(g->ship.vel);
-		return;
-	}
-}
+typedef float Flt;
+typedef float Vec[3];
+typedef Flt	Matrix[4][4];
 
-void normalize(Vec v)
+extern void normalize(Vec v)
 {
 	Flt len = v[0]*v[0] + v[1]*v[1];
 	if (len == 0.0f)

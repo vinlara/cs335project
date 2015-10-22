@@ -82,8 +82,8 @@ struct Ship {
 	Vec pos;
 	Vec vel;
 	float angle;
-	float color[3];
 	Flt radius;
+	float color[3];
 	Ship() {
 		VecZero(dir);
 		pos[0] = (Flt)(xres/2);
@@ -139,7 +139,6 @@ void init(Game *g);
 void init_sounds(void);
 void physics(Game *game);
 void render(Game *game);
-extern void normalize(Vec v);
 
 int main(void)
 {
@@ -306,7 +305,7 @@ void init(Game *g) {
     }
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
-		std::cout << "asteroid" << std::endl;
+		//std::cout << "asteroid" << std::endl;
 		//add to front of linked list
 		a->next = g->ahead;
 		if (g->ahead != NULL)
@@ -317,7 +316,7 @@ void init(Game *g) {
 	memset(keys, 0, 65536);
 }
 
-/*void normalize(Vec v) {
+void normalize(Vec v) {
 	Flt len = v[0]*v[0] + v[1]*v[1];
 	if (len == 0.0f) {
 		v[0] = 1.0;
@@ -327,7 +326,7 @@ void init(Game *g) {
 	len = 1.0f / sqrt(len);
 	v[0] *= len * 2;
 	v[1] *= len * 2;
-}*/
+}
 
 void checkMouse(XEvent *e, Game *g)
 {
@@ -485,19 +484,8 @@ void physics(Game *g)
 		//is there a bullet within its radius?
 		d0 = g->ship.pos[0] - a->pos[0];
 		d1 = g->ship.pos[1] - a->pos[1];
-		//d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
-		//d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
 		dist = sqrt(d0*d0 + d1*d1);
-		//if (dist < (a->radius*a->radius)){
 		if (dist < (a->radius + g->ship.radius)) {
-			std::cout << "asteroid hit." << std::endl;
-			//this asteroid is hit.
-			//break it into pieces.
-			a->color[0] = 1.0;
-			a->color[1] = 0.1;
-			a->color[2] = 0.1;
-			//asteroid is too small to break up
-			//delete the asteroid and bullet
 			Asteroid *savea = a->next;
 			deleteAsteroid(g, a);
 			a = savea;
