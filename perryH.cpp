@@ -1,3 +1,8 @@
+//
+// Perry Huynh
+// Lab 6
+//
+
 void checkMouse(XEvent *e, Game *g)
 {
 	if (g->ship.savex != e->xbutton.x || g->ship.savey != e->xbutton.y)
