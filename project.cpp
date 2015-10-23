@@ -130,7 +130,7 @@ int keys[65536];
 
 //function prototypes
 void initXWindows(void);
-void init_opengl(void);
+extern void init_opengl(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
 void checkMouse(XEvent *e, Game *g);
@@ -140,7 +140,11 @@ void init_sounds(void);
 void physics(Game *game);
 void render(Game *game);
 extern void normalize(Vec v);
+<<<<<<< HEAD
 extern void setup_screen_res(const int w, const int h);
+=======
+extern void deleteAsteroid(Game *game, Asteroid *node);
+>>>>>>> c2051acd106211f4e4e2448a5614e39b91d90904
 
 int main(void)
 {
@@ -239,7 +243,7 @@ void reshape_window(int width, int height)
 	set_title();
 }
 
-void init_opengl(void)
+/*void init_opengl(void)
 {
 	//OpenGL initialization
 	glViewport(0, 0, xres, yres);
@@ -259,7 +263,7 @@ void init_opengl(void)
 	//Do this to allow fonts
 	//glEnable(GL_TEXTURE_2D);
 	//initialize_fonts();
-}
+}*/
 
 void check_resize(XEvent *e)
 {
@@ -405,6 +409,7 @@ int checkKeys(XEvent *e)
 }
 */
 
+/*
 void deleteAsteroid(Game *g, Asteroid *node)
 {
 	//remove a node from linked list
@@ -441,6 +446,7 @@ void deleteAsteroid(Game *g, Asteroid *node)
 		}
 	}
 }
+*/
 
 void physics(Game *g)
 {
