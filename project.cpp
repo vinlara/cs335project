@@ -134,17 +134,14 @@ extern void init_opengl(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
 void checkMouse(XEvent *e, Game *g);
-int checkKeys(XEvent *e);
+extern int checkKeys(XEvent *e);
 void init(Game *g);
 void init_sounds(void);
 void physics(Game *game);
 void render(Game *game);
 extern void normalize(Vec v);
-<<<<<<< HEAD
 extern void setup_screen_res(const int w, const int h);
-=======
 extern void deleteAsteroid(Game *game, Asteroid *node);
->>>>>>> c2051acd106211f4e4e2448a5614e39b91d90904
 
 int main(void)
 {
@@ -312,7 +309,6 @@ void init(Game *g) {
     }
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
-		std::cout << "asteroid" << std::endl;
 		//add to front of linked list
 		a->next = g->ahead;
 		if (g->ahead != NULL)
@@ -500,7 +496,6 @@ void physics(Game *g)
 		dist = sqrt(d0*d0 + d1*d1);
 		//if (dist < (a->radius*a->radius)){
 		if (dist < (a->radius + g->ship.radius)) {
-			std::cout << "asteroid hit." << std::endl;
 			//this asteroid is hit.
 			//break it into pieces.
 			a->color[0] = 1.0;

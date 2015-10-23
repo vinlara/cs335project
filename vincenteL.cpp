@@ -20,7 +20,7 @@
 
 extern int keys[65536];
 
-int checkKeys(XEvent *e)
+extern int checkKeys(XEvent *e)
 {
 	//keyboard input?
 	static int shift=0;
