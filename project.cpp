@@ -27,6 +27,7 @@
 /*extern "C" {
 	#include "fonts.h"
 }*/
+using namespace std;
 
 //defined types
 typedef float Flt;
@@ -90,6 +91,7 @@ struct Ship {
 		pos[1] = (Flt)(yres/2);
 		pos[2] = 0.0f;
 		VecZero(vel);
+		radius = 40.0;
 		angle = 0.0;
 		color[0] = 1.0;
 		color[1] = 1.0;
@@ -142,13 +144,16 @@ void render(Game *game);
 extern void normalize(Vec v);
 extern void setup_screen_res(const int w, const int h);
 extern void deleteAsteroid(Game *game, Asteroid *node);
+extern void addAsteroid(Game *game);
+
+Game game;
 
 int main(void)
 {
 	logOpen();
 	initXWindows();
 	init_opengl();
-	Game game;
+	//Game game;
 	init(&game);
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
@@ -276,7 +281,7 @@ void check_resize(XEvent *e)
 }
 
 void init(Game *g) {
-	g->ship.radius = 40.0;
+	//g->ship.radius = 40.0;
 	//build 10 asteroids...
 	for (int j=0; j<30; j++) {
 		Asteroid *a = new Asteroid;
@@ -506,8 +511,10 @@ void physics(Game *g)
 			Asteroid *savea = a->next;
 			deleteAsteroid(g, a);
 			a = savea;
-			g->nasteroids--;
-			g->ship.radius++;
+			//g->nasteroids--;
+			g->ship.radius += 2.0;
+			cout << g->ship.radius << " radius after increment \n";
+			addAsteroid(g);
 			if (a == NULL)
 				break;
 			continue;
