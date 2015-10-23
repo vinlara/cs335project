@@ -140,6 +140,7 @@ void init_sounds(void);
 void physics(Game *game);
 void render(Game *game);
 extern void normalize(Vec v);
+extern void setup_screen_res(const int w, const int h);
 
 int main(void)
 {
@@ -195,6 +196,7 @@ void setup_screen_res(const int w, const int h)
 	xres = w;
 	yres = h;
 }
+
 
 void initXWindows(void)
 {
@@ -362,6 +364,7 @@ void checkMouse(XEvent *e, Game *g)
 	}
 }
 
+/*
 int checkKeys(XEvent *e)
 {
 	//keyboard input?
@@ -400,6 +403,7 @@ int checkKeys(XEvent *e)
 	}
 	return 0;
 }
+*/
 
 void deleteAsteroid(Game *g, Asteroid *node)
 {
