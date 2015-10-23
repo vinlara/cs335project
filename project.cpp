@@ -130,7 +130,7 @@ int keys[65536];
 
 //function prototypes
 void initXWindows(void);
-void init_opengl(void);
+extern void init_opengl(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
 void checkMouse(XEvent *e, Game *g);
@@ -238,7 +238,7 @@ void reshape_window(int width, int height)
 	set_title();
 }
 
-void init_opengl(void)
+/*void init_opengl(void)
 {
 	//OpenGL initialization
 	glViewport(0, 0, xres, yres);
@@ -258,7 +258,7 @@ void init_opengl(void)
 	//Do this to allow fonts
 	//glEnable(GL_TEXTURE_2D);
 	//initialize_fonts();
-}
+}*/
 
 void check_resize(XEvent *e)
 {
