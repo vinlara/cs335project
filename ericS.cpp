@@ -10,8 +10,10 @@
 	Perry Huynh
 	Vincente Lara
 */
+#include <iostream>
 #include <cstdlib>
 #include <cmath>
+using namespace std;
 
 typedef float Flt;
 typedef float Vec[3];
@@ -70,6 +72,46 @@ struct Game {
 };
 
 
+void addAsteroid (Game *g) {
+    Asteroid *a = new Asteroid;
+    a->nverts = 8;
+    a->radius = ( rnd() * 2.0 * g->ship.radius ) - ( rnd() * 0.5 * g->ship.radius  );
+     
+    cout << a->radius << " a radius   ship radius " << g->ship.radius << endl;
+    
+    Flt r2 = a->radius / 2.0;
+    Flt angle = 0.0f;
+    Flt inc = (PI * 2.0) / (Flt)a->nverts;
+    for (int i=0; i<a->nverts; i++) {
+        a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
+        a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
+        angle += inc;
+    }
+    a->pos[0] = (Flt)(rand() % 1280);
+    a->pos[1] = (Flt)(rand() % 960);
+    a->pos[2] = 0.0f;
+    a->angle = 0.0;
+    a->rotate = rnd() * 4.0 - 2.0;
+    if (a->radius < g->ship.radius) {
+        a->color[0] = 0.9;
+        a->color[1] = 0.6;
+        a->color[2] = 0.3;
+    }
+    else {
+        a->color[0] = 0.3;
+        a->color[1] = 0.4;
+        a->color[2] = 0.5;
+    }
+    a->vel[0] = (Flt)(rnd()*2.0-1.0);
+    a->vel[1] = (Flt)(rnd()*2.0-1.0);
+    //add to front of linked list
+    a->next = g->ahead;
+    if (g->ahead != NULL)
+        g->ahead->prev = a;
+    g->ahead = a;
+    g->nasteroids++;
+}
+
 void deleteAsteroid(Game *g, Asteroid *node)
 {
 	//remove a node from linked list
@@ -103,44 +145,7 @@ void deleteAsteroid(Game *g, Asteroid *node)
 			}
 			delete node;
 			node = NULL;
+			//addAsteroid(g);
 		}
 	}
-    addAsteroid(g);
-}
-
-void addAsteroid (Game *game) {
-    Asteroid *a = new Asteroid;
-    a->nverts = 8;
-    a->radius = ( rnd() * 2.0 * g->ship.radius ) - ( rnd() * 0.8 * g->ship.radius  );
-    Flt r2 = a->radius / 2.0;
-    Flt angle = 0.0f;
-    Flt inc = (PI * 2.0) / (Flt)a->nverts;
-    for (int i=0; i<a->nverts; i++) {
-        a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
-        a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
-        angle += inc;
-    }
-    a->pos[0] = (Flt)(rand() % xres);
-    a->pos[1] = (Flt)(rand() % yres);
-    a->pos[2] = 0.0f;
-    a->angle = 0.0;
-    a->rotate = rnd() * 4.0 - 2.0;
-    if (a->radius < g->ship.radius) {
-        a->color[0] = 0.9;
-        a->color[1] = 0.6;
-        a->color[2] = 0.3;
-    }
-    else {
-        a->color[0] = 0.3;
-        a->color[1] = 0.4;
-        a->color[2] = 0.5;
-    }
-    a->vel[0] = (Flt)(rnd()*2.0-1.0);
-    a->vel[1] = (Flt)(rnd()*2.0-1.0);
-    //add to front of linked list
-    a->next = g->ahead;
-    if (g->ahead != NULL)
-        g->ahead->prev = a;
-    g->ahead = a;
-    g->nasteroids++;
 }

@@ -27,6 +27,7 @@
 /*extern "C" {
 	#include "fonts.h"
 }*/
+using namespace std;
 
 //defined types
 typedef float Flt;
@@ -142,6 +143,7 @@ void render(Game *game);
 extern void normalize(Vec v);
 extern void setup_screen_res(const int w, const int h);
 extern void deleteAsteroid(Game *game, Asteroid *node);
+extern void addAsteroid(Game *game);
 
 int main(void)
 {
@@ -506,8 +508,10 @@ void physics(Game *g)
 			Asteroid *savea = a->next;
 			deleteAsteroid(g, a);
 			a = savea;
-			g->nasteroids--;
+			//g->nasteroids--;
 			g->ship.radius++;
+			cout << g->ship.radius << " radius after increment \n";
+			addAsteroid(g);
 			if (a == NULL)
 				break;
 			continue;
