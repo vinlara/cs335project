@@ -133,7 +133,7 @@ void initXWindows(void);
 extern void init_opengl(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
-void checkMouse(XEvent *e, Game *g);
+extern void checkMouse(XEvent *e, Game *g);
 extern int checkKeys(XEvent *e);
 void init(Game *g);
 void init_sounds(void);
@@ -331,7 +331,7 @@ void init(Game *g) {
 	v[1] *= len * 2;
 }*/
 
-void checkMouse(XEvent *e, Game *g)
+/*void checkMouse(XEvent *e, Game *g)
 {
 	//Did the mouse move?
 	//Was a mouse button clicked?
@@ -362,7 +362,7 @@ void checkMouse(XEvent *e, Game *g)
 		normalize(g->ship.vel);
 		return;
 	}
-}
+}*/
 
 /*
 int checkKeys(XEvent *e)
