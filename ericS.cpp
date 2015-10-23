@@ -11,12 +11,15 @@
 	Vincente Lara
 */
 #include <cstdlib>
+#include <cmath>
 
 typedef float Flt;
 typedef float Vec[3];
 typedef Flt Matrix[4][4];
 
 #define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
+#define rnd() (((double)rand())/(double)RAND_MAX)
+#define PI 3.141592653589793
 
 struct Ship {
     Vec dir;
