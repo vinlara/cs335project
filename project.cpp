@@ -82,8 +82,8 @@ struct Ship {
 	Vec pos;
 	Vec vel;
 	float angle;
-	Flt radius;
 	float color[3];
+	Flt radius;
 	Ship() {
 		VecZero(dir);
 		pos[0] = (Flt)(xres/2);
@@ -130,16 +130,17 @@ int keys[65536];
 
 //function prototypes
 void initXWindows(void);
-void init_opengl(void);
+extern void init_opengl(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
 void checkMouse(XEvent *e, Game *g);
-int checkKeys(XEvent *e);
+extern int checkKeys(XEvent *e);
 void init(Game *g);
 void init_sounds(void);
 void physics(Game *game);
 void render(Game *game);
 extern void normalize(Vec v);
+extern void setup_screen_res(const int w, const int h);
 extern void deleteAsteroid(Game *game, Asteroid *node);
 
 int main(void)
@@ -197,6 +198,7 @@ void setup_screen_res(const int w, const int h)
 	yres = h;
 }
 
+
 void initXWindows(void)
 {
 	GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
@@ -238,7 +240,7 @@ void reshape_window(int width, int height)
 	set_title();
 }
 
-void init_opengl(void)
+/*void init_opengl(void)
 {
 	//OpenGL initialization
 	glViewport(0, 0, xres, yres);
@@ -258,7 +260,7 @@ void init_opengl(void)
 	//Do this to allow fonts
 	//glEnable(GL_TEXTURE_2D);
 	//initialize_fonts();
-}
+}*/
 
 void check_resize(XEvent *e)
 {
@@ -307,7 +309,6 @@ void init(Game *g) {
     }
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
-		//std::cout << "asteroid" << std::endl;
 		//add to front of linked list
 		a->next = g->ahead;
 		if (g->ahead != NULL)
@@ -363,6 +364,7 @@ void checkMouse(XEvent *e, Game *g)
 	}
 }
 
+/*
 int checkKeys(XEvent *e)
 {
 	//keyboard input?
@@ -401,6 +403,7 @@ int checkKeys(XEvent *e)
 	}
 	return 0;
 }
+*/
 
 /*
 void deleteAsteroid(Game *g, Asteroid *node)
@@ -488,8 +491,18 @@ void physics(Game *g)
 		//is there a bullet within its radius?
 		d0 = g->ship.pos[0] - a->pos[0];
 		d1 = g->ship.pos[1] - a->pos[1];
+		//d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
+		//d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
 		dist = sqrt(d0*d0 + d1*d1);
+		//if (dist < (a->radius*a->radius)){
 		if (dist < (a->radius + g->ship.radius)) {
+			//this asteroid is hit.
+			//break it into pieces.
+			a->color[0] = 1.0;
+			a->color[1] = 0.1;
+			a->color[2] = 0.1;
+			//asteroid is too small to break up
+			//delete the asteroid and bullet
 			Asteroid *savea = a->next;
 			deleteAsteroid(g, a);
 			a = savea;
