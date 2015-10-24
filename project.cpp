@@ -131,7 +131,7 @@ struct Game {
 int keys[65536];
 
 //function prototypes
-void initXWindows(void);
+extern void initXWindows(void);
 extern void init_opengl(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
@@ -144,6 +144,7 @@ void render(Game *game);
 extern void normalize(Vec v);
 extern void setup_screen_res(const int w, const int h);
 extern void deleteAsteroid(Game *game, Asteroid *node);
+extern void set_title(void);
 extern void addAsteroid(Game *game);
 
 Game game;
@@ -190,6 +191,8 @@ void cleanupXWindows(void)
 	XCloseDisplay(dpy);
 }
 
+
+/*
 void set_title(void)
 {
 	//Set the window title bar.
@@ -202,8 +205,9 @@ void setup_screen_res(const int w, const int h)
 	xres = w;
 	yres = h;
 }
+*/
 
-
+/*
 void initXWindows(void)
 {
 	GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
@@ -232,6 +236,7 @@ void initXWindows(void)
 	glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 	glXMakeCurrent(dpy, win, glc);
 }
+*/
 
 void reshape_window(int width, int height)
 {
