@@ -191,6 +191,7 @@ void cleanupXWindows(void)
 	XCloseDisplay(dpy);
 }
 
+
 /*
 void set_title(void)
 {
