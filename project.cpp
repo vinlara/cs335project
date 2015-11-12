@@ -80,14 +80,16 @@ void timeCopy(struct timespec *dest, struct timespec *source)
 int xres = 1600;
 int yres = 900;
 
-struct Ship {
+struct Ship 
+{
 	Vec dir;
 	Vec pos;
 	Vec vel;
 	float angle;
 	float color[3];
 	Flt radius;
-	Ship() {
+	Ship() 
+	{
 		VecZero(dir);
 		pos[0] = (Flt)(xres/2);
 		pos[1] = (Flt)(yres/2);
@@ -101,7 +103,8 @@ struct Ship {
 	}
 };
 
-struct Asteroid {
+struct Asteroid 
+{
 	Vec pos;
 	Vec vel;
 	int nverts;
@@ -112,19 +115,22 @@ struct Asteroid {
 	float color[3];
 	struct Asteroid *prev;
 	struct Asteroid *next;
-	Asteroid() {
+	Asteroid() 
+	{
 		prev = NULL;
 		next = NULL;
 	}
 };
 
-struct Game {
+struct Game 
+{
 	Ship ship;
 	Asteroid *ahead;
 	int nasteroids;
 	int done;
 	struct timespec bulletTimer;
-	Game() {
+	Game() 
+	{
 		ahead = NULL;
 		nasteroids = 0;
 		done = 0;
@@ -161,25 +167,31 @@ int main(void)
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
-	while (!g.done) {
-		while (XPending(dpy)) {
+	while (!g.done) 
+	{
+		while (XPending(dpy)) 
+		{
 			XEvent e;
 			XNextEvent(dpy, &e);
 			check_resize(&e);
 			checkMouse(&e);
 			g.done = checkKeys(&e);
 		}
+		
 		clock_gettime(CLOCK_REALTIME, &timeCurrent);
 		timeSpan = timeDiff(&timeStart, &timeCurrent);
 		timeCopy(&timeStart, &timeCurrent);
 		physicsCountdown += timeSpan;
-		while (physicsCountdown >= physicsRate) {
+		while (physicsCountdown >= physicsRate) 
+		{
 			physics();
 			physicsCountdown -= physicsRate;
 		}
+		
 		render();
 		glXSwapBuffers(dpy, win);
 	}
+
 	cleanupXWindows();
 	//cleanup_fonts();
 	logClose();
@@ -212,16 +224,20 @@ void initXWindows(void)
 	XSetWindowAttributes swa;
 	setup_screen_res(xres, yres);
 	dpy = XOpenDisplay(NULL);
-	if (dpy == NULL) {
+	if (dpy == NULL) 
+	{
 		std::cout << "\n\tcannot connect to X server" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	
 	Window root = DefaultRootWindow(dpy);
 	XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
-	if (vi == NULL) {
+	if (vi == NULL) 
+	{
 		std::cout << "\n\tno appropriate visual found\n" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	
 	Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
 	swa.colormap = cmap;
 	swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
@@ -292,63 +308,76 @@ void check_resize(XEvent *e)
 	if (e->type != ConfigureNotify)
 		return;
 	XConfigureEvent xce = e->xconfigure;
-	if (xce.width != xres || xce.height != yres) {
+	if (xce.width != xres || xce.height != yres) 
+	{
 		//Window size did change.
 		reshape_window(xce.width, xce.height);
 	}
 }
 
-void init() {
+void init() 
+{
 	//g.ship.radius = 40.0;
 	//build 10 asteroids...
-	for (int j=0; j<30; j++) {
+	for (int j=0; j<30; j++) 
+	{
 		Asteroid *a = new Asteroid;
 		a->nverts = 8;
 		a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.8 * g.ship.radius  );
 		Flt r2 = a->radius / 2.0;
 		Flt angle = 0.0f;
 		Flt inc = (PI * 2.0) / (Flt)a->nverts;
-		for (int i=0; i<a->nverts; i++) {
+		for (int i=0; i<a->nverts; i++) 
+		{
 			a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
 			a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 			angle += inc;
 		}
+		
 		a->pos[0] = (Flt)(rand() % xres);
 		a->pos[1] = (Flt)(rand() % yres);
 		a->pos[2] = 0.0f;
 		a->angle = 0.0;
 		a->rotate = rnd() * 4.0 - 2.0;
-    if (a->radius < g.ship.radius)
-    {
-    	a->color[0] = 0.9;
-    	a->color[1] = 0.6;
-    	a->color[2] = 0.3;
-    }
-    else
-		{
-        a->color[0] = 0.3;
-        a->color[1] = 0.4;
-        a->color[2] = 0.5;
-    }
-    a->vel[0] = (Flt)(rnd()*2.0-1.0);
+    
+		if (a->radius < g.ship.radius)
+    		{
+    			a->color[0] = 0.9;
+    			a->color[1] = 0.6;
+    			a->color[2] = 0.3;
+    		}
+    
+    		else
+    		{
+        		a->color[0] = 0.3;
+        		a->color[1] = 0.4;
+       			a->color[2] = 0.5;
+    		}
+    
+    		a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
 		//add to front of linked list
 		a->next = g.ahead;
 		if (g.ahead != NULL)
 			g.ahead->prev = a;
+		
 		g.ahead = a;
 		g.nasteroids++;
 	}
+	
 	memset(keys, 0, 65536);
 }
 
-void normalize(Vec v) {
+void normalize(Vec v) 
+{
 	Flt len = v[0]*v[0] + v[1]*v[1];
-	if (len == 0.0f) {
+	if (len == 0.0f) 
+	{
 		v[0] = 1.0;
 		v[1] = 0.0;
 		return;
 	}
+	
 	len = 1.0f / sqrt(len);
 	v[0] *= len * 2;
 	v[1] *= len * 2;
@@ -361,18 +390,26 @@ void checkMouse(XEvent *e)
 	static int savex = 0;
 	static int savey = 0;
 	//
-	if (e->type == ButtonRelease) {
+	if (e->type == ButtonRelease) 
+	{
 		return;
 	}
-	if (e->type == ButtonPress) {
-		if (e->xbutton.button==1) {
+	
+	if (e->type == ButtonPress) 
+	{
+		if (e->xbutton.button==1) 
+		{
 			//Left button is down
 		}
-		if (e->xbutton.button==3) {
+		
+		if (e->xbutton.button==3) 
+		{
 			//Right button is down
 		}
 	}
-	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+	
+	if (savex != e->xbutton.x || savey != e->xbutton.y) 
+	{
 		//Mouse moved
 		savex = e->xbutton.x;
 		savey = e->xbutton.y;
@@ -393,30 +430,41 @@ int checkKeys(XEvent *e)
 	static int shift=0;
 	int key = XLookupKeysym(&e->xkey, 0);
 	//Log("key: %i\n", key);
-	if (e->type == KeyRelease) {
+	if (e->type == KeyRelease) 
+	{
 		keys[key]=0;
 		if (key == XK_Shift_L || key == XK_Shift_R)
 			shift=0;
 		return 0;
 	}
-	if (e->type == KeyPress) {
+	
+	if (e->type == KeyPress) 
+	{
 		keys[key]=1;
 		if (key == XK_Shift_L || key == XK_Shift_R) {
 			shift=1;
 			return 0;
 		}
-	} else {
+	
+	} 
+	
+	else 
+	{
 		return 0;
 	}
+	
 	if (shift){}
-	switch(key) {
+	switch(key) 
+	{
 		case XK_Escape:
 			return 1;
 	}
+	
 	return 0;
 }
 
-void addAsteroid () {
+void addAsteroid () 
+{
     Asteroid *a = new Asteroid;
     a->nverts = 8;
     a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
@@ -427,32 +475,39 @@ void addAsteroid () {
     Flt r2 = a->radius / 2.0;
     Flt angle = 0.0f;
     Flt inc = (PI * 2.0) / (Flt)a->nverts;
-    for (int i=0; i<a->nverts; i++) {
+    for (int i=0; i<a->nverts; i++) 
+    {
         a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
         a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
         angle += inc;
     }
+    
     a->pos[0] = (Flt)(rand() % 1280);
     a->pos[1] = (Flt)(rand() % 960);
     a->pos[2] = 0.0f;
     a->angle = 0.0;
     a->rotate = rnd() * 4.0 - 2.0;
-    if (a->radius < g.ship.radius) {
+    if (a->radius < g.ship.radius) 
+    {
         a->color[0] = 0.9;
         a->color[1] = 0.6;
         a->color[2] = 0.3;
     }
-    else {
+    
+    else 
+    {
         a->color[0] = 0.3;
         a->color[1] = 0.4;
         a->color[2] = 0.5;
     }
+    
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
     a->vel[1] = (Flt)(rnd()*2.0-1.0);
     //add to front of linked list
     a->next = g.ahead;
     if (g.ahead != NULL)
         g.ahead->prev = a;
+    
     g.ahead = a;
     g.nasteroids++;
 }
@@ -476,6 +531,7 @@ void deleteAsteroid(Asteroid *node)
 					g.ahead = node->next;
 				}
 			}
+
 			else
 			{
 				if (node->next == NULL)
@@ -488,6 +544,7 @@ void deleteAsteroid(Asteroid *node)
 					node->next->prev = node->prev;
 				}
 			}
+
 			delete node;
 			node = NULL;
 		}
@@ -501,37 +558,51 @@ void physics()
 	g.ship.pos[0] += g.ship.vel[0];
 	g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
-	if (g.ship.pos[0] < 0.0) {
+	if (g.ship.pos[0] < 0.0) 
+	{
 		g.ship.pos[0] += (float)xres;
 	}
-	else if (g.ship.pos[0] > (float)xres) {
+	else if (g.ship.pos[0] > (float)xres) 
+	{
 		g.ship.pos[0] -= (float)xres;
 	}
-	else if (g.ship.pos[1] < 0.0) {
+	else if (g.ship.pos[1] < 0.0) 
+	{
 		g.ship.pos[1] += (float)yres;
 	}
-	else if (g.ship.pos[1] > (float)yres) {
+	else if (g.ship.pos[1] > (float)yres)
+       	{
 		g.ship.pos[1] -= (float)yres;
 	}
 
 	//Update asteroid positions
 	Asteroid *a = g.ahead;
-	while (a) {
+	while (a) 
+	{
 		a->pos[0] += a->vel[0];
 		a->pos[1] += a->vel[1];
 		//Check for collision with window edges
-		if (a->pos[0] < -100.0) {
+		
+		if (a->pos[0] < -100.0) 
+		{
 			a->pos[0] += (float)xres+200;
 		}
-		else if (a->pos[0] > (float)xres+100) {
+		
+		else if (a->pos[0] > (float)xres+100) 
+		{
 			a->pos[0] -= (float)xres+200;
 		}
-		else if (a->pos[1] < -100.0) {
+		
+		else if (a->pos[1] < -100.0) 
+		{
 			a->pos[1] += (float)yres+200;
 		}
-		else if (a->pos[1] > (float)yres+100) {
+		
+		else if (a->pos[1] > (float)yres+100) 
+		{
 			a->pos[1] -= (float)yres+200;
 		}
+		
 		a->angle += a->rotate;
 		a = a->next;
 	}
@@ -572,11 +643,10 @@ void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-------------------------------------------------------------------------
-	//Draw the ship
+	//Draw the Earth
 	glColor3fv(g.ship.color);
 	glPushMatrix();
 	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
-	//glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
 	glBindTexture(GL_TEXTURE_2D, playerTextureId);
 	glBegin(GL_TRIANGLE_FAN);
 	float x = (float)g.ship.radius * cos(999 * PI / 180.f);
@@ -594,7 +664,8 @@ void render()
 
 	//Draw the asteroids
 	Asteroid *a = g.ahead;
-	while (a) {
+	while (a) 
+	{
 		glColor3fv(a->color);
 		glPushMatrix();
 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
@@ -607,6 +678,7 @@ void render()
 			x = (float)a->radius * cos(i * PI / 180.f);
 			y = (float)a->radius * sin(i * PI / 180.f);
 		}
+		
 		glEnd();
 		glPopMatrix();
 		glColor3f(1.0f, 0.0f, 0.0f);

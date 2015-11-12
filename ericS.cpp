@@ -2,9 +2,9 @@
     ericS.cpp
 
 	CS 335 Software Engineering Project
+	Super Dank Space Adventure
 
 	Group Members:
-	Abdulelah Aldeshash
 	Eric Smith
 	Erik Juarez
 	Perry Huynh
@@ -13,6 +13,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
+#include <struct.h>
 using namespace std;
 
 typedef float Flt;
@@ -23,14 +24,17 @@ typedef Flt Matrix[4][4];
 #define rnd() (((double)rand())/(double)RAND_MAX)
 #define PI 3.141592653589793
 
-struct Ship {
+/*
+struct Ship 
+{
     Vec dir;
     Vec pos;
     Vec vel;
     float angle;
     Flt radius;
     float color[3];
-    Ship() {
+    Ship() 
+    {
         VecZero(dir);
         pos[0] = (Flt)(1280/2);
         pos[1] = (Flt)(960/2);
@@ -44,7 +48,8 @@ struct Ship {
     }
 };
 
-struct Asteroid {
+struct Asteroid 
+{
     Vec pos;
     Vec vel;
     int nverts;
@@ -55,35 +60,41 @@ struct Asteroid {
     float color[3];
     struct Asteroid *prev;
     struct Asteroid *next;
-    Asteroid() {
+    Asteroid() 
+    {
         prev = NULL;
         next = NULL;
     }
 };
 
-struct Game {
+struct Game 
+{
     Ship ship;
     Asteroid *ahead;
     int nasteroids;
     struct timespec bulletTimer;
-    Game() {
+    Game() 
+    {
         ahead = NULL;
         nasteroids = 0;
     }
 };
+*/
 
 
-void addAsteroid (Game *g) {
+void addAsteroid (Game *g) 
+{
     Asteroid *a = new Asteroid;
     a->nverts = 8;
     a->radius = ( rnd() * 2.0 * g->ship.radius ) - ( rnd() * 0.5 * g->ship.radius  );
      
-    cout << a->radius << " a radius   ship radius " << g->ship.radius << endl;
+    //cout << a->radius << " a radius   ship radius " << g->ship.radius << endl;
     
     Flt r2 = a->radius / 2.0;
     Flt angle = 0.0f;
     Flt inc = (PI * 2.0) / (Flt)a->nverts;
-    for (int i=0; i<a->nverts; i++) {
+    for (int i=0; i<a->nverts; i++) 
+    {
         a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
         a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
         angle += inc;
@@ -93,12 +104,14 @@ void addAsteroid (Game *g) {
     a->pos[2] = 0.0f;
     a->angle = 0.0;
     a->rotate = rnd() * 4.0 - 2.0;
-    if (a->radius < g->ship.radius) {
+    if (a->radius < g->ship.radius) 
+    {
         a->color[0] = 0.9;
         a->color[1] = 0.6;
         a->color[2] = 0.3;
     }
-    else {
+    else 
+    {
         a->color[0] = 0.3;
         a->color[1] = 0.4;
         a->color[2] = 0.5;
