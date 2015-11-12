@@ -95,7 +95,7 @@ struct Ship
 		pos[1] = (Flt)(yres/2);
 		pos[2] = 0.0f;
 		VecZero(vel);
-		radius = 40.0;
+		radius = 19.0;
 		angle = 0.0;
 		color[0] = 1.0;
 		color[1] = 1.0;
@@ -127,6 +127,7 @@ struct Game
 	Ship ship;
 	Asteroid *ahead;
 	int nasteroids;
+	double score;
 	int done;
 	struct timespec bulletTimer;
 	Game() 
@@ -317,8 +318,12 @@ void check_resize(XEvent *e)
 
 void init() 
 {
+    	g.score = g.ship.radius;
+	
+	cout << g.score << " = g.score (start)\n";
+	
 	//g.ship.radius = 40.0;
-	//build 10 asteroids...
+	//build 30 asteroids...
 	for (int j=0; j<30; j++) 
 	{
 		Asteroid *a = new Asteroid;
@@ -619,10 +624,21 @@ void physics()
 			//if (g.ship.radius >= a->radius)
 			//{
 				Asteroid *savea = a->next;
+				
+				cout << g.score << " g.score (before add)\n"
+				   	<< g.ship.radius << " ship radius\n"
+					<< a->radius << " asteroid radius\n";
+
+				if (a->radius > 0)
+					g.score += 0.5 * a->radius;
+
+				cout << g.score << " g.score (after add)\n"
+				   	<< g.ship.radius << " ship radius\n\n";
+				
 				deleteAsteroid(a);
 				a = savea;
 				//g.nasteroids--;
-				g.ship.radius += 2.0;
+				g.ship.radius += 0.5 * log2(g.score);
 				addAsteroid();
 				if (a == NULL)
 					break;
@@ -666,6 +682,20 @@ void render()
 	Asteroid *a = g.ahead;
 	while (a) 
 	{
+    		if (a->radius < g.ship.radius) 
+    		{
+        		a->color[0] = 0.9;
+        		a->color[1] = 0.6;
+        		a->color[2] = 0.3;
+    		}
+    
+    		else 
+    		{
+        		a->color[0] = 0.3;
+        		a->color[1] = 0.4;
+        		a->color[2] = 0.5;
+    		}
+    
 		glColor3fv(a->color);
 		glPushMatrix();
 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
