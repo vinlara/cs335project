@@ -19,6 +19,25 @@
 #include "log.h"
 
 extern int keys[65536];
+extern int xres, yres;
+
+//X Windows variables
+extern Display *dpy;
+extern Window win;
+extern GLXContext glc;
+
+extern void set_title(void)
+{
+    //Set the window title bar.
+    XMapWindow(dpy, win);
+    XStoreName(dpy, win, "Super Dank Space Adventure");
+}
+
+extern void setup_screen_res(const int w, const int h)
+{
+    xres = w;
+    yres = h;
+}
 
 extern int checkKeys(XEvent *e)
 {
@@ -57,4 +76,33 @@ extern int checkKeys(XEvent *e)
 			break;
 	}
 	return 0;
+}
+
+extern void initXWindows(void)
+{
+    GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+    //GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
+    XSetWindowAttributes swa;
+    setup_screen_res(xres, yres);
+    dpy = XOpenDisplay(NULL);
+    if (dpy == NULL) {
+        std::cout << "\n\tcannot connect to X server" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    Window root = DefaultRootWindow(dpy);
+    XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
+    if (vi == NULL) {
+        std::cout << "\n\tno appropriate visual found\n" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+    swa.colormap = cmap;
+    swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
+        StructureNotifyMask | SubstructureNotifyMask | PointerMotionMask;
+    win = XCreateWindow(dpy, root, 0, 0, xres, yres, 0,
+            vi->depth, InputOutput, vi->visual,
+            CWColormap | CWEventMask, &swa);
+    set_title();
+    glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
+    glXMakeCurrent(dpy, win, glc);
 }

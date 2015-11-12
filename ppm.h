@@ -24,9 +24,9 @@ extern void ppm3Setpixel(Ppmimage *image, int x, int y, int channel, unsigned ch
 extern void ppm3CleanupImage(Ppmimage *image);
 //
 extern Ppmimage *ppm6CreateImage(int width, int height);
-extern Ppmimage *ppm6GetImage(char *filename);
+extern Ppmimage *ppm6GetImage(const char *filename);
 extern void ppm6ClearImage(Ppmimage *image, unsigned char r, unsigned char g, unsigned char b);
-extern void ppm6SaveImage(Ppmimage *image, char *filename);
+extern void ppm6SaveImage(Ppmimage *image, const char *filename);
 extern void ppm6Setpixel(Ppmimage *image, int x, int y, int channel, unsigned char val);
 extern void ppm6CleanupImage(Ppmimage *image);
 
