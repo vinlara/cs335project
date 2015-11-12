@@ -106,4 +106,3 @@ extern void initXWindows(void)
     glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
     glXMakeCurrent(dpy, win, glc);
 }
-
