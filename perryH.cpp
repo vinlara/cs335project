@@ -13,8 +13,9 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "log.h"
+#include "structs.h"
 
-typedef float Flt;
+/*typedef float Flt;
 typedef float Vec[3];
 typedef Flt	Matrix[4][4];
 
@@ -74,7 +75,7 @@ struct Game {
 		ahead = NULL;
 		nasteroids = 0;
 	}
-};
+};*/
 
 extern void normalize(Vec v)
 {

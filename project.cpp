@@ -1,9 +1,7 @@
-// :D
 /*
 	CS 335 Software Engineering Project
 
 	Group Members:
-	Abdulelah Aldeshash
 	Eric Smith
 	Erik Juarez
 	Perry Huynh
@@ -18,13 +16,14 @@
 #include <cmath>
 #include <X11/Xlib.h>
 //#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "ppm.h"
 #include "log.h"
-/*extern "C" {
+//#include "structs.h"
+/*"C" {
 	#include "fonts.h"
 }*/
 using namespace std;
@@ -54,7 +53,8 @@ const float gravity = -0.2f;
 Display *dpy;
 Window win;
 GLXContext glc;
-
+Ppmimage *playerImage=NULL;
+GLuint playerTextureId;
 
 //-----------------------------------------------------------------------------
 //Setup timers
@@ -71,12 +71,14 @@ double timeDiff(struct timespec *start, struct timespec *end)
 			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
 }
 void timeCopy(struct timespec *dest, struct timespec *source)
+
 {
 	memcpy(dest, source, sizeof(struct timespec));
 }
 //-----------------------------------------------------------------------------
 
-int xres=1280, yres=960;
+int xres = 1600;
+int yres = 900;
 
 struct Ship {
 	Vec dir;
@@ -120,63 +122,62 @@ struct Game {
 	Ship ship;
 	Asteroid *ahead;
 	int nasteroids;
+	int done;
 	struct timespec bulletTimer;
 	Game() {
 		ahead = NULL;
 		nasteroids = 0;
+		done = 0;
 	}
-};
-
+} g;
 
 int keys[65536];
 
 //function prototypes
-extern void initXWindows(void);
-extern void init_opengl(void);
+void initXWindows(void);
+void initOpenGL(void);
+void initTextures(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
-extern void checkMouse(XEvent *e, Game *g);
-extern int checkKeys(XEvent *e);
-void init(Game *g);
+void checkMouse(XEvent *e);
+int checkKeys(XEvent *e);
+void init();
 void init_sounds(void);
-void physics(Game *game);
-void render(Game *game);
-extern void normalize(Vec v);
-extern void setup_screen_res(const int w, const int h);
-extern void deleteAsteroid(Game *game, Asteroid *node);
-extern void set_title(void);
-extern void addAsteroid(Game *game);
-
-Game game;
+void physics();
+void render();
+void normalize(Vec v);
+void setup_screen_res(const int w, const int h);
+void deleteAsteroid(Asteroid *node);
+void set_title(void);
+void addAsteroid();
 
 int main(void)
 {
 	logOpen();
 	initXWindows();
-	init_opengl();
-	//Game game;
-	init(&game);
+	initOpenGL();
+	initTextures();
+	init();
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
-	int done=0;
-	while (!done) {
+	while (!g.done) {
 		while (XPending(dpy)) {
 			XEvent e;
 			XNextEvent(dpy, &e);
 			check_resize(&e);
-			checkMouse(&e, &game);
-			done = checkKeys(&e);
+			checkMouse(&e);
+			g.done = checkKeys(&e);
 		}
 		clock_gettime(CLOCK_REALTIME, &timeCurrent);
 		timeSpan = timeDiff(&timeStart, &timeCurrent);
 		timeCopy(&timeStart, &timeCurrent);
 		physicsCountdown += timeSpan;
 		while (physicsCountdown >= physicsRate) {
-			physics(&game);
+			physics();
 			physicsCountdown -= physicsRate;
 		}
-		render(&game);
+		render();
 		glXSwapBuffers(dpy, win);
 	}
 	cleanupXWindows();
@@ -191,8 +192,6 @@ void cleanupXWindows(void)
 	XCloseDisplay(dpy);
 }
 
-
-/*
 void set_title(void)
 {
 	//Set the window title bar.
@@ -205,9 +204,7 @@ void setup_screen_res(const int w, const int h)
 	xres = w;
 	yres = h;
 }
-*/
 
-/*
 void initXWindows(void)
 {
 	GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
@@ -236,7 +233,6 @@ void initXWindows(void)
 	glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 	glXMakeCurrent(dpy, win, glc);
 }
-*/
 
 void reshape_window(int width, int height)
 {
@@ -250,7 +246,7 @@ void reshape_window(int width, int height)
 	set_title();
 }
 
-/*void init_opengl(void)
+void initOpenGL(void)
 {
 	//OpenGL initialization
 	glViewport(0, 0, xres, yres);
@@ -268,9 +264,26 @@ void reshape_window(int width, int height)
 	//Clear the screen to black
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
-	//glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 	//initialize_fonts();
-}*/
+}
+
+void initTextures(void)
+{
+	//load the images file into a ppm structure.
+	playerImage = ppm6GetImage("player.ppm");
+	//
+	//create opengl texture elements
+	glGenTextures(1, &playerTextureId);
+	int w = playerImage->width;
+	int h = playerImage->height;
+	//
+	glBindTexture(GL_TEXTURE_2D, playerTextureId);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, playerImage->data);
+}
 
 void check_resize(XEvent *e)
 {
@@ -285,13 +298,13 @@ void check_resize(XEvent *e)
 	}
 }
 
-void init(Game *g) {
-	//g->ship.radius = 40.0;
+void init() {
+	//g.ship.radius = 40.0;
 	//build 10 asteroids...
 	for (int j=0; j<30; j++) {
 		Asteroid *a = new Asteroid;
 		a->nverts = 8;
-		a->radius = ( rnd() * 2.0 * g->ship.radius ) - ( rnd() * 0.8 * g->ship.radius  );
+		a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.8 * g.ship.radius  );
 		Flt r2 = a->radius / 2.0;
 		Flt angle = 0.0f;
 		Flt inc = (PI * 2.0) / (Flt)a->nverts;
@@ -305,7 +318,7 @@ void init(Game *g) {
 		a->pos[2] = 0.0f;
 		a->angle = 0.0;
 		a->rotate = rnd() * 4.0 - 2.0;
-    if (a->radius < g->ship.radius)
+    if (a->radius < g.ship.radius)
     {
     	a->color[0] = 0.9;
     	a->color[1] = 0.6;
@@ -320,16 +333,16 @@ void init(Game *g) {
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
 		//add to front of linked list
-		a->next = g->ahead;
-		if (g->ahead != NULL)
-			g->ahead->prev = a;
-		g->ahead = a;
-		g->nasteroids++;
+		a->next = g.ahead;
+		if (g.ahead != NULL)
+			g.ahead->prev = a;
+		g.ahead = a;
+		g.nasteroids++;
 	}
 	memset(keys, 0, 65536);
 }
 
-/*void normalize(Vec v) {
+void normalize(Vec v) {
 	Flt len = v[0]*v[0] + v[1]*v[1];
 	if (len == 0.0f) {
 		v[0] = 1.0;
@@ -339,9 +352,9 @@ void init(Game *g) {
 	len = 1.0f / sqrt(len);
 	v[0] *= len * 2;
 	v[1] *= len * 2;
-}*/
+}
 
-/*void checkMouse(XEvent *e, Game *g)
+void checkMouse(XEvent *e)
 {
 	//Did the mouse move?
 	//Was a mouse button clicked?
@@ -364,17 +377,16 @@ void init(Game *g) {
 		savex = e->xbutton.x;
 		savey = e->xbutton.y;
 		int y = yres - e->xbutton.y;
-		float dx = savex - g->ship.pos[0];
-		float dy = y - g->ship.pos[1];
+		float dx = savex - g.ship.pos[0];
+		float dy = y - g.ship.pos[1];
 		float len = sqrt(dx * dx + dy * dy);
-		g->ship.vel[0] = dx / len;
-		g->ship.vel[1] = dy / len;
-		normalize(g->ship.vel);
+		g.ship.vel[0] = dx / len;
+		g.ship.vel[1] = dy / len;
+		normalize(g.ship.vel);
 		return;
 	}
-}*/
+}
 
-/*
 int checkKeys(XEvent *e)
 {
 	//keyboard input?
@@ -400,26 +412,55 @@ int checkKeys(XEvent *e)
 	switch(key) {
 		case XK_Escape:
 			return 1;
-		case XK_f:
-			break;
-		case XK_s:
-			break;
-		case XK_Down:
-			break;
-		case XK_equal:
-			break;
-		case XK_minus:
-			break;
 	}
 	return 0;
 }
-*/
 
-/*
-void deleteAsteroid(Game *g, Asteroid *node)
+void addAsteroid () {
+    Asteroid *a = new Asteroid;
+    a->nverts = 8;
+    a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
+
+    //cout << "Creating Asteroid with radius: " << a->radius << endl;
+	//cout << "Current Ship Radius: " << g.ship.radius << endl;
+
+    Flt r2 = a->radius / 2.0;
+    Flt angle = 0.0f;
+    Flt inc = (PI * 2.0) / (Flt)a->nverts;
+    for (int i=0; i<a->nverts; i++) {
+        a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
+        a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
+        angle += inc;
+    }
+    a->pos[0] = (Flt)(rand() % 1280);
+    a->pos[1] = (Flt)(rand() % 960);
+    a->pos[2] = 0.0f;
+    a->angle = 0.0;
+    a->rotate = rnd() * 4.0 - 2.0;
+    if (a->radius < g.ship.radius) {
+        a->color[0] = 0.9;
+        a->color[1] = 0.6;
+        a->color[2] = 0.3;
+    }
+    else {
+        a->color[0] = 0.3;
+        a->color[1] = 0.4;
+        a->color[2] = 0.5;
+    }
+    a->vel[0] = (Flt)(rnd()*2.0-1.0);
+    a->vel[1] = (Flt)(rnd()*2.0-1.0);
+    //add to front of linked list
+    a->next = g.ahead;
+    if (g.ahead != NULL)
+        g.ahead->prev = a;
+    g.ahead = a;
+    g.nasteroids++;
+}
+
+void deleteAsteroid(Asteroid *node)
 {
 	//remove a node from linked list
-	if (g)
+	if (!g.done)
 	{
 		if (node)
 		{
@@ -427,12 +468,12 @@ void deleteAsteroid(Game *g, Asteroid *node)
 			{
 				if (node->next == NULL)
 				{
-					g->ahead = NULL;
+					g.ahead = NULL;
 				}
 				else
 				{
 					node->next->prev = NULL;
-					g->ahead = node->next;
+					g.ahead = node->next;
 				}
 			}
 			else
@@ -452,30 +493,29 @@ void deleteAsteroid(Game *g, Asteroid *node)
 		}
 	}
 }
-*/
 
-void physics(Game *g)
+void physics()
 {
 	Flt d0,d1,dist;
 	//Update ship position
-	g->ship.pos[0] += g->ship.vel[0];
-	g->ship.pos[1] += g->ship.vel[1];
+	g.ship.pos[0] += g.ship.vel[0];
+	g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
-	if (g->ship.pos[0] < 0.0) {
-		g->ship.pos[0] += (float)xres;
+	if (g.ship.pos[0] < 0.0) {
+		g.ship.pos[0] += (float)xres;
 	}
-	else if (g->ship.pos[0] > (float)xres) {
-		g->ship.pos[0] -= (float)xres;
+	else if (g.ship.pos[0] > (float)xres) {
+		g.ship.pos[0] -= (float)xres;
 	}
-	else if (g->ship.pos[1] < 0.0) {
-		g->ship.pos[1] += (float)yres;
+	else if (g.ship.pos[1] < 0.0) {
+		g.ship.pos[1] += (float)yres;
 	}
-	else if (g->ship.pos[1] > (float)yres) {
-		g->ship.pos[1] -= (float)yres;
+	else if (g.ship.pos[1] > (float)yres) {
+		g.ship.pos[1] -= (float)yres;
 	}
 
 	//Update asteroid positions
-	Asteroid *a = g->ahead;
+	Asteroid *a = g.ahead;
 	while (a) {
 		a->pos[0] += a->vel[0];
 		a->pos[1] += a->vel[1];
@@ -496,33 +536,31 @@ void physics(Game *g)
 		a = a->next;
 	}
 
-	a = g->ahead;
-	while (a) {
+	a = g.ahead;
+	while (a)
+	{
 		//is there a bullet within its radius?
-		d0 = g->ship.pos[0] - a->pos[0];
-		d1 = g->ship.pos[1] - a->pos[1];
-		//d0 = g->ship.pos[0] + g->ship.radius - a->pos[0];
-		//d1 = g->ship.pos[1] + g->ship.radius - a->pos[1];
+		d0 = g.ship.pos[0] - a->pos[0];
+		d1 = g.ship.pos[1] - a->pos[1];
 		dist = sqrt(d0*d0 + d1*d1);
-		//if (dist < (a->radius*a->radius)){
-		if (dist < (a->radius + g->ship.radius)) {
-			//this asteroid is hit.
-			//break it into pieces.
-			a->color[0] = 1.0;
-			a->color[1] = 0.1;
-			a->color[2] = 0.1;
-			//asteroid is too small to break up
-			//delete the asteroid and bullet
-			Asteroid *savea = a->next;
-			deleteAsteroid(g, a);
-			a = savea;
-			//g->nasteroids--;
-			g->ship.radius += 2.0;
-			cout << g->ship.radius << " radius after increment \n";
-			addAsteroid(g);
-			if (a == NULL)
-				break;
-			continue;
+		if (dist < (a->radius + g.ship.radius))
+		{
+			//if (g.ship.radius >= a->radius)
+			//{
+				Asteroid *savea = a->next;
+				deleteAsteroid(a);
+				a = savea;
+				//g.nasteroids--;
+				g.ship.radius += 2.0;
+				addAsteroid();
+				if (a == NULL)
+					break;
+				continue;
+			//}
+			//else
+			//{
+				//g.done = 1;
+			//}
 		}
 		if (a == NULL)
 			break;
@@ -530,29 +568,32 @@ void physics(Game *g)
 	}
 }
 
-void render(Game *g)
+void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-------------------------------------------------------------------------
 	//Draw the ship
-	glColor3fv(g->ship.color);
+	glColor3fv(g.ship.color);
 	glPushMatrix();
-	glTranslatef(g->ship.pos[0], g->ship.pos[1], g->ship.pos[2]);
-	glRotatef(g->ship.angle, 0.0f, 0.0f, 1.0f);
+	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
+	//glRotatef(g.ship.angle, 0.0f, 0.0f, 1.0f);
+	glBindTexture(GL_TEXTURE_2D, playerTextureId);
 	glBegin(GL_TRIANGLE_FAN);
-	float x = (float)g->ship.radius * cos(499 * PI / 180.f);
-	float y = (float)g->ship.radius * sin(499 * PI / 180.f);
-	for (int i = 0; i <= 500; i++)
+	float x = (float)g.ship.radius * cos(999 * PI / 180.f);
+	float y = (float)g.ship.radius * sin(999 * PI / 180.f);
+	for (int i = 0; i <= 1000; i++)
 	{
 		glVertex2f(x, y);
-		x = (float)g->ship.radius * cos(i * PI / 180.f);
-		y = (float)g->ship.radius * sin(i * PI / 180.f);
+		glTexCoord2f(x, y);
+		x = (float)g.ship.radius * cos(i * PI / 180.f);
+		y = (float)g.ship.radius * sin(i * PI / 180.f);
 	}
 	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glPopMatrix();
 
 	//Draw the asteroids
-	Asteroid *a = g->ahead;
+	Asteroid *a = g.ahead;
 	while (a) {
 		glColor3fv(a->color);
 		glPushMatrix();
