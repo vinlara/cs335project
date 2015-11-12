@@ -417,6 +417,7 @@ void checkMouse(XEvent *e)
 		float dx = savex - g.ship.pos[0];
 		float dy = y - g.ship.pos[1];
 		float len = sqrt(dx * dx + dy * dy);
+		
 		g.ship.vel[0] = dx / len;
 		g.ship.vel[1] = dy / len;
 		normalize(g.ship.vel);
@@ -555,8 +556,8 @@ void physics()
 {
 	Flt d0,d1,dist;
 	//Update ship position
-	g.ship.pos[0] += g.ship.vel[0];
-	g.ship.pos[1] += g.ship.vel[1];
+	//g.ship.pos[0] += g.ship.vel[0];
+	//g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
 	if (g.ship.pos[0] < 0.0) 
 	{
@@ -577,10 +578,9 @@ void physics()
 
 	//Update asteroid positions
 	Asteroid *a = g.ahead;
-	while (a) 
-	{
-		a->pos[0] += a->vel[0];
-		a->pos[1] += a->vel[1];
+	while (a) {
+		a->pos[0] += a->vel[0] - g.ship.vel[0];
+		a->pos[1] += a->vel[1] - g.ship.vel[1];
 		//Check for collision with window edges
 		
 		if (a->pos[0] < -100.0) 
