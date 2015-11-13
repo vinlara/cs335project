@@ -1,4 +1,6 @@
-//defined types
+#ifndef STRUCTS_H
+#define STRUCTS_H
+
 typedef float Flt;
 typedef float Vec[3];
 typedef Flt	Matrix[4][4];
@@ -19,21 +21,55 @@ const float gravity = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
 
-struct Ship {
-	int xres, yres;
+//X Windows variables
+Display *dpy;
+Window win;
+GLXContext glc;
+Ppmimage *playerImage=NULL;
+Ppmimage *background=NULL;
+GLuint playerTextureId;
+GLuint backgroundId;
+
+//-----------------------------------------------------------------------------
+//Setup timers
+const double physicsRate = 1.0 / 60.0;
+const double oobillion = 1.0 / 1e9;
+struct timespec timeStart, timeCurrent;
+struct timespec timePause;
+double physicsCountdown=0.0;
+double timeSpan=0.0;
+//unsigned int upause=0;
+double timeDiff(struct timespec *start, struct timespec *end)
+{
+	return (double)(end->tv_sec - start->tv_sec ) +
+			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
+}
+void timeCopy(struct timespec *dest, struct timespec *source)
+
+{
+	memcpy(dest, source, sizeof(struct timespec));
+}
+//-----------------------------------------------------------------------------
+
+int xres = 1600;
+int yres = 900;
+
+struct Ship
+{
 	Vec dir;
 	Vec pos;
 	Vec vel;
 	float angle;
 	float color[3];
 	Flt radius;
-	Ship() {
+	Ship()
+	{
 		VecZero(dir);
 		pos[0] = (Flt)(xres/2);
 		pos[1] = (Flt)(yres/2);
 		pos[2] = 0.0f;
 		VecZero(vel);
-		radius = 40.0;
+		radius = 19.0;
 		angle = 0.0;
 		color[0] = 1.0;
 		color[1] = 1.0;
@@ -41,7 +77,8 @@ struct Ship {
 	}
 };
 
-struct Asteroid {
+struct Asteroid
+{
 	Vec pos;
 	Vec vel;
 	int nverts;
@@ -52,23 +89,29 @@ struct Asteroid {
 	float color[3];
 	struct Asteroid *prev;
 	struct Asteroid *next;
-	Asteroid() {
+	Asteroid()
+	{
 		prev = NULL;
 		next = NULL;
 	}
 };
 
-struct Game {
+struct Game
+{
 	Ship ship;
 	Asteroid *ahead;
 	int nasteroids;
+	double score;
 	int done;
 	struct timespec bulletTimer;
-	Game() {
-		xres = 1280;
-		yres = 960;
+	Game()
+	{
 		ahead = NULL;
 		nasteroids = 0;
 		done = 0;
 	}
-};
+} g;
+
+int keys[65536];
+
+#endif

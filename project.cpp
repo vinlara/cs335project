@@ -22,6 +22,7 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "log.h"
+#include "structs.h"
 //#include "structs.h"
 /*"C" {
 	#include "fonts.h"
@@ -29,7 +30,7 @@
 using namespace std;
 
 //defined types
-typedef float Flt;
+/*typedef float Flt;
 typedef float Vec[3];
 typedef Flt	Matrix[4][4];
 
@@ -140,7 +141,7 @@ struct Game
 	}
 } g;
 
-int keys[65536];
+int keys[65536];*/
 
 //function prototypes
 void initXWindows(void);
@@ -679,10 +680,10 @@ void render()
 	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
 	glBindTexture(GL_TEXTURE_2D, backgroundId);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0,0); glVertex2f(-xres, -yres);
-	glTexCoord2f(0,1); glVertex2f(-xres, yres);
-	glTexCoord2f(1,1); glVertex2f(xres, yres);
-	glTexCoord2f(1,0); glVertex2f(xres, -yres);
+	glTexCoord2f(0,0); glVertex2f(-xres / 2, -yres / 2);
+	glTexCoord2f(0,1); glVertex2f(-xres / 2, yres / 2);
+	glTexCoord2f(1,1); glVertex2f(xres / 2, yres / 2);
+	glTexCoord2f(1,0); glVertex2f(xres / 2, -yres / 2);
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, playerTextureId);
 	glBegin(GL_TRIANGLE_FAN);
