@@ -24,64 +24,6 @@ typedef Flt Matrix[4][4];
 #define rnd() (((double)rand())/(double)RAND_MAX)
 #define PI 3.141592653589793
 
-/*
-struct Ship 
-{
-    Vec dir;
-    Vec pos;
-    Vec vel;
-    float angle;
-    Flt radius;
-    float color[3];
-    Ship() 
-    {
-        VecZero(dir);
-        pos[0] = (Flt)(1280/2);
-        pos[1] = (Flt)(960/2);
-        pos[2] = 0.0f;
-        VecZero(vel);
-        radius = 40.0;
-	angle = 0.0;
-        color[0] = 1.0;
-        color[1] = 1.0;
-        color[2] = 1.0;
-    }
-};
-
-struct Asteroid 
-{
-    Vec pos;
-    Vec vel;
-    int nverts;
-    Flt radius;
-    Vec vert[8];
-    float angle;
-    float rotate;
-    float color[3];
-    struct Asteroid *prev;
-    struct Asteroid *next;
-    Asteroid() 
-    {
-        prev = NULL;
-        next = NULL;
-    }
-};
-
-struct Game 
-{
-    Ship ship;
-    Asteroid *ahead;
-    int nasteroids;
-    struct timespec bulletTimer;
-    Game() 
-    {
-        ahead = NULL;
-        nasteroids = 0;
-    }
-};
-*/
-
-
 void addAsteroid (Game *g) 
 {
     Asteroid *a = new Asteroid;
@@ -112,16 +54,43 @@ void addAsteroid (Game *g)
     }
     else 
     {
-        a->color[0] = 0.3;
+ 	Flt tmpx = xres >> 2;
+        Flt tmpy = yres >> 2;
+        if (a->pos[0] < (3.0 * tmpx) &&
+                a->pos[0] > (tmpx) &&
+                a->pos[1] < (3.0 * tmpy) &&
+                a->pos[1] > (tmpy)
+            )//protect area near center from bigger asteroids
+        {
+            if (a->pos[0] < (2.0 * tmpx) &&
+                a->pos[0] > tmpx
+                )//left half 
+            {
+                a->pos[0] -= tmpx;
+                a->pos[2] = 0.0f;
+            }
+
+            else //right half 
+            {
+                a->pos[0] += tmpx;
+                a->pos[2] = 0.0f;
+            }
+        }
+
+	a->color[0] = 0.3;
         a->color[1] = 0.4;
         a->color[2] = 0.5;
     }
+
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
     a->vel[1] = (Flt)(rnd()*2.0-1.0);
     //add to front of linked list
     a->next = g->ahead;
     if (g->ahead != NULL)
-        g->ahead->prev = a;
+    {
+    	g->ahead->prev = a;
+    }
+
     g->ahead = a;
     g->nasteroids++;
 }
