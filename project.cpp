@@ -21,7 +21,6 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "ppm.h"
-#include "log.h"
 #include "structs.h"
 //#include "structs.h"
 /*"C" {
@@ -29,121 +28,6 @@
 }*/
 using namespace std;
 
-//defined types
-/*typedef float Flt;
-typedef float Vec[3];
-typedef Flt	Matrix[4][4];
-
-//macros
-#define rnd() (((double)rand())/(double)RAND_MAX)
-#define random(a) (rand()%a)
-#define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
-#define MakeVector(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
-#define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
-#define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
-#define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
-							 (c)[1]=(a)[1]-(b)[1]; \
-(c)[2]=(a)[2]-(b)[2]
-//constants
-const float timeslice = 1.0f;
-const float gravity = -0.2f;
-#define PI 3.141592653589793
-#define ALPHA 1
-
-//X Windows variables
-Display *dpy;
-Window win;
-GLXContext glc;
-Ppmimage *playerImage=NULL;
-Ppmimage *background=NULL;
-GLuint playerTextureId;
-GLuint backgroundId;
-
-//-----------------------------------------------------------------------------
-//Setup timers
-const double physicsRate = 1.0 / 60.0;
-const double oobillion = 1.0 / 1e9;
-struct timespec timeStart, timeCurrent;
-struct timespec timePause;
-double physicsCountdown=0.0;
-double timeSpan=0.0;
-//unsigned int upause=0;
-double timeDiff(struct timespec *start, struct timespec *end)
-{
-	return (double)(end->tv_sec - start->tv_sec ) +
-			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
-}
-void timeCopy(struct timespec *dest, struct timespec *source)
-
-{
-	memcpy(dest, source, sizeof(struct timespec));
-}
-//-----------------------------------------------------------------------------
-
-int xres = 1600;
-int yres = 900;
-
-struct Ship
-{
-	Vec dir;
-	Vec pos;
-	Vec vel;
-	float angle;
-	float color[3];
-	Flt radius;
-	Ship()
-	{
-		VecZero(dir);
-		pos[0] = (Flt)(xres/2);
-		pos[1] = (Flt)(yres/2);
-		pos[2] = 0.0f;
-		VecZero(vel);
-		radius = 19.0;
-		angle = 0.0;
-		color[0] = 1.0;
-		color[1] = 1.0;
-		color[2] = 1.0;
-	}
-};
-
-struct Asteroid
-{
-	Vec pos;
-	Vec vel;
-	int nverts;
-	Flt radius;
-	Vec vert[8];
-	float angle;
-	float rotate;
-	float color[3];
-	struct Asteroid *prev;
-	struct Asteroid *next;
-	Asteroid()
-	{
-		prev = NULL;
-		next = NULL;
-	}
-};
-
-struct Game
-{
-	Ship ship;
-	Asteroid *ahead;
-	int nasteroids;
-	double score;
-	int done;
-	struct timespec bulletTimer;
-	Game()
-	{
-		ahead = NULL;
-		nasteroids = 0;
-		done = 0;
-	}
-} g;
-
-int keys[65536];*/
-
-//function prototypes
 void initXWindows(void);
 void initOpenGL(void);
 void initTextures(void);
@@ -153,6 +37,8 @@ void checkMouse(XEvent *e);
 int checkKeys(XEvent *e);
 void init();
 void init_sounds(void);
+void renderStartScreen();
+void renderGameOver();
 void physics();
 void render();
 void normalize(Vec v);
@@ -163,7 +49,6 @@ void addAsteroid();
 
 int main(void)
 {
-	logOpen();
 	initXWindows();
 	initOpenGL();
 	initTextures();
@@ -181,24 +66,32 @@ int main(void)
 			checkMouse(&e);
 			g.done = checkKeys(&e);
 		}
-
-		clock_gettime(CLOCK_REALTIME, &timeCurrent);
-		timeSpan = timeDiff(&timeStart, &timeCurrent);
-		timeCopy(&timeStart, &timeCurrent);
-		physicsCountdown += timeSpan;
-		while (physicsCountdown >= physicsRate)
+		if (g.startScreen)
 		{
-			physics();
-			physicsCountdown -= physicsRate;
+			renderStartScreen();
 		}
-
-		render();
+		else if (g.gameOver)
+		{
+			renderGameOver();
+		}
+		else
+		{
+			clock_gettime(CLOCK_REALTIME, &timeCurrent);
+			timeSpan = timeDiff(&timeStart, &timeCurrent);
+			timeCopy(&timeStart, &timeCurrent);
+			physicsCountdown += timeSpan;
+			while (physicsCountdown >= physicsRate)
+			{
+				physics();
+				physicsCountdown -= physicsRate;
+			}
+			render();
+		}
 		glXSwapBuffers(dpy, win);
 	}
 
 	cleanupXWindows();
 	//cleanup_fonts();
-	logClose();
 	return 0;
 }
 
@@ -291,13 +184,36 @@ void initOpenGL(void)
 void initTextures(void)
 {
 	//load the images file into a ppm structure.
-	playerImage = ppm6GetImage("player.ppm");
-	background = ppm6GetImage("background.ppm");
+	startScreen = ppm6GetImage("images/startScreen.ppm");
+	gameOver = ppm6GetImage("images/gameOver.ppm");
+	playerImage = ppm6GetImage("images/player.ppm");
+	background = ppm6GetImage("images/background.ppm");
+	//
+	//create opengl texture elements
+	glGenTextures(1, &startScreenId);
+	int w = startScreen->width;
+	int h = startScreen->height;
+	//
+	glBindTexture(GL_TEXTURE_2D, startScreenId);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, startScreen->data);
+	//
+	glGenTextures(1, &gameOverId);
+	w = gameOver->width;
+	h = gameOver->height;
+	//
+	glBindTexture(GL_TEXTURE_2D, gameOverId);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, gameOver->data);
 	//
 	//create opengl texture elements
 	glGenTextures(1, &playerTextureId);
-	int w = playerImage->width;
-	int h = playerImage->height;
+	w = playerImage->width;
+	h = playerImage->height;
 	//
 	glBindTexture(GL_TEXTURE_2D, playerTextureId);
 	//
@@ -333,7 +249,7 @@ void check_resize(XEvent *e)
 
 void init()
 {
-    	g.score = g.ship.radius;
+	g.score = g.ship.radius;
 
 	cout << g.score << " = g.score (start)\n";
 
@@ -479,6 +395,10 @@ int checkKeys(XEvent *e)
 	{
 		case XK_Escape:
 			return 1;
+			break;
+		case XK_space:
+			g.startScreen = 0;
+			break;
 	}
 
 	return 0;
@@ -572,6 +492,38 @@ void deleteAsteroid(Asteroid *node)
 	}
 }
 
+void renderStartScreen()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	//-------------------------------------------------------------------------
+	//Draw the Earth
+	glColor3fv(g.ship.color);
+	glPushMatrix();
+	glBindTexture(GL_TEXTURE_2D, startScreenId);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0); glVertex2f(0, yres);
+	glTexCoord2f(0,1); glVertex2f(0, 0);
+	glTexCoord2f(1,1); glVertex2f(xres, 0);
+	glTexCoord2f(1,0); glVertex2f(xres, yres);
+	glEnd();
+}
+void renderGameOver()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	//-------------------------------------------------------------------------
+	//Draw the Earth
+	glColor3fv(g.ship.color);
+	glPushMatrix();
+	glBindTexture(GL_TEXTURE_2D, gameOverId);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0); glVertex2f(0, yres);
+	glTexCoord2f(0,1); glVertex2f(0, 0);
+	glTexCoord2f(1,1); glVertex2f(xres, 0);
+	glTexCoord2f(1,0); glVertex2f(xres, yres);
+	glEnd();
+}
+
+
 void physics()
 {
 	Flt d0,d1,dist;
@@ -636,8 +588,8 @@ void physics()
 		dist = sqrt(d0*d0 + d1*d1);
 		if (dist < (a->radius + g.ship.radius))
 		{
-			//if (g.ship.radius >= a->radius)
-			//{
+			if (g.ship.radius >= a->radius)
+			{
 				Asteroid *savea = a->next;
 
 				cout << g.score << " g.score (before add)\n"
@@ -658,11 +610,11 @@ void physics()
 				if (a == NULL)
 					break;
 				continue;
-			//}
-			//else
-			//{
-				//g.done = 1;
-			//}
+			}
+			else
+			{
+				g.gameOver = 1;
+			}
 		}
 		if (a == NULL)
 			break;

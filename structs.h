@@ -25,8 +25,12 @@ const float gravity = -0.2f;
 Display *dpy;
 Window win;
 GLXContext glc;
+Ppmimage *startScreen=NULL;
+Ppmimage *gameOver=NULL;
 Ppmimage *playerImage=NULL;
 Ppmimage *background=NULL;
+GLuint startScreenId;
+GLuint gameOverId;
 GLuint playerTextureId;
 GLuint backgroundId;
 
@@ -102,12 +106,15 @@ struct Game
 	Asteroid *ahead;
 	int nasteroids;
 	double score;
-	int done;
 	struct timespec bulletTimer;
+	int startScreen, gameOver;
+	int done;
 	Game()
 	{
 		ahead = NULL;
 		nasteroids = 0;
+		startScreen = 1;
+		gameOver = 0;
 		done = 0;
 	}
 } g;
