@@ -189,45 +189,38 @@ void initTextures(void)
 	playerImage = ppm6GetImage("images/player.ppm");
 	background = ppm6GetImage("images/background.ppm");
 	//
-	//create opengl texture elements
+	// Start Screen
 	glGenTextures(1, &startScreenId);
 	int w = startScreen->width;
 	int h = startScreen->height;
-	//
 	glBindTexture(GL_TEXTURE_2D, startScreenId);
-	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, startScreen->data);
 	//
+	// Game Over
 	glGenTextures(1, &gameOverId);
 	w = gameOver->width;
 	h = gameOver->height;
-	//
 	glBindTexture(GL_TEXTURE_2D, gameOverId);
-	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, gameOver->data);
 	//
-	//create opengl texture elements
+	// Player Texture
 	glGenTextures(1, &playerTextureId);
 	w = playerImage->width;
 	h = playerImage->height;
-	//
 	glBindTexture(GL_TEXTURE_2D, playerTextureId);
-	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, playerImage->data);
-
-	//create opengl texture elements
+	//
+	// Background
 	glGenTextures(1, &backgroundId);
-	w = playerImage->width;
-	h = playerImage->height;
-	//
+	w = background->width;
+	h = background->height;
 	glBindTexture(GL_TEXTURE_2D, backgroundId);
-	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
@@ -625,18 +618,16 @@ void physics()
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	//-------------------------------------------------------------------------
-	//Draw the Earth
 	glColor3fv(g.ship.color);
 	glPushMatrix();
-	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
 	glBindTexture(GL_TEXTURE_2D, backgroundId);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0,0); glVertex2f(-xres / 2, -yres / 2);
-	glTexCoord2f(0,1); glVertex2f(-xres / 2, yres / 2);
-	glTexCoord2f(1,1); glVertex2f(xres / 2, yres / 2);
-	glTexCoord2f(1,0); glVertex2f(xres / 2, -yres / 2);
+	glTexCoord2f(0,0); glVertex2f(0, yres);
+	glTexCoord2f(0,1); glVertex2f(0, 0);
+	glTexCoord2f(1,1); glVertex2f(xres, 0);
+	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
+	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
 	glBindTexture(GL_TEXTURE_2D, playerTextureId);
 	glBegin(GL_TRIANGLE_FAN);
 	float x = (float)g.ship.radius * cos(999 * PI / 180.f);
