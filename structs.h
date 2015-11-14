@@ -113,6 +113,7 @@ struct Game
 	{
 		ahead = NULL;
 		nasteroids = 0;
+		score = 0;
 		startScreen = 1;
 		gameOver = 0;
 		done = 0;

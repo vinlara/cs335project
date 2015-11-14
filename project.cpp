@@ -22,10 +22,9 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "structs.h"
-//#include "structs.h"
-/*"C" {
+extern "C" {
 	#include "fonts.h"
-}*/
+}
 using namespace std;
 
 void initXWindows(void);
@@ -40,6 +39,7 @@ void init_sounds(void);
 void renderStartScreen();
 void renderGameOver();
 void physics();
+void updateScore();
 void render();
 void normalize(Vec v);
 void setup_screen_res(const int w, const int h);
@@ -91,7 +91,7 @@ int main(void)
 	}
 
 	cleanupXWindows();
-	//cleanup_fonts();
+	cleanup_fonts();
 	return 0;
 }
 
@@ -178,7 +178,7 @@ void initOpenGL(void)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
-	//initialize_fonts();
+	initialize_fonts();
 }
 
 void initTextures(void)
@@ -336,7 +336,6 @@ void checkMouse(XEvent *e)
 			//Right button is down
 		}
 	}
-
 	if (savex != e->xbutton.x || savey != e->xbutton.y)
 	{
 		//Mouse moved
@@ -615,6 +614,16 @@ void physics()
 	}
 }
 
+void updateScore()
+{
+	Rect r;
+	r.bot = yres - 20;
+	r.left = 10;
+	r.center = 0;
+	ggprint8b(&r, 16, 0x00ffff00, "Score: %i", (int)g.score);
+	cout << "g.score:" << g.score << endl;
+}
+
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -682,4 +691,5 @@ void render()
 		glEnd();
 		a = a->next;
 	}
+	updateScore();
 }
