@@ -41,11 +41,34 @@ void addAsteroid (Game *g)
         a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
         angle += inc;
     }
-    a->pos[0] = (Flt)(rand() % 1280);
-    a->pos[1] = (Flt)(rand() % 960);
+    a->pos[0] = (Flt)(rand() % xres);
+    a->pos[1] = (Flt)(rand() % yres);
     a->pos[2] = 0.0f;
     a->angle = 0.0;
     a->rotate = rnd() * 4.0 - 2.0;
+    Flt tmpx = xres >> 2;
+    Flt tmpy = yres >> 2;
+    if (a->pos[0] < (3.0 * tmpx) &&
+	    a->pos[0] > (tmpx) &&
+	    a->pos[1] < (3.0 * tmpy) &&
+	    a->pos[1] > (tmpy)
+       )//protect area near center from bigger asteroids
+    {
+	if (a->pos[0] < (2.0 * tmpx) &&
+		a->pos[0] > tmpx
+	   )//left half 
+	{
+	    a->pos[0] -= tmpx;
+	    a->pos[2] = 0.0f;
+	}
+	
+	else //right half 
+	{
+	    a->pos[0] += tmpx;
+	    a->pos[2] = 0.0f;
+	}
+    }
+
     if (a->radius < g->ship.radius) 
     {
         a->color[0] = 0.9;
@@ -54,29 +77,6 @@ void addAsteroid (Game *g)
     }
     else 
     {
- 	Flt tmpx = xres >> 2;
-        Flt tmpy = yres >> 2;
-        if (a->pos[0] < (3.0 * tmpx) &&
-                a->pos[0] > (tmpx) &&
-                a->pos[1] < (3.0 * tmpy) &&
-                a->pos[1] > (tmpy)
-            )//protect area near center from bigger asteroids
-        {
-            if (a->pos[0] < (2.0 * tmpx) &&
-                a->pos[0] > tmpx
-                )//left half 
-            {
-                a->pos[0] -= tmpx;
-                a->pos[2] = 0.0f;
-            }
-
-            else //right half 
-            {
-                a->pos[0] += tmpx;
-                a->pos[2] = 0.0f;
-            }
-        }
-
 	a->color[0] = 0.3;
         a->color[1] = 0.4;
         a->color[2] = 0.5;
