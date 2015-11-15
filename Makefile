@@ -1,11 +1,11 @@
 CFLAGS = -I ./include
-##LIB    = ./libggfonts.so
-LFLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm #-lXrandr
+LIB    = ./lib/fmod/libfmodex64.so ./libggfonts.a
+LFLAGS =  $(LIB) -lrt -lX11 -lGLU -lGL -pthread -lm#-lXrandr
 
 all: project
 
-project: project.cpp ppm.cpp
-	g++ $(CFLAGS) project.cpp ppm.cpp libggfonts.a -Wall -Wextra $(LFLAGS) -o project
+project: project.cpp ppm.cpp fmod.c perryH.cpp
+	g++ $(CFLAGS) project.cpp ppm.cpp fmod.c perryH.cpp -Wall -Wextra $(LFLAGS) -o project
 
 clean:
 	rm -f project
