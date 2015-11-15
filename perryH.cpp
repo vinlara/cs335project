@@ -1,4 +1,9 @@
+#include <iostream>
 #include <cmath>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
 #include <X11/Xlib.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -6,6 +11,7 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "structs.h"
+using namespace std;
 extern "C" {
 	#include "fonts.h"
 }
@@ -21,13 +27,59 @@ GLuint playerTextureId;
 GLuint particleTextureId[20];
 GLuint backgroundId;
 
+void loadFiles()
+{
+	//Get a list of all .ppm files in current directory.
+	struct dirent *entry;
+	DIR *dp = opendir("./images/");
+	g.nimages = 0;
+	if (dp) {
+		while ((entry = readdir(dp)) != NULL &&
+						g.nimages < MAX_IMAGES) {
+			//if (strstr(entry->d_name, ".ppm"))
+			//	strcpy(g.imageName[g.nimages++], entry->d_name);
+			if (strstr(entry->d_name, ".png"))
+			{
+				char t1[256];
+				char t2[256];
+				char t3[256] = "images/";
+				strcpy(t2, entry->d_name);
+				int slen = strlen(t2);
+				t2[slen - 4] = '\0';
+				strcat(t2, ".ppm");
+				sprintf(t1, "convert images/%s images/%s", entry->d_name, t2);
+				system(t1);
+				strcat(t3, t2);
+				cout << t3 << endl;
+				strcpy(g.imageName[g.nimages++], t3);
+				strcpy(g.imageTemp[g.nt++], t3);
+			}
+		}
+		closedir(dp);
+	}
+	for (int i = 0; i < 9; ++i)
+	{
+		cout << "g.imageTemp[i]:" << g.imageTemp[i] << endl;
+	}
+}
+
+void cleanupTempFiles()
+{
+	for (int i = 0; i<g.nt; i++)
+	{
+		remove(g.imageTemp[i]);
+	}
+}
+
+
 void initTextures(void)
 {
 	//load the images file into a ppm structure.
-	startScreen = ppm6GetImage("images/startScreen.ppm");
-	gameOver = ppm6GetImage("images/gameOver.ppm");
-	playerImage = ppm6GetImage("images/player.ppm");
-	background = ppm6GetImage("images/background.ppm");
+	startScreen = ppm6GetImage(g.imageTemp[3]);
+	gameOver = ppm6GetImage(g.imageTemp[5]);
+	playerImage = ppm6GetImage(g.imageTemp[4]);
+	background = ppm6GetImage(g.imageTemp[0]);
+	particleImage = ppm6GetImage(g.imageTemp[2]);
 	//
 	// Start Screen
 	glGenTextures(1, &startScreenId);
@@ -64,6 +116,15 @@ void initTextures(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
+	//
+	// Particle Texture 1
+	glGenTextures(1, &particleTextureId[0]);
+	w = particleImage->width;
+	h = particleImage->height;
+	glBindTexture(GL_TEXTURE_2D, particleTextureId[0]);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, particleImage->data);
 }
 
 void renderStartScreen()
@@ -131,8 +192,8 @@ void render()
 	Asteroid *a = g.ahead;
 	while (a)
 	{
-		//glBindTexture(GL_TEXTURE_2D, particleTextureId[a->textureId]);
-		if (a->radius < g.ship.radius)
+		glBindTexture(GL_TEXTURE_2D, particleTextureId[0]);
+		/*if (a->radius < g.ship.radius)
 		{
     		a->color[0] = 0.9;
     		a->color[1] = 0.6;
@@ -143,8 +204,8 @@ void render()
     		a->color[0] = 0.3;
     		a->color[1] = 0.4;
     		a->color[2] = 0.5;
-		}
-		glColor3fv(a->color);
+		}*/
+		//glColor3fv(a->color);
 		glPushMatrix();
 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 		glBegin(GL_TRIANGLE_FAN);
@@ -153,15 +214,16 @@ void render()
 		for (int i = 0; i <= 1000; i++)
 		{
 			glVertex2f(x, y);
+			glTexCoord2f(x, y);
 			x = (float)a->radius * cos(i * PI / 180.f);
 			y = (float)a->radius * sin(i * PI / 180.f);
 		}
 		glEnd();
 		glPopMatrix();
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glBegin(GL_POINTS);
-		glVertex2f(a->pos[0], a->pos[1]);
-		glEnd();
+		//glColor3f(1.0f, 0.0f, 0.0f);
+		//glBegin(GL_POINTS);
+		//glVertex2f(a->pos[0], a->pos[1]);
+		//glEnd();
 		a = a->next;
 	}
 	updateScore();
@@ -215,7 +277,6 @@ int checkKeys(XEvent *e)
 			shift=0;
 		return 0;
 	}
-
 	if (e->type == KeyPress)
 	{
 		keys[key]=1;
@@ -224,7 +285,6 @@ int checkKeys(XEvent *e)
 			return 0;
 		}
 	}
-
 	else
 	{
 		return 0;
@@ -235,7 +295,7 @@ int checkKeys(XEvent *e)
 		case XK_Escape:
 			return 1;
 			break;
-		case XK_space:
+		case XK_Return:
 			if (g.startScreen)
 			{
 				g.startScreen = 0;

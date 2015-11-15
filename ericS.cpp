@@ -16,19 +16,19 @@
 #include "structs.h"
 using namespace std;
 
-void addAsteroid () 
+void addAsteroid ()
 {
     Asteroid *a = new Asteroid;
     a->nverts = 8;
     a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
-    a->textureId = rand() % 20;
+    a->textureId = rand() % 3;
     //cout << "Created asteroid with Texture ID: " << a->textureId << endl;
     //cout << a->radius << " a radius   ship radius " << g->ship.radius << endl;
-    
+
     Flt r2 = a->radius / 2.0;
     Flt angle = 0.0f;
     Flt inc = (PI * 2.0) / (Flt)a->nverts;
-    for (int i=0; i<a->nverts; i++) 
+    for (int i=0; i<a->nverts; i++)
     {
         a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
         a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
@@ -50,26 +50,26 @@ void addAsteroid ()
     {
 	if (a->pos[0] < (2.0 * tmpx) &&
 		a->pos[0] > tmpx
-	   )//left half 
+	   )//left half
 	{
 	    a->pos[0] -= tmpx;
 	    a->pos[2] = 0.0f;
 	}
-	
-	else //right half 
+
+	else //right half
 	{
 	    a->pos[0] += tmpx;
 	    a->pos[2] = 0.0f;
 	}
     }
 
-    if (a->radius < g.ship.radius) 
+    if (a->radius < g.ship.radius)
     {
         a->color[0] = 0.9;
         a->color[1] = 0.6;
         a->color[2] = 0.3;
     }
-    else 
+    else
     {
 	a->color[0] = 0.3;
         a->color[1] = 0.4;

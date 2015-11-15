@@ -20,6 +20,7 @@ const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
+#define MAX_IMAGES 9
 
 //X Windows variables
 //Display *dpy;
@@ -110,6 +111,10 @@ struct Game
 	struct timespec bulletTimer;
 	int startScreen, gameOver;
 	int done;
+	char imageName[MAX_IMAGES][64];
+	int nimages;
+	char imageTemp[MAX_IMAGES][64];
+	int nt;
 	Game()
 	{
 		ahead = NULL;
@@ -118,6 +123,7 @@ struct Game
 		startScreen = 1;
 		gameOver = 0;
 		done = 0;
+		nt = 0;
 	}
 };
 

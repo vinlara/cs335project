@@ -40,8 +40,6 @@ int xres = 1600;
 int yres = 900;
 int keys[65536];
 
-//-----------------------------------------------------------------------------
-//Setup timers
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
 struct timespec timeStart, timeCurrent;
@@ -59,12 +57,13 @@ void timeCopy(struct timespec *dest, struct timespec *source)
 {
 	memcpy(dest, source, sizeof(struct timespec));
 }
-//-----------------------------------------------------------------------------
 
 Game g;
 
 void initXWindows(void);
 void initOpenGL(void);
+extern void loadFiles();
+extern void cleanupTempFiles();
 extern void initTextures(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
@@ -88,6 +87,7 @@ int main(void)
 {
 	initXWindows();
 	initOpenGL();
+	loadFiles();
 	initTextures();
 	init();
 	initSounds();
@@ -128,9 +128,9 @@ int main(void)
 		}
 		glXSwapBuffers(dpy, win);
 	}
-
 	cleanupXWindows();
 	cleanup_fonts();
+	cleanupTempFiles();
 	#ifdef USE_SOUND
 	fmod_cleanup();
 	#endif //USE_SOUND
@@ -249,6 +249,7 @@ void init()
 		Asteroid *a = new Asteroid;
 		a->nverts = 8;
 		a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.8 * g.ship.radius  );
+		a->textureId = rand() % 3;
 		Flt r2 = a->radius / 2.0;
 		Flt angle = 0.0f;
 		Flt inc = (PI * 2.0) / (Flt)a->nverts;
@@ -258,7 +259,6 @@ void init()
 			a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 			angle += inc;
 		}
-
 		a->pos[0] = (Flt)(rand() % xres);
 		a->pos[1] = (Flt)(rand() % yres);
 		a->pos[2] = 0.0f;
@@ -395,8 +395,8 @@ void addAsteroid ()
 	a->color[0] = 0.9;
 	a->color[1] = 0.6;
 	a->color[2] = 0.3;
-    }    
-    else    
+    }
+    else
     {
 	a->color[0] = 0.3;
 	a->color[1] = 0.4;
@@ -416,7 +416,7 @@ void addAsteroid ()
 
 void deleteAsteroid(Asteroid *node)
 {//remove a node from linked list
-	
+
     if (!g.done)
     {
 	if (node)
@@ -433,7 +433,7 @@ void deleteAsteroid(Asteroid *node)
 		    g.ahead = node->next;
 		}
 	    }
-	    
+
 	    else
 	    {
 		if (node->next == NULL)
@@ -446,7 +446,7 @@ void deleteAsteroid(Asteroid *node)
 		    node->next->prev = node->prev;
 		}
 	    }
-	    
+
 	    delete node;
 	    node = NULL;
 	}

@@ -148,7 +148,7 @@ Ppmimage *ppm1CreateImage(int width, int height)
 	image->width = width;
 	image->height = height;
 	return image;
-}  
+}
 
 void ppm1SaveImage(Ppmimage *image, const char *filename)
 {
@@ -168,7 +168,7 @@ void ppm1SaveImage(Ppmimage *image, const char *filename)
 		fprintf(fpo, "\n");
 	}
 	fclose(fpo);
-}  
+}
 
 void ppm1ClearImage(Ppmimage *image, unsigned char color)
 {
@@ -281,7 +281,7 @@ Ppmimage *ppm3CreateImage(int width, int height)
 	image->width = width;
 	image->height = height;
 	return image;
-}  
+}
 
 void ppm3SaveImage(Ppmimage *image, const char *filename)
 {
@@ -302,7 +302,7 @@ void ppm3SaveImage(Ppmimage *image, const char *filename)
 		fprintf(fpo, "\n");
 	}
 	fclose(fpo);
-}  
+}
 
 void ppm3ClearImage(Ppmimage *image, unsigned char red, unsigned char green, unsigned char blue)
 {
@@ -447,7 +447,7 @@ Ppmimage *ppm6CreateImage(int width, int height)
 	image->width = width;
 	image->height = height;
 	return image;
-}  
+}
 
 void ppm6SaveImage(Ppmimage *image, const char *filename)
 {
@@ -486,4 +486,3 @@ void ppm6Setpixel(Ppmimage *image, int x, int y, int channel, unsigned char val)
 	unsigned char *data = (unsigned char *)image->data + ((y * image->width * 3) + (x * 3) + channel);
 	*data = val;
 }
-
