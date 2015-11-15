@@ -80,9 +80,9 @@ void updateScore();
 extern void render();
 extern void normalize(Vec v);
 void setup_screen_res(const int w, const int h);
-void deleteAsteroid(Asteroid *node);
+extern void deleteAsteroid(Asteroid *node);
 void set_title(void);
-void addAsteroid();
+extern void addAsteroid();
 
 int main(void)
 {
@@ -241,9 +241,8 @@ void init()
 {
 	g.score = g.ship.radius;
 
-	//cout << g.score << " = g.score (start)\n";
+	cout << g.score << " = g.score (start)\n";
 
-	//g.ship.radius = 40.0;
 	//build 30 asteroids...
 	for (int j=0; j<30; j++)
 	{
@@ -266,13 +265,14 @@ void init()
 		a->angle = 0.0;
 		a->rotate = rnd() * 4.0 - 2.0;
 
+		//protect area near center from bigger asteroids
 		Flt tmpx = xres >> 2;
 		Flt tmpy = yres >> 2;
-		if (a->pos[0] <= (3.0 * tmpx) &&
+		if ( a->pos[0] <= (3.0 * tmpx) &&
 			a->pos[0] >= (tmpx) &&
 			a->pos[1] <= (3.0 * tmpy) &&
 			a->pos[1] >= (tmpy)
-		   )//protect area near center from bigger asteroids
+		   )
 		{
 		    if (a->pos[0] <= (2.0 * tmpx) &&
 			    a->pos[0] > tmpx
@@ -339,6 +339,7 @@ void initSounds(void)
 	#endif
 }
 
+/*
 void addAsteroid ()
 {
     Asteroid *a = new Asteroid;
@@ -394,7 +395,9 @@ void addAsteroid ()
 	a->color[0] = 0.9;
 	a->color[1] = 0.6;
 	a->color[2] = 0.3;
-    }    else    {
+    }    
+    else    
+    {
 	a->color[0] = 0.3;
 	a->color[1] = 0.4;
 	a->color[2] = 0.5;
@@ -412,43 +415,45 @@ void addAsteroid ()
 }
 
 void deleteAsteroid(Asteroid *node)
-{
-	//remove a node from linked list
-	if (!g.done)
+{//remove a node from linked list
+	
+    if (!g.done)
+    {
+	if (node)
 	{
-		if (node)
+	    if (node->prev == NULL)
+	    {
+		if (node->next == NULL)
 		{
-			if (node->prev == NULL)
-			{
-				if (node->next == NULL)
-				{
-					g.ahead = NULL;
-				}
-				else
-				{
-					node->next->prev = NULL;
-					g.ahead = node->next;
-				}
-			}
-
-			else
-			{
-				if (node->next == NULL)
-				{
-					node->prev->next = NULL;
-				}
-				else
-				{
-					node->prev->next = node->next;
-					node->next->prev = node->prev;
-				}
-			}
-
-			delete node;
-			node = NULL;
+		    g.ahead = NULL;
 		}
+		else
+		{
+		    node->next->prev = NULL;
+		    g.ahead = node->next;
+		}
+	    }
+	    
+	    else
+	    {
+		if (node->next == NULL)
+		{
+		    node->prev->next = NULL;
+		}
+		else
+		{
+		    node->prev->next = node->next;
+		    node->next->prev = node->prev;
+		}
+	    }
+	    
+	    delete node;
+	    node = NULL;
 	}
+    }
 }
+
+*/
 
 void physics()
 {

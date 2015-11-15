@@ -13,23 +13,16 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
-#include <struct.h>
+#include "structs.h"
 using namespace std;
 
-typedef float Flt;
-typedef float Vec[3];
-typedef Flt Matrix[4][4];
-
-#define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
-#define rnd() (((double)rand())/(double)RAND_MAX)
-#define PI 3.141592653589793
-
-void addAsteroid (Game *g) 
+void addAsteroid () 
 {
     Asteroid *a = new Asteroid;
     a->nverts = 8;
-    a->radius = ( rnd() * 2.0 * g->ship.radius ) - ( rnd() * 0.5 * g->ship.radius  );
-     
+    a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
+    a->textureId = rand() % 20;
+    //cout << "Created asteroid with Texture ID: " << a->textureId << endl;
     //cout << a->radius << " a radius   ship radius " << g->ship.radius << endl;
     
     Flt r2 = a->radius / 2.0;
@@ -46,9 +39,10 @@ void addAsteroid (Game *g)
     a->pos[2] = 0.0f;
     a->angle = 0.0;
     a->rotate = rnd() * 4.0 - 2.0;
+
     Flt tmpx = xres >> 2;
     Flt tmpy = yres >> 2;
-    if (a->pos[0] < (3.0 * tmpx) &&
+    if ( a->pos[0] < (3.0 * tmpx) &&
 	    a->pos[0] > (tmpx) &&
 	    a->pos[1] < (3.0 * tmpy) &&
 	    a->pos[1] > (tmpy)
@@ -69,7 +63,7 @@ void addAsteroid (Game *g)
 	}
     }
 
-    if (a->radius < g->ship.radius) 
+    if (a->radius < g.ship.radius) 
     {
         a->color[0] = 0.9;
         a->color[1] = 0.6;
@@ -85,50 +79,49 @@ void addAsteroid (Game *g)
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
     a->vel[1] = (Flt)(rnd()*2.0-1.0);
     //add to front of linked list
-    a->next = g->ahead;
-    if (g->ahead != NULL)
+    a->next = g.ahead;
+    if (g.ahead != NULL)
     {
-    	g->ahead->prev = a;
+    	g.ahead->prev = a;
     }
 
-    g->ahead = a;
-    g->nasteroids++;
+    g.ahead = a;
+    g.nasteroids++;
 }
 
-void deleteAsteroid(Game *g, Asteroid *node)
+void deleteAsteroid(Asteroid *node)
 {
-	//remove a node from linked list
-	if (g)
+    //remove a node from linked list
+    if (!g.done)
+    {
+	if (node)
 	{
-		if (node)
+	    if (node->prev == NULL)
+	    {
+		if (node->next == NULL)
 		{
-			if (node->prev == NULL)
-			{
-				if (node->next == NULL)
-				{
-					g->ahead = NULL;
-				}
-				else
-				{
-					node->next->prev = NULL;
-					g->ahead = node->next;
-				}
-			}
-			else
-			{
-				if (node->next == NULL)
-				{
-					node->prev->next = NULL;
-				}
-				else
-				{
-					node->prev->next = node->next;
-					node->next->prev = node->prev;
-				}
-			}
-			delete node;
-			node = NULL;
-			//addAsteroid(g);
+		    g.ahead = NULL;
 		}
+		else
+		{
+		    node->next->prev = NULL;
+		    g.ahead = node->next;
+		}
+	    }
+	    else
+	    {
+		if (node->next == NULL)
+		{
+		    node->prev->next = NULL;
+		}
+		else
+		{
+		    node->prev->next = node->next;
+		    node->next->prev = node->prev;
+		}
+	    }
+	    delete node;
+	    node = NULL;
 	}
+    }
 }
