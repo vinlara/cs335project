@@ -1,11 +1,5 @@
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <unistd.h>
-#include <ctime>
 #include <cmath>
 #include <X11/Xlib.h>
-//#include <X11/Xutil.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <X11/keysym.h>
@@ -24,7 +18,7 @@ Ppmimage *background = NULL;
 GLuint startScreenId;
 GLuint gameOverId;
 GLuint playerTextureId;
-GLuint particleTextureId[10];
+GLuint particleTextureId[20];
 GLuint backgroundId;
 
 void initTextures(void)
@@ -75,10 +69,6 @@ void initTextures(void)
 void renderStartScreen()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	//-------------------------------------------------------------------------
-	//Draw the Earth
-	glColor3fv(g.ship.color);
-	glPushMatrix();
 	glBindTexture(GL_TEXTURE_2D, startScreenId);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0,0); glVertex2f(0, yres);
@@ -87,13 +77,10 @@ void renderStartScreen()
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
 }
+
 void renderGameOver()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	//-------------------------------------------------------------------------
-	//Draw the Earth
-	glColor3fv(g.ship.color);
-	glPushMatrix();
 	glBindTexture(GL_TEXTURE_2D, gameOverId);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0,0); glVertex2f(0, yres);
@@ -144,6 +131,7 @@ void render()
 	Asteroid *a = g.ahead;
 	while (a)
 	{
+		//glBindTexture(GL_TEXTURE_2D, particleTextureId[a->textureId]);
 		if (a->radius < g.ship.radius)
 		{
     		a->color[0] = 0.9;
