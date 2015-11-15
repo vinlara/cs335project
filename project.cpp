@@ -26,27 +26,63 @@ extern "C" {
 	#include "fonts.h"
 }
 using namespace std;
+#define USE_SOUND
+#ifdef USE_SOUND
+#include <FMOD/fmod.h>
+#include <FMOD/wincompat.h>
+#include "fmod.h"
+#endif
+
+Display *dpy;
+Window win;
+GLXContext glc;
+int xres = 1600;
+int yres = 900;
+int keys[65536];
+
+//-----------------------------------------------------------------------------
+//Setup timers
+const double physicsRate = 1.0 / 60.0;
+const double oobillion = 1.0 / 1e9;
+struct timespec timeStart, timeCurrent;
+struct timespec timePause;
+double physicsCountdown=0.0;
+double timeSpan=0.0;
+//unsigned int upause=0;
+double timeDiff(struct timespec *start, struct timespec *end)
+{
+	return (double)(end->tv_sec - start->tv_sec ) +
+			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
+}
+void timeCopy(struct timespec *dest, struct timespec *source)
+
+{
+	memcpy(dest, source, sizeof(struct timespec));
+}
+//-----------------------------------------------------------------------------
+
+Game g;
 
 void initXWindows(void);
 void initOpenGL(void);
-void initTextures(void);
+extern void initTextures(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
-void checkMouse(XEvent *e);
-int checkKeys(XEvent *e);
+extern void checkMouse(XEvent *e);
+extern int checkKeys(XEvent *e);
 void init();
-void init_sounds(void);
-void renderStartScreen();
-void renderGameOver();
+void initSounds(void);
+extern void renderStartScreen();
+extern void renderGameOver();
 void physics();
 void updateCamera();
 void updateScore();
-void render();
-void normalize(Vec v);
+extern void render();
+extern void normalize(Vec v);
 void setup_screen_res(const int w, const int h);
-void deleteAsteroid(Asteroid *node);
+extern void deleteAsteroid(Asteroid *node);
 void set_title(void);
-void addAsteroid();
+extern void addAsteroid();
 
 int main(void)
 {
@@ -54,6 +90,7 @@ int main(void)
 	initOpenGL();
 	initTextures();
 	init();
+	initSounds();
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
@@ -94,6 +131,9 @@ int main(void)
 
 	cleanupXWindows();
 	cleanup_fonts();
+	#ifdef USE_SOUND
+	fmod_cleanup();
+	#endif //USE_SOUND
 	return 0;
 }
 
@@ -183,51 +223,6 @@ void initOpenGL(void)
 	initialize_fonts();
 }
 
-void initTextures(void)
-{
-	//load the images file into a ppm structure.
-	startScreen = ppm6GetImage("images/startScreen.ppm");
-	gameOver = ppm6GetImage("images/gameOver.ppm");
-	playerImage = ppm6GetImage("images/player.ppm");
-	background = ppm6GetImage("images/background.ppm");
-	//
-	// Start Screen
-	glGenTextures(1, &startScreenId);
-	int w = startScreen->width;
-	int h = startScreen->height;
-	glBindTexture(GL_TEXTURE_2D, startScreenId);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, startScreen->data);
-	//
-	// Game Over
-	glGenTextures(1, &gameOverId);
-	w = gameOver->width;
-	h = gameOver->height;
-	glBindTexture(GL_TEXTURE_2D, gameOverId);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, gameOver->data);
-	//
-	// Player Texture
-	glGenTextures(1, &playerTextureId);
-	w = playerImage->width;
-	h = playerImage->height;
-	glBindTexture(GL_TEXTURE_2D, playerTextureId);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, playerImage->data);
-	//
-	// Background
-	glGenTextures(1, &backgroundId);
-	w = background->width;
-	h = background->height;
-	glBindTexture(GL_TEXTURE_2D, backgroundId);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
-}
-
 void check_resize(XEvent *e)
 {
 	//The ConfigureNotify is sent by the
@@ -248,7 +243,6 @@ void init()
 
 	cout << g.score << " = g.score (start)\n";
 
-	//g.ship.radius = 40.0;
 	//build 30 asteroids...
 	for (int j=0; j<30; j++)
 	{
@@ -271,23 +265,24 @@ void init()
 		a->angle = 0.0;
 		a->rotate = rnd() * 4.0 - 2.0;
 
+		//protect area near center from bigger asteroids
 		Flt tmpx = xres >> 2;
 		Flt tmpy = yres >> 2;
-		if (a->pos[0] <= (3.0 * tmpx) &&
+		if ( a->pos[0] <= (3.0 * tmpx) &&
 			a->pos[0] >= (tmpx) &&
 			a->pos[1] <= (3.0 * tmpy) &&
 			a->pos[1] >= (tmpy)
-		   )//protect area near center from bigger asteroids
+		   )
 		{
 		    if (a->pos[0] <= (2.0 * tmpx) &&
 			    a->pos[0] > tmpx
-		       )//left half 
+		       )//left half
 		    {
 			a->pos[0] -= 1.25 * tmpx;
 			a->pos[2] = 0.0f;
 		    }
-		    
-		    else //right half 
+
+		    else //right half
 		    {
 			a->pos[0] += 1.25 * tmpx;
 			a->pos[2] = 0.0f;
@@ -322,111 +317,36 @@ void init()
 	memset(keys, 0, 65536);
 }
 
-void normalize(Vec v)
+void initSounds(void)
 {
-	Flt len = v[0]*v[0] + v[1]*v[1];
-	if (len == 0.0f)
-	{
-		v[0] = 1.0;
-		v[1] = 0.0;
+	#ifdef USE_SOUND
+	//FMOD_RESULT result;
+	if (fmod_init()) {
+		std::cout << "ERROR - fmod_init()\n" << std::endl;
 		return;
 	}
-
-	len = 1.0f / sqrt(len);
-	v[0] *= len * 2;
-	v[1] *= len * 2;
-}
-
-void checkMouse(XEvent *e)
-{
-	//Did the mouse move?
-	//Was a mouse button clicked?
-	static int savex = 0;
-	static int savey = 0;
-	//
-	if (e->type == ButtonRelease)
-	{
+	if (fmod_createsound((char *)"./sounds/tick.wav", 0)) {
+		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
 		return;
 	}
-
-	if (e->type == ButtonPress)
-	{
-		if (e->xbutton.button==1)
-		{
-			//Left button is down
-		}
-
-		if (e->xbutton.button==3)
-		{
-			//Right button is down
-		}
-	}
-	if (savex != e->xbutton.x || savey != e->xbutton.y)
-	{
-		//Mouse moved
-		savex = e->xbutton.x;
-		savey = e->xbutton.y;
-		int y = yres - e->xbutton.y;
-		float dx = savex - g.ship.pos[0];
-		float dy = y - g.ship.pos[1];
-		float len = sqrt(dx * dx + dy * dy);
-
-		g.ship.vel[0] = dx / len;
-		g.ship.vel[1] = dy / len;
-		normalize(g.ship.vel);
+	if (fmod_createsound((char *)"./sounds/drip.wav", 1)) {
+		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
 		return;
 	}
+	fmod_setmode(0,FMOD_LOOP_OFF);
+	//fmod_playsound(0);
+	//fmod_systemupdate();
+	#endif
 }
 
-int checkKeys(XEvent *e)
-{
-	//keyboard input?
-	static int shift=0;
-	int key = XLookupKeysym(&e->xkey, 0);
-	//Log("key: %i\n", key);
-	if (e->type == KeyRelease)
-	{
-		keys[key]=0;
-		if (key == XK_Shift_L || key == XK_Shift_R)
-			shift=0;
-		return 0;
-	}
-
-	if (e->type == KeyPress)
-	{
-		keys[key]=1;
-		if (key == XK_Shift_L || key == XK_Shift_R) {
-			shift=1;
-			return 0;
-		}
-
-	}
-
-	else
-	{
-		return 0;
-	}
-
-	if (shift){}
-	switch(key)
-	{
-		case XK_Escape:
-			return 1;
-			break;
-		case XK_space:
-			g.startScreen = 0;
-			break;
-	}
-
-	return 0;
-}
-
+/*
 void addAsteroid ()
 {
     Asteroid *a = new Asteroid;
     a->nverts = 8;
     a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
-
+	a->textureId = rand() % 20;
+	//cout << "Created Asteroid with Texure ID: " << a->textureId << endl;
     //cout << "Creating Asteroid with radius: " << a->radius << endl;
 	//cout << "Current Ship Radius: " << g.ship.radius << endl;
 
@@ -457,111 +377,83 @@ void addAsteroid ()
     {
 	if (a->pos[0] <= (2.0 * tmpx) &&
 		a->pos[0] > tmpx
-	   )//left half 
+	   )//left half
 	{
 	    a->pos[0] -= 1.25 * tmpx;
 	    a->pos[2] = 0.0f;
 	}
-	
-	else //right half 
+
+	else //right half
 	{
 	    a->pos[0] += 1.25 * tmpx;
 	    a->pos[2] = 0.0f;
 	}
-    }	
-    
+    }
+
     if (a->radius < g.ship.radius)
     {
 	a->color[0] = 0.9;
 	a->color[1] = 0.6;
 	a->color[2] = 0.3;
-    }    else    {
+    }    
+    else    
+    {
 	a->color[0] = 0.3;
 	a->color[1] = 0.4;
 	a->color[2] = 0.5;
     }
-    
+
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
     a->vel[1] = (Flt)(rnd()*2.0-1.0);
     //add to front of linked list
     a->next = g.ahead;
     if (g.ahead != NULL)
 	g.ahead->prev = a;
-    
+
     g.ahead = a;
     g.nasteroids++;
 }
 
 void deleteAsteroid(Asteroid *node)
-{
-	//remove a node from linked list
-	if (!g.done)
+{//remove a node from linked list
+	
+    if (!g.done)
+    {
+	if (node)
 	{
-		if (node)
+	    if (node->prev == NULL)
+	    {
+		if (node->next == NULL)
 		{
-			if (node->prev == NULL)
-			{
-				if (node->next == NULL)
-				{
-					g.ahead = NULL;
-				}
-				else
-				{
-					node->next->prev = NULL;
-					g.ahead = node->next;
-				}
-			}
-
-			else
-			{
-				if (node->next == NULL)
-				{
-					node->prev->next = NULL;
-				}
-				else
-				{
-					node->prev->next = node->next;
-					node->next->prev = node->prev;
-				}
-			}
-
-			delete node;
-			node = NULL;
+		    g.ahead = NULL;
 		}
+		else
+		{
+		    node->next->prev = NULL;
+		    g.ahead = node->next;
+		}
+	    }
+	    
+	    else
+	    {
+		if (node->next == NULL)
+		{
+		    node->prev->next = NULL;
+		}
+		else
+		{
+		    node->prev->next = node->next;
+		    node->next->prev = node->prev;
+		}
+	    }
+	    
+	    delete node;
+	    node = NULL;
 	}
+    }
 }
 
-void renderStartScreen()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	//-------------------------------------------------------------------------
-	//Draw the Earth
-	glColor3fv(g.ship.color);
-	glPushMatrix();
-	glBindTexture(GL_TEXTURE_2D, startScreenId);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0,0); glVertex2f(0, yres);
-	glTexCoord2f(0,1); glVertex2f(0, 0);
-	glTexCoord2f(1,1); glVertex2f(xres, 0);
-	glTexCoord2f(1,0); glVertex2f(xres, yres);
-	glEnd();
-}
-void renderGameOver()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	//-------------------------------------------------------------------------
-	//Draw the Earth
-	glColor3fv(g.ship.color);
-	glPushMatrix();
-	glBindTexture(GL_TEXTURE_2D, gameOverId);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0,0); glVertex2f(0, yres);
-	glTexCoord2f(0,1); glVertex2f(0, 0);
-	glTexCoord2f(1,1); glVertex2f(xres, 0);
-	glTexCoord2f(1,0); glVertex2f(xres, yres);
-	glEnd();
-}
-
+*/
 
 void physics()
 {
@@ -629,17 +521,18 @@ void physics()
 		{
 			if (g.ship.radius >= a->radius)
 			{
+				fmod_playsound(0);
 				Asteroid *savea = a->next;
 
-				cout << g.score << " g.score (before add)\n"
-				   	<< g.ship.radius << " ship radius\n"
-					<< a->radius << " asteroid radius\n";
+				//cout << g.score << " g.score (before add)\n"
+				//   	<< g.ship.radius << " ship radius\n"
+				//	<< a->radius << " asteroid radius\n";
 
 				if (a->radius > 0)
 					g.score += 0.5 * a->radius;
 
-				cout << g.score << " g.score (after add)\n"
-				   	<< g.ship.radius << " ship radius\n\n";
+				//cout << g.score << " g.score (after add)\n"
+				//   	<< g.ship.radius << " ship radius\n\n";
 
 				deleteAsteroid(a);
 				a = savea;
@@ -663,9 +556,9 @@ void physics()
 
 void updateCamera()
 {
-	cout << (float)xres << " xres\n";
-	cout << (float)yres << " yres\n";
-	cout << std::dec << (g.ship.pos) << " g.ship.pos\n";
+	//cout << (float)xres << " xres\n";
+	//cout << (float)yres << " yres\n";
+	//cout << std::dec << (g.ship.pos) << " g.ship.pos\n";
 	bool Move = false;
 	if(g.ship.pos[0] < (float)(xres)*.65+.1 && g.ship.pos[0] > (float)(xres)*.35-.1
 		&& g.ship.pos[1] < (float)(yres)*.65+.1 && g.ship.pos[1] > (float)(yres)*.35-.1)
@@ -687,7 +580,7 @@ void updateCamera()
 			if(g.ship.pos[1] < (float)(yres)*.35-.1)
 				g.ship.pos[1] = (float)(yres)*.35;
 		}
-				
+
 	Asteroid *a = g.ahead;
 	if (Move)
 	{
@@ -698,84 +591,4 @@ void updateCamera()
 			a = a->next;
 		}
 	}
-}
-	
-void updateScore()
-{
-	Rect r;
-	r.bot = yres - 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00ffff00, "Score: %i", (int)g.score);
-	cout << "g.score:" << g.score << endl;
-}
-
-void render()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3fv(g.ship.color);
-	glPushMatrix();
-	glBindTexture(GL_TEXTURE_2D, backgroundId);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0,0); glVertex2f(0, yres);
-	glTexCoord2f(0,1); glVertex2f(0, 0);
-	glTexCoord2f(1,1); glVertex2f(xres, 0);
-	glTexCoord2f(1,0); glVertex2f(xres, yres);
-	glEnd();
-	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
-	glBindTexture(GL_TEXTURE_2D, playerTextureId);
-	glBegin(GL_TRIANGLE_FAN);
-	float x = (float)g.ship.radius * cos(999 * PI / 180.f);
-	float y = (float)g.ship.radius * sin(999 * PI / 180.f);
-	for (int i = 0; i <= 1000; i++)
-	{
-		glVertex2f(x, y);
-		glTexCoord2f(x, y);
-		x = (float)g.ship.radius * cos(i * PI / 180.f);
-		y = (float)g.ship.radius * sin(i * PI / 180.f);
-	}
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glPopMatrix();
-
-	//Draw the asteroids
-	Asteroid *a = g.ahead;
-	while (a)
-	{
-    		if (a->radius < g.ship.radius)
-    		{
-        		a->color[0] = 0.9;
-        		a->color[1] = 0.6;
-        		a->color[2] = 0.3;
-    		}
-
-    		else
-    		{
-        		a->color[0] = 0.3;
-        		a->color[1] = 0.4;
-        		a->color[2] = 0.5;
-    		}
-
-		glColor3fv(a->color);
-		glPushMatrix();
-		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
-		glBegin(GL_TRIANGLE_FAN);
-		float x = (float)a->radius * cos(999 * PI / 180.f);
-		float y = (float)a->radius * sin(999 * PI / 180.f);
-		for (int i = 0; i <= 1000; i++)
-		{
-			glVertex2f(x, y);
-			x = (float)a->radius * cos(i * PI / 180.f);
-			y = (float)a->radius * sin(i * PI / 180.f);
-		}
-
-		glEnd();
-		glPopMatrix();
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glBegin(GL_POINTS);
-		glVertex2f(a->pos[0], a->pos[1]);
-		glEnd();
-		a = a->next;
-	}
-	updateScore();
 }

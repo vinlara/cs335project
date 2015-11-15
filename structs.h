@@ -22,21 +22,21 @@ const float gravity = -0.2f;
 #define ALPHA 1
 
 //X Windows variables
-Display *dpy;
-Window win;
-GLXContext glc;
-Ppmimage *startScreen=NULL;
-Ppmimage *gameOver=NULL;
-Ppmimage *playerImage=NULL;
-Ppmimage *background=NULL;
-GLuint startScreenId;
-GLuint gameOverId;
-GLuint playerTextureId;
-GLuint backgroundId;
+//Display *dpy;
+//Window win;
+//GLXContext glc;
+//Ppmimage *startScreen=NULL;
+//Ppmimage *gameOver=NULL;
+//Ppmimage *playerImage=NULL;
+//Ppmimage *background=NULL;
+//GLuint startScreenId;
+//GLuint gameOverId;
+//GLuint playerTextureId;
+//GLuint backgroundId;
 
 //-----------------------------------------------------------------------------
 //Setup timers
-const double physicsRate = 1.0 / 60.0;
+/*const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
 struct timespec timeStart, timeCurrent;
 struct timespec timePause;
@@ -52,11 +52,11 @@ void timeCopy(struct timespec *dest, struct timespec *source)
 
 {
 	memcpy(dest, source, sizeof(struct timespec));
-}
+}*/
 //-----------------------------------------------------------------------------
 
-int xres = 1600;
-int yres = 900;
+extern int xres;
+extern int yres;
 
 struct Ship
 {
@@ -69,8 +69,8 @@ struct Ship
 	Ship()
 	{
 		VecZero(dir);
-		pos[0] = (Flt)(xres/2);
-		pos[1] = (Flt)(yres/2);
+		pos[0] = (Flt)(1600/2);
+		pos[1] = (Flt)(900/2);
 		pos[2] = 0.0f;
 		VecZero(vel);
 		radius = 19.0;
@@ -91,6 +91,7 @@ struct Asteroid
 	float angle;
 	float rotate;
 	float color[3];
+	int textureId;
 	struct Asteroid *prev;
 	struct Asteroid *next;
 	Asteroid()
@@ -118,8 +119,9 @@ struct Game
 		gameOver = 0;
 		done = 0;
 	}
-} g;
+};
 
-int keys[65536];
+extern Game g;
+extern int keys[65536];
 
 #endif
