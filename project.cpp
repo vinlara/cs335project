@@ -279,13 +279,13 @@ void init()
 		{
 		    if (a->pos[0] <= (2.0 * tmpx) &&
 			    a->pos[0] > tmpx
-		       )//left half 
+		       )//left half
 		    {
 			a->pos[0] -= 1.25 * tmpx;
 			a->pos[2] = 0.0f;
 		    }
-		    
-		    else //right half 
+
+		    else //right half
 		    {
 			a->pos[0] += 1.25 * tmpx;
 			a->pos[2] = 0.0f;
@@ -455,19 +455,19 @@ void addAsteroid ()
     {
 	if (a->pos[0] <= (2.0 * tmpx) &&
 		a->pos[0] > tmpx
-	   )//left half 
+	   )//left half
 	{
 	    a->pos[0] -= 1.25 * tmpx;
 	    a->pos[2] = 0.0f;
 	}
-	
-	else //right half 
+
+	else //right half
 	{
 	    a->pos[0] += 1.25 * tmpx;
 	    a->pos[2] = 0.0f;
 	}
-    }	
-    
+    }
+
     if (a->radius < g.ship.radius)
     {
 	a->color[0] = 0.9;
@@ -478,14 +478,14 @@ void addAsteroid ()
 	a->color[1] = 0.4;
 	a->color[2] = 0.5;
     }
-    
+
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
     a->vel[1] = (Flt)(rnd()*2.0-1.0);
     //add to front of linked list
     a->next = g.ahead;
     if (g.ahead != NULL)
 	g.ahead->prev = a;
-    
+
     g.ahead = a;
     g.nasteroids++;
 }
