@@ -25,7 +25,7 @@
 extern "C" {
 	#include "fonts.h"
 }
-
+using namespace std;
 #define USE_SOUND
 #ifdef USE_SOUND
 #include <FMOD/fmod.h>
@@ -33,23 +33,51 @@ extern "C" {
 #include "fmod.h"
 #endif
 
-using namespace std;
+Display *dpy;
+Window win;
+GLXContext glc;
+int xres = 1600;
+int yres = 900;
+int keys[65536];
+
+//-----------------------------------------------------------------------------
+//Setup timers
+const double physicsRate = 1.0 / 60.0;
+const double oobillion = 1.0 / 1e9;
+struct timespec timeStart, timeCurrent;
+struct timespec timePause;
+double physicsCountdown=0.0;
+double timeSpan=0.0;
+//unsigned int upause=0;
+double timeDiff(struct timespec *start, struct timespec *end)
+{
+	return (double)(end->tv_sec - start->tv_sec ) +
+			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
+}
+void timeCopy(struct timespec *dest, struct timespec *source)
+
+{
+	memcpy(dest, source, sizeof(struct timespec));
+}
+//-----------------------------------------------------------------------------
+
+Game g;
 
 void initXWindows(void);
 void initOpenGL(void);
-void initTextures(void);
+extern void initTextures(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
 void checkMouse(XEvent *e);
 int checkKeys(XEvent *e);
 void init();
 void initSounds(void);
-void renderStartScreen();
-void renderGameOver();
+extern void renderStartScreen();
+extern void renderGameOver();
 void physics();
 void updateCamera();
 void updateScore();
-void render();
+extern void render();
 void normalize(Vec v);
 void setup_screen_res(const int w, const int h);
 void deleteAsteroid(Asteroid *node);
@@ -195,7 +223,7 @@ void initOpenGL(void)
 	initialize_fonts();
 }
 
-void initTextures(void)
+/*void initTextures(void)
 {
 	//load the images file into a ppm structure.
 	startScreen = ppm6GetImage("images/startScreen.ppm");
@@ -238,7 +266,7 @@ void initTextures(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
-}
+}*/
 
 void check_resize(XEvent *e)
 {
@@ -565,7 +593,7 @@ void deleteAsteroid(Asteroid *node)
 	}
 }
 
-void renderStartScreen()
+/*void renderStartScreen()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//-------------------------------------------------------------------------
@@ -594,7 +622,7 @@ void renderGameOver()
 	glTexCoord2f(1,1); glVertex2f(xres, 0);
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
-}
+}*/
 
 
 void physics()
@@ -663,7 +691,7 @@ void physics()
 		{
 			if (g.ship.radius >= a->radius)
 			{
-				fmod_playsound(1);
+				fmod_playsound(0);
 				Asteroid *savea = a->next;
 
 				cout << g.score << " g.score (before add)\n"
@@ -735,7 +763,7 @@ void updateCamera()
 	}
 }
 
-void updateScore()
+/*void updateScore()
 {
 	Rect r;
 	r.bot = yres - 20;
@@ -743,9 +771,9 @@ void updateScore()
 	r.center = 0;
 	ggprint8b(&r, 16, 0x00ffff00, "Score: %i", (int)g.score);
 	cout << "g.score:" << g.score << endl;
-}
+}*/
 
-void render()
+/*void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3fv(g.ship.color);
@@ -777,19 +805,19 @@ void render()
 	Asteroid *a = g.ahead;
 	while (a)
 	{
-    		if (a->radius < g.ship.radius)
-    		{
-        		a->color[0] = 0.9;
-        		a->color[1] = 0.6;
-        		a->color[2] = 0.3;
-    		}
+		if (a->radius < g.ship.radius)
+		{
+    		a->color[0] = 0.9;
+    		a->color[1] = 0.6;
+    		a->color[2] = 0.3;
+		}
 
-    		else
-    		{
-        		a->color[0] = 0.3;
-        		a->color[1] = 0.4;
-        		a->color[2] = 0.5;
-    		}
+		else
+		{
+    		a->color[0] = 0.3;
+    		a->color[1] = 0.4;
+    		a->color[2] = 0.5;
+		}
 
 		glColor3fv(a->color);
 		glPushMatrix();
@@ -813,4 +841,4 @@ void render()
 		a = a->next;
 	}
 	updateScore();
-}
+}*/
