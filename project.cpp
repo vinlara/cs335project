@@ -25,6 +25,14 @@
 extern "C" {
 	#include "fonts.h"
 }
+
+#define USE_SOUND
+#ifdef USE_SOUND
+#include <FMOD/fmod.h>
+#include <FMOD/wincompat.h>
+#include "fmod.h"
+#endif
+
 using namespace std;
 
 void initXWindows(void);
@@ -35,7 +43,7 @@ void check_resize(XEvent *e);
 void checkMouse(XEvent *e);
 int checkKeys(XEvent *e);
 void init();
-void init_sounds(void);
+void initSounds(void);
 void renderStartScreen();
 void renderGameOver();
 void physics();
@@ -54,6 +62,7 @@ int main(void)
 	initOpenGL();
 	initTextures();
 	init();
+	initSounds();
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
@@ -94,6 +103,9 @@ int main(void)
 
 	cleanupXWindows();
 	cleanup_fonts();
+	#ifdef USE_SOUND
+	fmod_cleanup();
+	#endif //USE_SOUND
 	return 0;
 }
 
@@ -281,13 +293,13 @@ void init()
 		{
 		    if (a->pos[0] <= (2.0 * tmpx) &&
 			    a->pos[0] > tmpx
-		       )//left half 
+		       )//left half
 		    {
 			a->pos[0] -= 1.25 * tmpx;
 			a->pos[2] = 0.0f;
 		    }
-		    
-		    else //right half 
+
+		    else //right half
 		    {
 			a->pos[0] += 1.25 * tmpx;
 			a->pos[2] = 0.0f;
@@ -320,6 +332,28 @@ void init()
 	}
 
 	memset(keys, 0, 65536);
+}
+
+void initSounds(void)
+{
+	#ifdef USE_SOUND
+	//FMOD_RESULT result;
+	if (fmod_init()) {
+		std::cout << "ERROR - fmod_init()\n" << std::endl;
+		return;
+	}
+	if (fmod_createsound((char *)"./sounds/tick.wav", 0)) {
+		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
+		return;
+	}
+	if (fmod_createsound((char *)"./sounds/drip.wav", 1)) {
+		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
+		return;
+	}
+	fmod_setmode(0,FMOD_LOOP_OFF);
+	//fmod_playsound(0);
+	//fmod_systemupdate();
+	#endif
 }
 
 void normalize(Vec v)
@@ -457,19 +491,19 @@ void addAsteroid ()
     {
 	if (a->pos[0] <= (2.0 * tmpx) &&
 		a->pos[0] > tmpx
-	   )//left half 
+	   )//left half
 	{
 	    a->pos[0] -= 1.25 * tmpx;
 	    a->pos[2] = 0.0f;
 	}
-	
-	else //right half 
+
+	else //right half
 	{
 	    a->pos[0] += 1.25 * tmpx;
 	    a->pos[2] = 0.0f;
 	}
-    }	
-    
+    }
+
     if (a->radius < g.ship.radius)
     {
 	a->color[0] = 0.9;
@@ -480,14 +514,14 @@ void addAsteroid ()
 	a->color[1] = 0.4;
 	a->color[2] = 0.5;
     }
-    
+
     a->vel[0] = (Flt)(rnd()*2.0-1.0);
     a->vel[1] = (Flt)(rnd()*2.0-1.0);
     //add to front of linked list
     a->next = g.ahead;
     if (g.ahead != NULL)
 	g.ahead->prev = a;
-    
+
     g.ahead = a;
     g.nasteroids++;
 }
@@ -629,6 +663,7 @@ void physics()
 		{
 			if (g.ship.radius >= a->radius)
 			{
+				fmod_playsound(1);
 				Asteroid *savea = a->next;
 
 				cout << g.score << " g.score (before add)\n"
@@ -687,7 +722,7 @@ void updateCamera()
 			if(g.ship.pos[1] < (float)(yres)*.35-.1)
 				g.ship.pos[1] = (float)(yres)*.35;
 		}
-				
+
 	Asteroid *a = g.ahead;
 	if (Move)
 	{
@@ -699,7 +734,7 @@ void updateCamera()
 		}
 	}
 }
-	
+
 void updateScore()
 {
 	Rect r;
