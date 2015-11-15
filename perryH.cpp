@@ -16,13 +16,15 @@ extern "C" {
 	#include "fonts.h"
 }
 
-Ppmimage *startScreen=NULL;
-Ppmimage *gameOver=NULL;
-Ppmimage *playerImage=NULL;
-Ppmimage *background=NULL;
+Ppmimage *startScreen = NULL;
+Ppmimage *gameOver = NULL;
+Ppmimage *playerImage = NULL;
+Ppmimage *particleImage = NULL;
+Ppmimage *background = NULL;
 GLuint startScreenId;
 GLuint gameOverId;
 GLuint playerTextureId;
+GLuint particleId[10];
 GLuint backgroundId;
 
 void initTextures(void)

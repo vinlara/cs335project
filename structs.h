@@ -91,6 +91,7 @@ struct Asteroid
 	float angle;
 	float rotate;
 	float color[3];
+	int textureId;
 	struct Asteroid *prev;
 	struct Asteroid *next;
 	Asteroid()
