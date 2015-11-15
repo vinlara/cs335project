@@ -68,8 +68,8 @@ void initOpenGL(void);
 extern void initTextures(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
-void checkMouse(XEvent *e);
-int checkKeys(XEvent *e);
+extern void checkMouse(XEvent *e);
+extern int checkKeys(XEvent *e);
 void init();
 void initSounds(void);
 extern void renderStartScreen();
@@ -78,7 +78,7 @@ void physics();
 void updateCamera();
 void updateScore();
 extern void render();
-void normalize(Vec v);
+extern void normalize(Vec v);
 void setup_screen_res(const int w, const int h);
 void deleteAsteroid(Asteroid *node);
 void set_title(void);
@@ -384,7 +384,7 @@ void initSounds(void)
 	#endif
 }
 
-void normalize(Vec v)
+/*void normalize(Vec v)
 {
 	Flt len = v[0]*v[0] + v[1]*v[1];
 	if (len == 0.0f)
@@ -438,9 +438,9 @@ void checkMouse(XEvent *e)
 		normalize(g.ship.vel);
 		return;
 	}
-}
+}*/
 
-int checkKeys(XEvent *e)
+/*int checkKeys(XEvent *e)
 {
 	//keyboard input?
 	static int shift=0;
@@ -453,7 +453,6 @@ int checkKeys(XEvent *e)
 			shift=0;
 		return 0;
 	}
-
 	if (e->type == KeyPress)
 	{
 		keys[key]=1;
@@ -461,14 +460,11 @@ int checkKeys(XEvent *e)
 			shift=1;
 			return 0;
 		}
-
 	}
-
 	else
 	{
 		return 0;
 	}
-
 	if (shift){}
 	switch(key)
 	{
@@ -476,19 +472,21 @@ int checkKeys(XEvent *e)
 			return 1;
 			break;
 		case XK_space:
-			g.startScreen = 0;
+			if (g.startScreen)
+			{
+				g.startScreen = 0;
+			}
 			break;
 	}
-
 	return 0;
-}
+}*/
 
 void addAsteroid ()
 {
     Asteroid *a = new Asteroid;
     a->nverts = 8;
     a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
-
+	a->textureId = rand() % 10;
     //cout << "Creating Asteroid with radius: " << a->radius << endl;
 	//cout << "Current Ship Radius: " << g.ship.radius << endl;
 

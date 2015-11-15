@@ -24,7 +24,7 @@ Ppmimage *background = NULL;
 GLuint startScreenId;
 GLuint gameOverId;
 GLuint playerTextureId;
-GLuint particleId[10];
+GLuint particleTextureId[10];
 GLuint backgroundId;
 
 void initTextures(void)
@@ -150,14 +150,12 @@ void render()
     		a->color[1] = 0.6;
     		a->color[2] = 0.3;
 		}
-
 		else
 		{
     		a->color[0] = 0.3;
     		a->color[1] = 0.4;
     		a->color[2] = 0.5;
 		}
-
 		glColor3fv(a->color);
 		glPushMatrix();
 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
@@ -170,7 +168,6 @@ void render()
 			x = (float)a->radius * cos(i * PI / 180.f);
 			y = (float)a->radius * sin(i * PI / 180.f);
 		}
-
 		glEnd();
 		glPopMatrix();
 		glColor3f(1.0f, 0.0f, 0.0f);
@@ -180,4 +177,82 @@ void render()
 		a = a->next;
 	}
 	updateScore();
+}
+
+void normalize(Vec v)
+{
+	Flt len = v[0]*v[0] + v[1]*v[1];
+	if (len == 0.0f)
+	{
+		v[0] = 1.0;
+		v[1] = 0.0;
+		return;
+	}
+	len = 1.0f / sqrt(len);
+	v[0] *= len * 2;
+	v[1] *= len * 2;
+}
+
+void checkMouse(XEvent *e)
+{
+	static int savex = 0;
+	static int savey = 0;
+	if (savex != e->xbutton.x || savey != e->xbutton.y)
+	{
+		//Mouse moved
+		savex = e->xbutton.x;
+		savey = e->xbutton.y;
+		int y = yres - e->xbutton.y;
+		float dx = savex - g.ship.pos[0];
+		float dy = y - g.ship.pos[1];
+		float len = sqrt(dx * dx + dy * dy);
+
+		g.ship.vel[0] = dx / len;
+		g.ship.vel[1] = dy / len;
+		normalize(g.ship.vel);
+		return;
+	}
+}
+
+int checkKeys(XEvent *e)
+{
+	//keyboard input?
+	static int shift=0;
+	int key = XLookupKeysym(&e->xkey, 0);
+	//Log("key: %i\n", key);
+	if (e->type == KeyRelease)
+	{
+		keys[key]=0;
+		if (key == XK_Shift_L || key == XK_Shift_R)
+			shift=0;
+		return 0;
+	}
+
+	if (e->type == KeyPress)
+	{
+		keys[key]=1;
+		if (key == XK_Shift_L || key == XK_Shift_R) {
+			shift=1;
+			return 0;
+		}
+	}
+
+	else
+	{
+		return 0;
+	}
+	if (shift){}
+	switch(key)
+	{
+		case XK_Escape:
+			return 1;
+			break;
+		case XK_space:
+			if (g.startScreen)
+			{
+				g.startScreen = 0;
+			}
+			break;
+	}
+	return 0;
 }
