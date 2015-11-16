@@ -260,6 +260,8 @@ void checkMouse(XEvent *e)
 		g.ship.vel[0] = dx / len;
 		g.ship.vel[1] = dy / len;
 		normalize(g.ship.vel);
+		shipRadiusSpeed();
+		normalize(g.ship.vel);
 		return;
 	}
 }
