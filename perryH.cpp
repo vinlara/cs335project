@@ -10,6 +10,7 @@
 #include <X11/keysym.h>
 #include "ppm.h"
 #include "structs.h"
+#include "perryH.h"
 extern "C"
 {
 	#include "fonts.h"
@@ -21,15 +22,17 @@ GLuint helpScreenId;
 GLuint gameOverId;
 GLuint backgroundId;
 GLuint playerTextureId;
-GLuint particleTextureId[20];
+GLuint particleTextureId[10];
 
-void loadTempFiles()
+extern void loadTempFiles()
 {
 	struct dirent *entry;
 	DIR *dp = opendir("./images/");
 	g.nimages = 0;
 
-	if (dp) {
+	if (dp)
+	{
+		std::cout << "\nentering directory: images/\n" << std::endl;
 		while ((entry = readdir(dp)) != NULL && g.nimages < MAX_IMAGES)
 		{
 			if (strstr(entry->d_name, ".png"))
@@ -37,6 +40,7 @@ void loadTempFiles()
 				char t1[256];
 				char t2[256];
 				char t3[256] = "images/";
+
 				strcpy(t2, entry->d_name);
 				int slen = strlen(t2);
 				t2[slen - 4] = '\0';
@@ -50,23 +54,26 @@ void loadTempFiles()
 		}
 		closedir(dp);
 	}
+
 	std::cout << "successfully converted files:" << std::endl;
 	for (int i = 0; i < g.nt; ++i)
 	{
 		std::cout << g.imageTemp[i] << std::endl;
 	}
+
 	std::cout << std::endl;
 }
 
-void cleanupTempFiles()
+extern void cleanupTempFiles()
 {
 	for (int i = 0; i<g.nt; i++)
 	{
 		remove(g.imageTemp[i]);
+		std::cout << "successfully removed file: " << g.imageTemp[i] << std::endl;
 	}
 }
 
-void initTextures(void)
+extern void initTextures(void)
 {
 	//
 	// Start Screen
@@ -130,7 +137,6 @@ void initTextures(void)
 	// Particle Textures
 	for (int i = 0; i < 6; ++i)
 	{
-		ppm6CleanupImage(ppm);
 		std::stringstream tempStr;
 		tempStr<<(i + 1);
 		std::string str = tempStr.str();
@@ -139,6 +145,8 @@ void initTextures(void)
 		const char* t3 = ".ppm";
 		strcat(t1, t2);
 		strcat(t1, t3);
+
+		ppm6CleanupImage(ppm);
 		ppm = ppm6GetImage(t1);
 		std::cout << "successfully loaded file: " << t1 << std::endl;
 		glGenTextures(1, &particleTextureId[i]);
@@ -149,9 +157,10 @@ void initTextures(void)
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, ppm->data);
 	}
+	std::cout << std::endl;
 }
 
-void renderStartScreen()
+extern void renderStartScreen()
 {
 	Rect startScreen;
 	Rect help;
@@ -175,9 +184,11 @@ void renderStartScreen()
 	help.left = xres / 2;
 	help.center = xres/ 2;
 	ggprint16(&help, 16, 0x00ffffff, "Press 'h' for Help");
+
+	std::cout << "rendering screen_start" << std::endl;
 }
 
-void renderHelpScreen()
+extern void renderHelpScreen()
 {
 	Rect helpRect;
 
@@ -195,9 +206,11 @@ void renderHelpScreen()
 	helpRect.left = xres / 2;
 	helpRect.center = xres / 2;
 	ggprint16(&helpRect, 16, 0x00ffffff, "Press 'BackSpace' to go back");
+
+	std::cout << "rendering screen_howtoplay" << std::endl;
 }
 
-void renderGameOver()
+extern void renderGameOver()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 1.0);
@@ -208,9 +221,11 @@ void renderGameOver()
 	glTexCoord2f(1,1); glVertex2f(xres, 0);
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
+
+	std::cout << "rendering screen_gameover" << std::endl;
 }
 
-void updateScore()
+extern void updateScore()
 {
 	Rect score;
 	score.bot = yres - 40;
@@ -219,9 +234,10 @@ void updateScore()
 	ggprint16(&score, 16, 0x00ffff00, "Score: %i", (int)g.score);
 }
 
-void render()
+extern void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
+
 	glColor3f(1.0, 1.0, 1.0);
 	glPushMatrix();
 	glBindTexture(GL_TEXTURE_2D, backgroundId);
@@ -231,6 +247,7 @@ void render()
 	glTexCoord2f(1,1); glVertex2f(xres, 0);
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
+
 	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
 	glBindTexture(GL_TEXTURE_2D, playerTextureId);
 	glBegin(GL_TRIANGLE_FAN);
@@ -269,9 +286,10 @@ void render()
 		a = a->next;
 	}
 	updateScore();
+	std::cout << "rendering game" << std::endl;
 }
 
-void normalize(Vec v)
+extern void normalize(Vec v)
 {
 	Flt len = v[0]*v[0] + v[1]*v[1];
 	if (len == 0.0f)
@@ -285,10 +303,11 @@ void normalize(Vec v)
 	v[1] *= len * 2;
 }
 
-void checkMouse(XEvent *e)
+extern void checkMouse(XEvent *e)
 {
 	static int savex = 0;
 	static int savey = 0;
+
 	if (savex != e->xbutton.x || savey != e->xbutton.y)
 	{
 		//Mouse moved
@@ -308,7 +327,7 @@ void checkMouse(XEvent *e)
 	}
 }
 
-int checkKeys(XEvent *e)
+extern int checkKeys(XEvent *e)
 {
 	//keyboard input?
 	static int shift=0;
@@ -333,7 +352,9 @@ int checkKeys(XEvent *e)
 	{
 		return 0;
 	}
-	if (shift){}
+	if (shift)
+	{
+	}
 	switch(key)
 	{
 		case XK_Escape:
