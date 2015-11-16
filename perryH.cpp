@@ -109,8 +109,7 @@ void initTextures(void)
 	// Particle Textures
 	for (int i = 0; i < 4; ++i)
 	{
-		//ppm6CleanupImage(particleImage);
-		//char t1[256];
+		ppm6CleanupImage(particleImage);
 		stringstream tempStr;
 		tempStr<<(i + 1);
 		string str = tempStr.str();
