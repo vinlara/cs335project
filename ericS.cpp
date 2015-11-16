@@ -125,3 +125,57 @@ void deleteAsteroid(Asteroid *node)
 	}
     }
 }
+
+void asteroidRadiusSpeed(Asteroid *a)
+{
+    /*
+    cout << "asteroidRadiusSpeed ftn ------------------------\n";
+    cout << "axVel: " << a->vel[0] << endl;
+    cout << "ayVel: " << a->vel[1] << endl;
+
+    cout << a->radius << ": asteroid radius\n";
+    */
+
+    Flt radiusVel = ( ( 500.0 / ( a->radius + 100.0 ) ) - 1.5 );
+
+    Flt xVel = a->vel[0];
+    Flt yVel = a->vel[1];
+    Flt speed = sqrt( ( xVel * xVel ) + ( yVel * yVel ) );
+    Flt xRatio = ( xVel / speed ) * radiusVel;
+    Flt yRatio = ( yVel / speed ) * radiusVel;
+    
+    a->vel[0] = xRatio;
+    a->vel[1] = yRatio;
+
+    //cout << "asteroidRadiusSpeed ftn##### AFTER Radius Change !!!!!!!!!!!!!!!!!\n";
+    //cout << "axVel: " << a->vel[0] << endl;
+    //cout << "ayVel: " << a->vel[1] << endl;
+    
+}
+
+void shipRadiusSpeed()
+{
+    /*
+    cout << "shipRadiusSpeed ftn&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
+    cout << g.ship.vel[0] << " ShipXVel\n";
+    cout << g.ship.vel[1] << " ShipYVel\n";
+    
+    cout << g.ship.radius << ": ship radius\n";
+    */
+
+    Flt radiusVel = ( ( 500.0 / ( g.ship.radius + 100.0 ) ) - 1.5 );
+
+    Flt xVel = g.ship.vel[0];
+    Flt yVel = g.ship.vel[1];
+    Flt speed = sqrt( ( xVel * xVel ) + ( yVel * yVel ) );
+    Flt xRatio = ( xVel / speed ) * radiusVel;
+    Flt yRatio = ( yVel / speed ) * radiusVel;
+
+    g.ship.vel[0] = xRatio;
+    g.ship.vel[1] = yRatio;
+        
+    //cout << "shipRadiusSpeed ftn&&&&&&&&&&& AFTER CHANGE &&&&&&&&&&&&&&&\n";
+    //cout << g.ship.vel[0] << " ShipXVel\n";
+    //cout << g.ship.vel[1] << " ShipYVel\n";
+
+}
