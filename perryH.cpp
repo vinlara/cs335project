@@ -10,7 +10,8 @@
 #include <X11/keysym.h>
 #include "ppm.h"
 #include "structs.h"
-extern "C" {
+extern "C"
+{
 	#include "fonts.h"
 }
 
@@ -49,6 +50,12 @@ void loadTempFiles()
 		}
 		closedir(dp);
 	}
+	std::cout << "successfully converted files:" << std::endl;
+	for (int i = 0; i < g.nt; ++i)
+	{
+		std::cout << g.imageTemp[i] << std::endl;
+	}
+	std::cout << std::endl;
 }
 
 void cleanupTempFiles()
@@ -64,6 +71,7 @@ void initTextures(void)
 	//
 	// Start Screen
 	ppm = ppm6GetImage("images/screen_begin.ppm");
+	std::cout << "successfully loaded file: images/screen_begin.ppm" << std::endl;
 	glGenTextures(1, &startScreenId);
 	int w = ppm->width;
 	int h = ppm->height;
@@ -75,6 +83,7 @@ void initTextures(void)
 	// Help Screen
 	ppm6CleanupImage(ppm);
 	ppm = ppm6GetImage("images/screen_howtoplay.ppm");
+	std::cout << "successfully loaded file: images/screen_howtoplay.ppm" << std::endl;
 	glGenTextures(1, &helpScreenId);
 	w = ppm->width;
 	h = ppm->height;
@@ -85,6 +94,7 @@ void initTextures(void)
 	//
 	// Game Over
 	ppm = ppm6GetImage("images/screen_gameover.ppm");
+	std::cout << "successfully loaded file: images/screen_gameover.ppm" << std::endl;
 	glGenTextures(1, &gameOverId);
 	w = ppm->width;
 	h = ppm->height;
@@ -96,6 +106,7 @@ void initTextures(void)
 	// Background
 	ppm6CleanupImage(ppm);
 	ppm = ppm6GetImage("images/background.ppm");
+	std::cout << "successfully loaded file: images/background.ppm" << std::endl;
 	glGenTextures(1, &backgroundId);
 	w = ppm->width;
 	h = ppm->height;
@@ -107,6 +118,7 @@ void initTextures(void)
 	// Player Texture
 	ppm6CleanupImage(ppm);
 	ppm = ppm6GetImage("images/texture_player.ppm");
+	std::cout << "successfully loaded file: images/texture_player.ppm" << std::endl;
 	glGenTextures(1, &playerTextureId);
 	w = ppm->width;
 	h = ppm->height;
@@ -128,6 +140,7 @@ void initTextures(void)
 		strcat(t1, t2);
 		strcat(t1, t3);
 		ppm = ppm6GetImage(t1);
+		std::cout << "successfully loaded file: " << t1 << std::endl;
 		glGenTextures(1, &particleTextureId[i]);
 		w = ppm->width;
 		h = ppm->height;
@@ -163,6 +176,7 @@ void renderStartScreen()
 	help.center = xres/ 2;
 	ggprint16(&help, 16, 0x00ffffff, "Press 'h' for Help");
 }
+
 void renderHelpScreen()
 {
 	Rect helpRect;
@@ -176,7 +190,7 @@ void renderHelpScreen()
 	glTexCoord2f(1,1); glVertex2f(xres, 0);
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
-	
+
 	helpRect.bot = yres / 2 + 250;
 	helpRect.left = xres / 2;
 	helpRect.center = xres / 2;
