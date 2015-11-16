@@ -24,6 +24,7 @@
 #include "ppm.h"
 #include "structs.h"
 #include "perryH.h"
+#include "ericS.h"
 extern "C" {
 	#include "fonts.h"
 }
@@ -233,6 +234,7 @@ void check_resize(XEvent *e)
 	}
 }
 
+/*
 void init()
 {
 	//g.score = g.ship.radius;
@@ -315,6 +317,7 @@ void init()
 
 	memset(keys, 0, 65536);
 }
+*/
 
 void physics()
 {
