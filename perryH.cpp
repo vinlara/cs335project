@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sstream>
 #include <dirent.h>
 #include <X11/Xlib.h>
 #include <GL/gl.h>
@@ -63,15 +64,11 @@ void cleanupTempFiles()
 
 void initTextures(void)
 {
-	for (int i = 0; i < 8; ++i)
-	{
-		cout << g.imageTemp[i] << endl;
-	}
 	//load the images file into a ppm structure.
-	startScreen = ppm6GetImage(g.imageTemp[1]);
-	gameOver = ppm6GetImage(g.imageTemp[2]);
-	playerImage = ppm6GetImage(g.imageTemp[7]);
-	background = ppm6GetImage(g.imageTemp[0]);
+	startScreen = ppm6GetImage("images/screen_begin.ppm");
+	gameOver = ppm6GetImage("images/screen_gameover.ppm");
+	playerImage = ppm6GetImage("images/texture_player.ppm");
+	background = ppm6GetImage("images/background.ppm");
 	//
 	// Start Screen
 	glGenTextures(1, &startScreenId);
@@ -110,14 +107,24 @@ void initTextures(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
 	//
 	// Particle Textures
-	for (int i = 3; i < 7; ++i)
+	for (int i = 0; i < 4; ++i)
 	{
-		ppm6CleanupImage(particleImage);
-		particleImage = ppm6GetImage(g.imageTemp[i]);
-		glGenTextures(1, &particleTextureId[i - 3]);
+		//ppm6CleanupImage(particleImage);
+		//char t1[256];
+		stringstream tempStr;
+		tempStr<<(i + 1);
+		string str = tempStr.str();
+		char t1[256] = "images/texture_enemy_";
+		const char* t2 = str.c_str();
+		char t3[256] = ".ppm";
+		strcat(t1, t2);
+		strcat(t1, t3);
+		cout << t2 << endl;
+		particleImage = ppm6GetImage(t1);
+		glGenTextures(1, &particleTextureId[i]);
 		w = particleImage->width;
 		h = particleImage->height;
-		glBindTexture(GL_TEXTURE_2D, particleTextureId[i - 3]);
+		glBindTexture(GL_TEXTURE_2D, particleTextureId[i]);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, particleImage->data);

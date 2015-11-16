@@ -143,14 +143,14 @@ void asteroidRadiusSpeed(Asteroid *a)
     Flt speed = sqrt( ( xVel * xVel ) + ( yVel * yVel ) );
     Flt xRatio = ( xVel / speed ) * radiusVel;
     Flt yRatio = ( yVel / speed ) * radiusVel;
-    
+
     a->vel[0] = xRatio;
     a->vel[1] = yRatio;
 
     //cout << "asteroidRadiusSpeed ftn##### AFTER Radius Change !!!!!!!!!!!!!!!!!\n";
     //cout << "axVel: " << a->vel[0] << endl;
     //cout << "ayVel: " << a->vel[1] << endl;
-    
+
 }
 
 void shipRadiusSpeed()
@@ -159,7 +159,7 @@ void shipRadiusSpeed()
     cout << "shipRadiusSpeed ftn&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
     cout << g.ship.vel[0] << " ShipXVel\n";
     cout << g.ship.vel[1] << " ShipYVel\n";
-    
+
     cout << g.ship.radius << ": ship radius\n";
     */
 
@@ -173,7 +173,7 @@ void shipRadiusSpeed()
 
     g.ship.vel[0] = xRatio;
     g.ship.vel[1] = yRatio;
-        
+
     //cout << "shipRadiusSpeed ftn&&&&&&&&&&& AFTER CHANGE &&&&&&&&&&&&&&&\n";
     //cout << g.ship.vel[0] << " ShipXVel\n";
     //cout << g.ship.vel[1] << " ShipYVel\n";

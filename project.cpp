@@ -306,7 +306,7 @@ void init()
 
     		a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
-		
+
 		asteroidRadiusSpeed(a);
 
 		//add to front of linked list
@@ -485,11 +485,11 @@ void physics()
 
 	//Update asteroid positions
 	Asteroid *a = g.ahead;
-	while (a) 
+	while (a)
 	{
 		a->pos[0] += a->vel[0]; //- g.ship.vel[0];
 		a->pos[1] += a->vel[1]; //- g.ship.vel[1];
-		
+
 		//Check for collision with window edges
 
 		if (a->pos[0] < -100.0)
