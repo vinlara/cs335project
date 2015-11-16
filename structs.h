@@ -56,6 +56,7 @@ void timeCopy(struct timespec *dest, struct timespec *source)
 }*/
 //-----------------------------------------------------------------------------
 
+extern void shipRadiusSpeed();
 extern int xres;
 extern int yres;
 
@@ -70,11 +71,11 @@ struct Ship
 	Ship()
 	{
 		VecZero(dir);
-		pos[0] = (Flt)(1600/2);
-		pos[1] = (Flt)(900/2);
+		pos[0] = (Flt)(xres/2);
+		pos[1] = (Flt)(yres/2);
 		pos[2] = 0.0f;
 		VecZero(vel);
-		radius = 19.0;
+		radius = 20.0;
 		angle = 0.0;
 		color[0] = 1.0;
 		color[1] = 1.0;
