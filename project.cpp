@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <stdio.h>
 #include <unistd.h>
 #include <ctime>
 #include <cmath>
@@ -22,26 +23,16 @@
 #include <GL/glx.h>
 #include "ppm.h"
 #include "structs.h"
+#include "perryH.h"
 extern "C" {
 	#include "fonts.h"
 }
 using namespace std;
-#define USE_SOUND
-#ifdef USE_SOUND
-#include <FMOD/fmod.h>
-#include <FMOD/wincompat.h>
-#include "fmod.h"
-#endif
 
-Display *dpy;
-Window win;
-GLXContext glc;
 int xres = 1600;
 int yres = 900;
 int keys[65536];
 
-//-----------------------------------------------------------------------------
-//Setup timers
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
 struct timespec timeStart, timeCurrent;
@@ -59,26 +50,19 @@ void timeCopy(struct timespec *dest, struct timespec *source)
 {
 	memcpy(dest, source, sizeof(struct timespec));
 }
-//-----------------------------------------------------------------------------
-
+Display *dpy;
+Window win;
+GLXContext glc;
 Game g;
 
 void initXWindows(void);
 void initOpenGL(void);
-extern void initTextures(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
-extern void checkMouse(XEvent *e);
-extern int checkKeys(XEvent *e);
 void init();
-void initSounds(void);
-extern void renderStartScreen();
-extern void renderGameOver();
 void physics();
 void updateCamera();
 void updateScore();
-extern void render();
-extern void normalize(Vec v);
 void setup_screen_res(const int w, const int h);
 extern void deleteAsteroid(Asteroid *node);
 void set_title(void);
@@ -89,9 +73,9 @@ int main(void)
 {
 	initXWindows();
 	initOpenGL();
+	loadTempFiles();
 	initTextures();
 	init();
-	initSounds();
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
@@ -107,7 +91,14 @@ int main(void)
 		}
 		if (g.startScreen)
 		{
-			renderStartScreen();
+			if (g.helpScreen)
+			{
+				renderHelpScreen();
+			}
+			else
+			{
+				renderStartScreen();
+			}
 		}
 		else if (g.gameOver)
 		{
@@ -129,12 +120,9 @@ int main(void)
 		}
 		glXSwapBuffers(dpy, win);
 	}
-
 	cleanupXWindows();
 	cleanup_fonts();
-	#ifdef USE_SOUND
-	fmod_cleanup();
-	#endif //USE_SOUND
+	cleanupTempFiles();
 	return 0;
 }
 
@@ -250,6 +238,7 @@ void init()
 		Asteroid *a = new Asteroid;
 		a->nverts = 8;
 		a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.8 * g.ship.radius  );
+		a->textureId = rand() % 6;
 		Flt r2 = a->radius / 2.0;
 		Flt angle = 0.0f;
 		Flt inc = (PI * 2.0) / (Flt)a->nverts;
@@ -259,7 +248,6 @@ void init()
 			a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 			angle += inc;
 		}
-
 		a->pos[0] = (Flt)(rand() % xres);
 		a->pos[1] = (Flt)(rand() % yres);
 		a->pos[2] = 0.0f;
@@ -306,7 +294,7 @@ void init()
 
     		a->vel[0] = (Flt)(rnd()*2.0-1.0);
 		a->vel[1] = (Flt)(rnd()*2.0-1.0);
-		
+
 		asteroidRadiusSpeed(a);
 
 		//add to front of linked list
@@ -320,144 +308,6 @@ void init()
 
 	memset(keys, 0, 65536);
 }
-
-void initSounds(void)
-{
-	#ifdef USE_SOUND
-	//FMOD_RESULT result;
-	if (fmod_init()) {
-		std::cout << "ERROR - fmod_init()\n" << std::endl;
-		return;
-	}
-	if (fmod_createsound((char *)"./sounds/tick.wav", 0)) {
-		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
-		return;
-	}
-	if (fmod_createsound((char *)"./sounds/drip.wav", 1)) {
-		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
-		return;
-	}
-	fmod_setmode(0,FMOD_LOOP_OFF);
-	//fmod_playsound(0);
-	//fmod_systemupdate();
-	#endif
-}
-
-/*
-void addAsteroid ()
-{
-    Asteroid *a = new Asteroid;
-    a->nverts = 8;
-    a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
-	a->textureId = rand() % 20;
-	//cout << "Created Asteroid with Texure ID: " << a->textureId << endl;
-    //cout << "Creating Asteroid with radius: " << a->radius << endl;
-	//cout << "Current Ship Radius: " << g.ship.radius << endl;
-
-    Flt r2 = a->radius / 2.0;
-    Flt angle = 0.0f;
-    Flt inc = (PI * 2.0) / (Flt)a->nverts;
-    for (int i=0; i<a->nverts; i++)
-    {
-        a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
-        a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
-        angle += inc;
-    }
-
-    a->pos[0] = (Flt)(rand() % xres);
-    a->pos[1] = (Flt)(rand() % yres);
-    a->pos[2] = 0.0f;
-    a->angle = 0.0;
-    a->rotate = rnd() * 4.0 - 2.0;
-
-
-    Flt tmpx = xres >> 2;
-    Flt tmpy = yres >> 2;
-    if (a->pos[0] <= (3.0 * tmpx) &&
-	    a->pos[0] >= (tmpx) &&
-	    a->pos[1] <= (3.0 * tmpy) &&
-	    a->pos[1] >= (tmpy)
-       )//protect area near center from bigger asteroids
-    {
-	if (a->pos[0] <= (2.0 * tmpx) &&
-		a->pos[0] > tmpx
-	   )//left half
-	{
-	    a->pos[0] -= 1.25 * tmpx;
-	    a->pos[2] = 0.0f;
-	}
-
-	else //right half
-	{
-	    a->pos[0] += 1.25 * tmpx;
-	    a->pos[2] = 0.0f;
-	}
-    }
-
-    if (a->radius < g.ship.radius)
-    {
-	a->color[0] = 0.9;
-	a->color[1] = 0.6;
-	a->color[2] = 0.3;
-    }    
-    else    
-    {
-	a->color[0] = 0.3;
-	a->color[1] = 0.4;
-	a->color[2] = 0.5;
-    }
-
-    a->vel[0] = (Flt)(rnd()*2.0-1.0);
-    a->vel[1] = (Flt)(rnd()*2.0-1.0);
-    //add to front of linked list
-    a->next = g.ahead;
-    if (g.ahead != NULL)
-	g.ahead->prev = a;
-
-    g.ahead = a;
-    g.nasteroids++;
-}
-
-void deleteAsteroid(Asteroid *node)
-{//remove a node from linked list
-	
-    if (!g.done)
-    {
-	if (node)
-	{
-	    if (node->prev == NULL)
-	    {
-		if (node->next == NULL)
-		{
-		    g.ahead = NULL;
-		}
-		else
-		{
-		    node->next->prev = NULL;
-		    g.ahead = node->next;
-		}
-	    }
-	    
-	    else
-	    {
-		if (node->next == NULL)
-		{
-		    node->prev->next = NULL;
-		}
-		else
-		{
-		    node->prev->next = node->next;
-		    node->next->prev = node->prev;
-		}
-	    }
-	    
-	    delete node;
-	    node = NULL;
-	}
-    }
-}
-
-*/
 
 void physics()
 {
@@ -485,11 +335,11 @@ void physics()
 
 	//Update asteroid positions
 	Asteroid *a = g.ahead;
-	while (a) 
+	while (a)
 	{
 		a->pos[0] += a->vel[0]; //- g.ship.vel[0];
 		a->pos[1] += a->vel[1]; //- g.ship.vel[1];
-		
+
 		//Check for collision with window edges
 
 		if (a->pos[0] < -100.0)
@@ -527,7 +377,6 @@ void physics()
 		{
 			if (g.ship.radius >= a->radius)
 			{
-				fmod_playsound(0);
 				Asteroid *savea = a->next;
 
 				//cout << g.score << " g.score (before add)\n"

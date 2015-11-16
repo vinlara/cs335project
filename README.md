@@ -13,6 +13,6 @@ More information can be found <a href="http://www.cs.csub.edu/~phuynh/cs335/proj
 ## How to Play
 
 Move your mouse to control the debris<br>
-Press <b>Space</b> to split apart
+Press <b>Enter</b> to start the game
 
 <a href="#table-of-contents">[Back to Top]</a>
