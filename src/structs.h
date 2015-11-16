@@ -110,6 +110,7 @@ struct Game
 	int nasteroids;
 	double score;
 	struct timespec bulletTimer;
+	int sBoost;
 	int startScreen, helpScreen, gameOver;
 	int done;
 	char imageName[MAX_IMAGES][64];
