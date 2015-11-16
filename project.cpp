@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <stdio.h>
 #include <unistd.h>
 #include <ctime>
 #include <cmath>
@@ -27,9 +28,6 @@ extern "C" {
 }
 using namespace std;
 
-Display *dpy;
-Window win;
-GLXContext glc;
 int xres = 1600;
 int yres = 900;
 int keys[65536];
@@ -51,7 +49,9 @@ void timeCopy(struct timespec *dest, struct timespec *source)
 {
 	memcpy(dest, source, sizeof(struct timespec));
 }
-
+Display *dpy;
+Window win;
+GLXContext glc;
 Game g;
 
 void initXWindows(void);
@@ -239,7 +239,7 @@ void init()
 		Asteroid *a = new Asteroid;
 		a->nverts = 8;
 		a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.8 * g.ship.radius  );
-		a->textureId = rand() % 3;
+		a->textureId = rand() % 6;
 		Flt r2 = a->radius / 2.0;
 		Flt angle = 0.0f;
 		Flt inc = (PI * 2.0) / (Flt)a->nverts;

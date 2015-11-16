@@ -20,7 +20,7 @@ const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
-#define MAX_IMAGES 9
+#define MAX_IMAGES 10
 
 //X Windows variables
 //Display *dpy;

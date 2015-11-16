@@ -21,7 +21,7 @@ void addAsteroid ()
     Asteroid *a = new Asteroid;
     a->nverts = 8;
     a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
-    a->textureId = rand() % 3;
+    a->textureId = rand() % 6;
     //cout << "Created asteroid with Texture ID: " << a->textureId << endl;
     //cout << a->radius << " a radius   ship radius " << g->ship.radius << endl;
 

@@ -109,7 +109,7 @@ void initTextures(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
 	//
 	// Particle Textures
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 6; ++i)
 	{
 		ppm6CleanupImage(particleImage);
 		stringstream tempStr;
@@ -133,7 +133,9 @@ void initTextures(void)
 
 void renderStartScreen()
 {
+	Rect startScreen;
 	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, startScreenId);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0,0); glVertex2f(0, yres);
@@ -141,11 +143,16 @@ void renderStartScreen()
 	glTexCoord2f(1,1); glVertex2f(xres, 0);
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
+	startScreen.bot = yres / 5;
+	startScreen.left = xres / 2;
+	startScreen.center = xres / 2;
+	ggprint16(&startScreen, 16, 0x00ffff00, "Press the 'Enter' Key to Start");
 }
 
 void renderGameOver()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, gameOverId);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0,0); glVertex2f(0, yres);
@@ -167,7 +174,7 @@ void updateScore()
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3fv(g.ship.color);
+	glColor3f(1.0, 1.0, 1.0);
 	glPushMatrix();
 	glBindTexture(GL_TEXTURE_2D, backgroundId);
 	glBegin(GL_QUADS);
