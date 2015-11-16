@@ -132,5 +132,6 @@ struct Game
 
 extern Game g;
 extern int keys[65536];
+extern struct timespec sb;
 
 #endif

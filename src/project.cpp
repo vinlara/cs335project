@@ -74,6 +74,7 @@ extern void addAsteroid();
 extern void checkSBoost();
 extern void deleteAsteroid(Asteroid *node);
 extern void asteroidRadiusSpeed(Asteroid *a);
+void showSBoost();
 
 int main(void)
 {
@@ -94,7 +95,7 @@ int main(void)
 			check_resize(&e);
 			checkMouse(&e);
 			g.done = checkKeys(&e);
-			g.done = vinceCheckKeys(&e);
+			vinceCheckKeys(&e);
 		}
 		if (g.startScreen)
 		{
@@ -122,8 +123,8 @@ int main(void)
 				physics();
 				physicsCountdown -= physicsRate;
 			}
-			updateCamera();
 			render();
+			updateCamera();
 		}
 		glXSwapBuffers(dpy, win);
 	}
