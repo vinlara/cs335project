@@ -5,35 +5,34 @@
 #include <string.h>
 #include <sstream>
 #include <dirent.h>
-#include <X11/Xlib.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
+#include <X11/Xlib.h>
 #include <X11/keysym.h>
-#include <GL/glx.h>
-#include <vector>
 #include "ppm.h"
 #include "structs.h"
-using namespace std;
 extern "C" {
 	#include "fonts.h"
 }
 
 Ppmimage *startScreen = NULL;
+Ppmimage *helpScreen = NULL;
 Ppmimage *gameOver = NULL;
+Ppmimage *background = NULL;
 Ppmimage *playerImage = NULL;
 Ppmimage *particleImage = NULL;
-Ppmimage *background = NULL;
 GLuint startScreenId;
+GLuint helpScreenId;
 GLuint gameOverId;
+GLuint backgroundId;
 GLuint playerTextureId;
 GLuint particleTextureId[20];
-GLuint backgroundId;
 
-void loadFiles()
+void loadTempFiles()
 {
 	struct dirent *entry;
 	DIR *dp = opendir("./images/");
 	g.nimages = 0;
+
 	if (dp) {
 		while ((entry = readdir(dp)) != NULL && g.nimages < MAX_IMAGES)
 		{
@@ -78,6 +77,16 @@ void initTextures(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, startScreen->data);
 	//
+	// Help Screen
+	helpScreen = ppm6GetImage("images/screen_howtoplay.ppm");
+	glGenTextures(1, &helpScreenId);
+	w = helpScreen->width;
+	h = helpScreen->height;
+	glBindTexture(GL_TEXTURE_2D, helpScreenId);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, helpScreen->data);
+	//
 	// Game Over
 	gameOver = ppm6GetImage("images/screen_gameover.ppm");
 	glGenTextures(1, &gameOverId);
@@ -87,16 +96,6 @@ void initTextures(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, gameOver->data);
-	//
-	// Player Texture
-	playerImage = ppm6GetImage("images/texture_player.ppm");
-	glGenTextures(1, &playerTextureId);
-	w = playerImage->width;
-	h = playerImage->height;
-	glBindTexture(GL_TEXTURE_2D, playerTextureId);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, playerImage->data);
 	//
 	// Background
 	background = ppm6GetImage("images/background.ppm");
@@ -108,16 +107,26 @@ void initTextures(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
 	//
+	// Player Texture
+	playerImage = ppm6GetImage("images/texture_player.ppm");
+	glGenTextures(1, &playerTextureId);
+	w = playerImage->width;
+	h = playerImage->height;
+	glBindTexture(GL_TEXTURE_2D, playerTextureId);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, playerImage->data);
+	//
 	// Particle Textures
 	for (int i = 0; i < 6; ++i)
 	{
 		ppm6CleanupImage(particleImage);
-		stringstream tempStr;
+		std::stringstream tempStr;
 		tempStr<<(i + 1);
-		string str = tempStr.str();
+		std::string str = tempStr.str();
 		char t1[256] = "images/texture_enemy_";
 		const char* t2 = str.c_str();
-		char t3[256] = ".ppm";
+		const char* t3 = ".ppm";
 		strcat(t1, t2);
 		strcat(t1, t3);
 		particleImage = ppm6GetImage(t1);
@@ -134,6 +143,7 @@ void initTextures(void)
 void renderStartScreen()
 {
 	Rect startScreen;
+	Rect help;
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, startScreenId);
@@ -146,7 +156,23 @@ void renderStartScreen()
 	startScreen.bot = yres / 5;
 	startScreen.left = xres / 2;
 	startScreen.center = xres / 2;
-	ggprint16(&startScreen, 16, 0x00ffff00, "Press the 'Enter' Key to Start");
+	ggprint16(&startScreen, 16, 0x00ffffff, "Press 'Enter' to Start");
+	help.bot = yres / 5 - 30;
+	help.left = xres / 2;
+	help.center = xres/ 2;
+	ggprint16(&help, 16, 0x00ffffff, "Press 'h' for Help");
+}
+void renderHelpScreen()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 1.0, 1.0);
+	glBindTexture(GL_TEXTURE_2D, helpScreenId);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0,0); glVertex2f(0, yres);
+	glTexCoord2f(0,1); glVertex2f(0, 0);
+	glTexCoord2f(1,1); glVertex2f(xres, 0);
+	glTexCoord2f(1,0); glVertex2f(xres, yres);
+	glEnd();
 }
 
 void renderGameOver()
@@ -164,11 +190,11 @@ void renderGameOver()
 
 void updateScore()
 {
-	Rect r;
-	r.bot = yres - 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00ffff00, "Score: %i", (int)g.score);
+	Rect score;
+	score.bot = yres - 40;
+	score.left = 20;
+	score.center = 0;
+	ggprint16(&score, 16, 0x00ffff00, "Score: %i", (int)g.score);
 }
 
 void render()
@@ -253,7 +279,7 @@ void checkMouse(XEvent *e)
 
 		g.ship.vel[0] = dx / len;
 		g.ship.vel[1] = dy / len;
-		normalize(g.ship.vel);
+		//normalize(g.ship.vel);
 		shipRadiusSpeed();
 		normalize(g.ship.vel);
 		return;
@@ -295,6 +321,12 @@ int checkKeys(XEvent *e)
 			if (g.startScreen)
 			{
 				g.startScreen = 0;
+			}
+			break;
+		case XK_h:
+			if (g.startScreen)
+			{
+				g.helpScreen ^= 1;
 			}
 			break;
 	}

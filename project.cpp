@@ -56,7 +56,7 @@ Game g;
 
 void initXWindows(void);
 void initOpenGL(void);
-extern void loadFiles();
+extern void loadTempFiles();
 extern void cleanupTempFiles();
 extern void initTextures(void);
 void cleanupXWindows(void);
@@ -65,6 +65,7 @@ extern void checkMouse(XEvent *e);
 extern int checkKeys(XEvent *e);
 void init();
 extern void renderStartScreen();
+extern void renderHelpScreen();
 extern void renderGameOver();
 void physics();
 void updateCamera();
@@ -81,7 +82,7 @@ int main(void)
 {
 	initXWindows();
 	initOpenGL();
-	loadFiles();
+	loadTempFiles();
 	initTextures();
 	init();
 	srand(time(NULL));
@@ -99,7 +100,14 @@ int main(void)
 		}
 		if (g.startScreen)
 		{
-			renderStartScreen();
+			if (g.helpScreen)
+			{
+				renderHelpScreen();
+			}
+			else
+			{
+				renderStartScreen();
+			}
 		}
 		else if (g.gameOver)
 		{

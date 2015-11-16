@@ -20,7 +20,7 @@ const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
-#define MAX_IMAGES 10
+#define MAX_IMAGES 11
 
 //X Windows variables
 //Display *dpy;
@@ -110,7 +110,7 @@ struct Game
 	int nasteroids;
 	double score;
 	struct timespec bulletTimer;
-	int startScreen, gameOver;
+	int startScreen, helpScreen, gameOver;
 	int done;
 	char imageName[MAX_IMAGES][64];
 	int nimages;
@@ -122,6 +122,7 @@ struct Game
 		nasteroids = 0;
 		score = 0;
 		startScreen = 1;
+		helpScreen = 0;
 		gameOver = 0;
 		done = 0;
 		nt = 0;
