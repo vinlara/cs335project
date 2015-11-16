@@ -490,8 +490,6 @@ void physics()
 		a->pos[0] += a->vel[0]; //- g.ship.vel[0];
 		a->pos[1] += a->vel[1]; //- g.ship.vel[1];
 		
-		asteroidRadiusSpeed(a);
-		
 		//Check for collision with window edges
 
 		if (a->pos[0] < -100.0)
