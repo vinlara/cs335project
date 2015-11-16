@@ -12,11 +12,97 @@
 */
 
 #include <iostream>
+#include <string.h>
 #include <cstdlib>
 #include <cmath>
 #include "structs.h"
 #include "ericS.h"
 using namespace std;
+
+
+void init()
+{
+        //g.score = g.ship.radius;
+
+        cout << g.score << " = g.score (start)\n";
+
+        //build 30 asteroids...
+        for ( int j=0; j<30; j++ )
+        {
+                Asteroid *a = new Asteroid;
+                a->nverts = 8;
+                a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.8 * g.ship.radius  );
+                a->textureId = rand() % 6;
+                Flt r2 = a->radius / 2.0;
+                Flt angle = 0.0f;
+                Flt inc = (PI * 2.0) / (Flt)a->nverts;
+                for (int i=0; i<a->nverts; i++)
+                {
+                        a->vert[i][0] = sin( angle ) * ( r2 + rnd() * a->radius );
+                        a->vert[i][1] = cos( angle ) * ( r2 + rnd() * a->radius );
+                        angle += inc;
+                }
+                a->pos[0] = ( Flt ) ( rand() % xres );
+                a->pos[1] = ( Flt ) ( rand() % yres );
+                a->pos[2] = 0.0f;
+                a->angle = 0.0;
+                a->rotate = rnd() * 4.0 - 2.0;
+
+                //protect area near center from bigger asteroids
+                Flt tmpx = xres >> 2;
+                Flt tmpy = yres >> 2;
+                if ( a->pos[0] <= ( 3.0 * tmpx ) &&
+                        a->pos[0] >= tmpx &&
+                        a->pos[1] <= ( 3.0 * tmpy ) &&
+                        a->pos[1] >= tmpy
+                   )
+                {
+                    if (a->pos[0] <= ( 2.0 * tmpx ) &&
+                            a->pos[0] > tmpx
+                       )//left half
+                    {
+                        a->pos[0] -= 1.25 * tmpx;
+                        a->pos[2] = 0.0f;
+                    }
+
+                    else //right half
+                    {
+                        a->pos[0] += 1.25 * tmpx;
+                        a->pos[2] = 0.0f;
+                    }
+                }
+
+                if ( a->radius < g.ship.radius )
+                {
+                        a->color[0] = 0.9;
+			a->color[1] = 0.6;
+                        a->color[2] = 0.3;
+                }
+
+                else
+                {
+                        a->color[0] = 0.3;
+                        a->color[1] = 0.4;
+                        a->color[2] = 0.5;
+                }
+
+                a->vel[0] = ( Flt ) ( rnd() * 2.0 - 1.0 );
+                a->vel[1] = ( Flt ) ( rnd() * 2.0 - 1.0 );
+
+                asteroidRadiusSpeed(a);
+
+                //add to front of linked list
+                a->next = g.ahead;
+                if ( g.ahead != NULL )
+                        g.ahead->prev = a;
+
+                g.ahead = a;
+                g.nasteroids++;
+        }
+
+        memset(keys, 0, 65536);
+}
+
 
 void addAsteroid ()
 {
@@ -95,6 +181,7 @@ void addAsteroid ()
     g.nasteroids++;
 }
 
+
 void deleteAsteroid( Asteroid *node )
 {
     //remove a node from linked list
@@ -132,9 +219,9 @@ void deleteAsteroid( Asteroid *node )
     }
 }
 
+
 void asteroidRadiusSpeed( Asteroid *a )
-{
-    
+{    
     cout << "asteroidRadiusSpeed ftn ------------------------\n";
     cout << "axVel: " << a->vel[0] << endl;
     cout << "ayVel: " << a->vel[1] << endl;
@@ -143,6 +230,11 @@ void asteroidRadiusSpeed( Asteroid *a )
     
 
     Flt radiusVel = ( ( 500.0 / ( a->radius + 100.0 ) ) - 2.0 );
+
+    if ( radiusVel < 0 )
+    {
+	radiusVel = 0.05;
+    }
 
     Flt xVel = a->vel[0];
     Flt yVel = a->vel[1];
@@ -163,9 +255,9 @@ void asteroidRadiusSpeed( Asteroid *a )
 
 }
 
+
 void shipRadiusSpeed()
-{
-    
+{   
     cout << "shipRadiusSpeed ftn &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
     cout << g.ship.vel[0] << " ShipXVel\n";
     cout << g.ship.vel[1] << " ShipYVel\n";
@@ -174,6 +266,11 @@ void shipRadiusSpeed()
     
 
     Flt radiusVel = ( ( 500.0 / ( g.ship.radius + 100.0 ) ) - 2.0 );
+
+    if ( radiusVel < 0 )
+    {
+	radiusVel = 0.05;
+    }
 
     Flt xVel = g.ship.vel[0];
     Flt yVel = g.ship.vel[1];
