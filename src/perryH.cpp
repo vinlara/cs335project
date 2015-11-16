@@ -365,7 +365,7 @@ extern int checkKeys(XEvent *e)
 	switch(key)
 	{
 		case XK_Escape:
-			return 1;
+			g.done = 1;;
 			break;
 		case XK_Return:
 			if (g.startScreen)

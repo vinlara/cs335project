@@ -93,8 +93,8 @@ int main(void)
 			XNextEvent(dpy, &e);
 			check_resize(&e);
 			checkMouse(&e);
-			g.done = checkKeys(&e);
-			g.done = vinceCheckKeys(&e);
+			checkKeys(&e);
+			vinceCheckKeys(&e);
 		}
 		if (g.startScreen)
 		{
