@@ -62,11 +62,10 @@ void check_resize(XEvent *e);
 void init();
 void physics();
 void updateCamera();
-void updateScore();
 void setup_screen_res(const int w, const int h);
-extern void deleteAsteroid(Asteroid *node);
 void set_title(void);
 extern void addAsteroid();
+extern void deleteAsteroid(Asteroid *node);
 extern void asteroidRadiusSpeed(Asteroid *a);
 
 int main(void)
