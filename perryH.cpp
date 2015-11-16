@@ -59,18 +59,17 @@ void loadFiles()
 
 void cleanupTempFiles()
 {
-	system("rm -rf images/*.ppm");
+	for (int i = 0; i<g.nt; i++)
+	{
+		remove(g.imageTemp[i]);
+	}
 }
 
 void initTextures(void)
 {
-	//load the images file into a ppm structure.
-	startScreen = ppm6GetImage("images/screen_begin.ppm");
-	gameOver = ppm6GetImage("images/screen_gameover.ppm");
-	playerImage = ppm6GetImage("images/texture_player.ppm");
-	background = ppm6GetImage("images/background.ppm");
 	//
 	// Start Screen
+	startScreen = ppm6GetImage("images/screen_begin.ppm");
 	glGenTextures(1, &startScreenId);
 	int w = startScreen->width;
 	int h = startScreen->height;
@@ -80,6 +79,7 @@ void initTextures(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, startScreen->data);
 	//
 	// Game Over
+	gameOver = ppm6GetImage("images/screen_gameover.ppm");
 	glGenTextures(1, &gameOverId);
 	w = gameOver->width;
 	h = gameOver->height;
@@ -89,6 +89,7 @@ void initTextures(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, gameOver->data);
 	//
 	// Player Texture
+	playerImage = ppm6GetImage("images/texture_player.ppm");
 	glGenTextures(1, &playerTextureId);
 	w = playerImage->width;
 	h = playerImage->height;
@@ -98,6 +99,7 @@ void initTextures(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, playerImage->data);
 	//
 	// Background
+	background = ppm6GetImage("images/background.ppm");
 	glGenTextures(1, &backgroundId);
 	w = background->width;
 	h = background->height;
@@ -118,7 +120,6 @@ void initTextures(void)
 		char t3[256] = ".ppm";
 		strcat(t1, t2);
 		strcat(t1, t3);
-		cout << t2 << endl;
 		particleImage = ppm6GetImage(t1);
 		glGenTextures(1, &particleTextureId[i]);
 		w = particleImage->width;

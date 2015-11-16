@@ -26,12 +26,6 @@ extern "C" {
 	#include "fonts.h"
 }
 using namespace std;
-#define USE_SOUND
-#ifdef USE_SOUND
-#include <FMOD/fmod.h>
-#include <FMOD/wincompat.h>
-#include "fmod.h"
-#endif
 
 Display *dpy;
 Window win;
@@ -132,9 +126,6 @@ int main(void)
 	cleanupXWindows();
 	cleanup_fonts();
 	cleanupTempFiles();
-	#ifdef USE_SOUND
-	fmod_cleanup();
-	#endif //USE_SOUND
 	return 0;
 }
 
@@ -321,28 +312,6 @@ void init()
 	memset(keys, 0, 65536);
 }
 
-void initSounds(void)
-{
-	#ifdef USE_SOUND
-	//FMOD_RESULT result;
-	if (fmod_init()) {
-		std::cout << "ERROR - fmod_init()\n" << std::endl;
-		return;
-	}
-	if (fmod_createsound((char *)"./sounds/tick.wav", 0)) {
-		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
-		return;
-	}
-	if (fmod_createsound((char *)"./sounds/drip.wav", 1)) {
-		std::cout << "ERROR - fmod_createsound()\n" << std::endl;
-		return;
-	}
-	fmod_setmode(0,FMOD_LOOP_OFF);
-	//fmod_playsound(0);
-	//fmod_systemupdate();
-	#endif
-}
-
 /*
 void addAsteroid ()
 {
@@ -527,7 +496,6 @@ void physics()
 		{
 			if (g.ship.radius >= a->radius)
 			{
-				fmod_playsound(0);
 				Asteroid *savea = a->next;
 
 				//cout << g.score << " g.score (before add)\n"
