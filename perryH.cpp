@@ -164,6 +164,7 @@ void renderStartScreen()
 }
 void renderHelpScreen()
 {
+	Rect helpRect;
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, helpScreenId);
@@ -173,6 +174,10 @@ void renderHelpScreen()
 	glTexCoord2f(1,1); glVertex2f(xres, 0);
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
+	helpRect.bot = yres / 2 + 250;
+	helpRect.left = xres / 2;
+	helpRect.center = xres / 2;
+	ggprint16(&helpRect, 16, 0x00ffffff, "Press 'BackSpace' to go back");
 }
 
 void renderGameOver()
@@ -326,7 +331,13 @@ int checkKeys(XEvent *e)
 		case XK_h:
 			if (g.startScreen)
 			{
-				g.helpScreen ^= 1;
+				g.helpScreen = 1;
+			}
+			break;
+		case XK_BackSpace:
+			if (g.helpScreen == 1)
+			{
+				g.helpScreen = 0;
 			}
 			break;
 	}
