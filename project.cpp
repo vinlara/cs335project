@@ -64,7 +64,6 @@ void check_resize(XEvent *e);
 extern void checkMouse(XEvent *e);
 extern int checkKeys(XEvent *e);
 void init();
-void initSounds(void);
 extern void renderStartScreen();
 extern void renderGameOver();
 void physics();
@@ -85,7 +84,6 @@ int main(void)
 	loadFiles();
 	initTextures();
 	init();
-	initSounds();
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
