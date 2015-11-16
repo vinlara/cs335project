@@ -10,7 +10,6 @@
 #include <X11/keysym.h>
 #include "ppm.h"
 #include "structs.h"
-#include "perryH.h"
 extern "C"
 {
 	#include "fonts.h"
@@ -249,11 +248,14 @@ extern void render()
 	glEnd();
 
 	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
+
 	glBindTexture(GL_TEXTURE_2D, playerTextureId);
+
 	glBegin(GL_TRIANGLE_FAN);
-	float x = (float)g.ship.radius * cos(999 * PI / 180.f);
-	float y = (float)g.ship.radius * sin(999 * PI / 180.f);
-	for (int i = 0; i <= 1000; i++)
+	float x = (float)g.ship.radius * cos(499 * PI / 180.f);
+	float y = (float)g.ship.radius * sin(499 * PI / 180.f);
+
+	for (int i = 0; i <= 500; i++)
 	{
 		glVertex2f(x, y);
 		glTexCoord2f(x, y);
@@ -261,20 +263,22 @@ extern void render()
 		y = (float)g.ship.radius * sin(i * PI / 180.f);
 	}
 	glEnd();
-	glBindTexture(GL_TEXTURE_2D, 0);
 	glPopMatrix();
 
 	//Draw the asteroids
 	Asteroid *a = g.ahead;
 	while (a)
 	{
-		glBindTexture(GL_TEXTURE_2D, particleTextureId[a->textureId]);
 		glPushMatrix();
 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+
+		glBindTexture(GL_TEXTURE_2D, particleTextureId[a->textureId]);
 		glBegin(GL_TRIANGLE_FAN);
-		float x = (float)a->radius * cos(999 * PI / 180.f);
-		float y = (float)a->radius * sin(999 * PI / 180.f);
-		for (int i = 0; i <= 1000; i++)
+
+		float x = (float)a->radius * cos(499 * PI / 180.f);
+		float y = (float)a->radius * sin(499 * PI / 180.f);
+
+		for (int i = 0; i <= 500; i++)
 		{
 			glVertex2f(x, y);
 			glTexCoord2f(x, y);
@@ -337,13 +341,16 @@ extern int checkKeys(XEvent *e)
 	{
 		keys[key]=0;
 		if (key == XK_Shift_L || key == XK_Shift_R)
+		{
 			shift=0;
+		}
 		return 0;
 	}
 	if (e->type == KeyPress)
 	{
 		keys[key]=1;
-		if (key == XK_Shift_L || key == XK_Shift_R) {
+		if (key == XK_Shift_L || key == XK_Shift_R)
+		{
 			shift=1;
 			return 0;
 		}

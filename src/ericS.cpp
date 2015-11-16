@@ -10,6 +10,7 @@
 	Perry Huynh
 	Vincente Lara
 */
+
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
