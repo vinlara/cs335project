@@ -1,6 +1,6 @@
 LIB    = ./lib/libggfonts.a
 FLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm -Wall -Wextra
-SOURCES = src/project.cpp src/ppm.cpp src/perryH.cpp src/ericS.cpp
+SOURCES = src/project.cpp src/ppm.cpp src/perryH.cpp src/ericS.cpp src/vincenteL.cpp
 
 all: project
 
