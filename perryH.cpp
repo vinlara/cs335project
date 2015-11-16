@@ -1,5 +1,4 @@
 #include <iostream>
-#include <algorithm>
 #include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,19 +27,15 @@ GLuint gameOverId;
 GLuint playerTextureId;
 GLuint particleTextureId[20];
 GLuint backgroundId;
-vector<string> tempFiles;
 
 void loadFiles()
 {
-	//Get a list of all .ppm files in current directory.
 	struct dirent *entry;
 	DIR *dp = opendir("./images/");
 	g.nimages = 0;
 	if (dp) {
-		while ((entry = readdir(dp)) != NULL &&
-						g.nimages < MAX_IMAGES) {
-			//if (strstr(entry->d_name, ".ppm"))
-			//	strcpy(g.imageName[g.nimages++], entry->d_name);
+		while ((entry = readdir(dp)) != NULL && g.nimages < MAX_IMAGES)
+		{
 			if (strstr(entry->d_name, ".png"))
 			{
 				char t1[256];
@@ -55,7 +50,6 @@ void loadFiles()
 				strcat(t3, t2);
 				strcpy(g.imageName[g.nimages++], t3);
 				strcpy(g.imageTemp[g.nt++], t3);
-				tempFiles.push_back(t3);
 			}
 		}
 		closedir(dp);
@@ -66,7 +60,6 @@ void cleanupTempFiles()
 {
 	system("rm -rf images/*.ppm");
 }
-
 
 void initTextures(void)
 {
@@ -197,19 +190,6 @@ void render()
 	while (a)
 	{
 		glBindTexture(GL_TEXTURE_2D, particleTextureId[a->textureId]);
-		/*if (a->radius < g.ship.radius)
-		{
-    		a->color[0] = 0.9;
-    		a->color[1] = 0.6;
-    		a->color[2] = 0.3;
-		}
-		else
-		{
-    		a->co./lor[0] = 0.3;
-    		a->color[1] = 0.4;
-    		a->color[2] = 0.5;
-		}*/
-		//glColor3fv(a->color);
 		glPushMatrix();
 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 		glBegin(GL_TRIANGLE_FAN);
@@ -224,10 +204,6 @@ void render()
 		}
 		glEnd();
 		glPopMatrix();
-		//glColor3f(1.0f, 0.0f, 0.0f);
-		//glBegin(GL_POINTS);
-		//glVertex2f(a->pos[0], a->pos[1]);
-		//glEnd();
 		a = a->next;
 	}
 	updateScore();
