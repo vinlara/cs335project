@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <cmath>
 #include "structs.h"
+#include "ericS.h"
 using namespace std;
 
 void addAsteroid ()
@@ -28,28 +29,28 @@ void addAsteroid ()
 
     Flt r2 = a->radius / 2.0;
     Flt angle = 0.0f;
-    Flt inc = (PI * 2.0) / (Flt)a->nverts;
-    for (int i=0; i<a->nverts; i++)
+    Flt inc = ( PI * 2.0 ) / (Flt)a->nverts;
+    for ( int i=0; i<a->nverts; i++ )
     {
-        a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
-        a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
+        a->vert[i][0] = sin( angle ) * ( r2 + rnd() * a->radius );
+        a->vert[i][1] = cos( angle ) * ( r2 + rnd() * a->radius );
         angle += inc;
     }
-    a->pos[0] = (Flt)(rand() % xres);
-    a->pos[1] = (Flt)(rand() % yres);
+    a->pos[0] = (Flt)( rand() % xres );
+    a->pos[1] = (Flt)( rand() % yres );
     a->pos[2] = 0.0f;
     a->angle = 0.0;
     a->rotate = rnd() * 4.0 - 2.0;
 
     Flt tmpx = xres >> 2;
     Flt tmpy = yres >> 2;
-    if ( a->pos[0] < (3.0 * tmpx) &&
-	    a->pos[0] > (tmpx) &&
-	    a->pos[1] < (3.0 * tmpy) &&
-	    a->pos[1] > (tmpy)
+    if ( a->pos[0] < ( 3.0 * tmpx ) &&
+	    a->pos[0] > tmpx &&
+	    a->pos[1] < ( 3.0 * tmpy ) &&
+	    a->pos[1] > tmpy
        )//protect area near center from bigger asteroids
     {
-	if (a->pos[0] < (2.0 * tmpx) &&
+	if ( a->pos[0] < ( 2.0 * tmpx ) &&
 		a->pos[0] > tmpx
 	   )//left half
 	{
@@ -64,7 +65,7 @@ void addAsteroid ()
 	}
     }
 
-    if (a->radius < g.ship.radius)
+    if ( a->radius < g.ship.radius )
     {
         a->color[0] = 0.9;
         a->color[1] = 0.6;
@@ -77,9 +78,13 @@ void addAsteroid ()
         a->color[2] = 0.5;
     }
 
-    a->vel[0] = (Flt)(rnd()*2.0-1.0);
-    a->vel[1] = (Flt)(rnd()*2.0-1.0);
+    a->vel[0] = (Flt)( rnd() * 2.0 - 1.0 );
+    a->vel[1] = (Flt)( rnd() * 2.0 - 1.0 );
+
+    asteroidRadiusSpeed(a);
+
     //add to front of linked list
+
     a->next = g.ahead;
     if (g.ahead != NULL)
     {
@@ -90,16 +95,16 @@ void addAsteroid ()
     g.nasteroids++;
 }
 
-void deleteAsteroid(Asteroid *node)
+void deleteAsteroid( Asteroid *node )
 {
     //remove a node from linked list
-    if (!g.done)
+    if ( !g.done )
     {
-	if (node)
+	if ( node )
 	{
-	    if (node->prev == NULL)
+	    if ( node->prev == NULL )
 	    {
-		if (node->next == NULL)
+		if ( node->next == NULL )
 		{
 		    g.ahead = NULL;
 		}
@@ -111,7 +116,7 @@ void deleteAsteroid(Asteroid *node)
 	    }
 	    else
 	    {
-		if (node->next == NULL)
+		if ( node->next == NULL )
 		{
 		    node->prev->next = NULL;
 		}
@@ -127,7 +132,7 @@ void deleteAsteroid(Asteroid *node)
     }
 }
 
-void asteroidRadiusSpeed(Asteroid *a)
+void asteroidRadiusSpeed( Asteroid *a )
 {
     /*
     cout << "asteroidRadiusSpeed ftn ------------------------\n";
@@ -137,11 +142,14 @@ void asteroidRadiusSpeed(Asteroid *a)
     cout << a->radius << ": asteroid radius\n";
     */
 
-    Flt radiusVel = ( ( 500.0 / ( a->radius + 100.0 ) ) - 1.5 );
+    Flt radiusVel = ( ( 500.0 / ( a->radius + 100.0 ) ) - 2.0 );
 
     Flt xVel = a->vel[0];
     Flt yVel = a->vel[1];
     Flt speed = sqrt( ( xVel * xVel ) + ( yVel * yVel ) );
+
+    //cout << "initial speed: " << speed << endl;
+
     Flt xRatio = ( xVel / speed ) * radiusVel;
     Flt yRatio = ( yVel / speed ) * radiusVel;
 
@@ -151,6 +159,7 @@ void asteroidRadiusSpeed(Asteroid *a)
     //cout << "asteroidRadiusSpeed ftn##### AFTER Radius Change !!!!!!!!!!!!!!!!!\n";
     //cout << "axVel: " << a->vel[0] << endl;
     //cout << "ayVel: " << a->vel[1] << endl;
+    //cout << "adjusted speed: " << sqrt( ( a->vel[0] * a->vel[0] ) + ( a->vel[1] * a->vel[1] ) ) << endl;
 
 }
 
@@ -164,11 +173,14 @@ void shipRadiusSpeed()
     cout << g.ship.radius << ": ship radius\n";
     */
 
-    Flt radiusVel = ( ( 500.0 / ( g.ship.radius + 100.0 ) ) - 1.5 );
+    Flt radiusVel = ( ( 500.0 / ( g.ship.radius + 100.0 ) ) - 2.0 );
 
     Flt xVel = g.ship.vel[0];
     Flt yVel = g.ship.vel[1];
     Flt speed = sqrt( ( xVel * xVel ) + ( yVel * yVel ) );
+
+    //cout << "initial speed: " << speed << endl;
+
     Flt xRatio = ( xVel / speed ) * radiusVel;
     Flt yRatio = ( yVel / speed ) * radiusVel;
 
@@ -178,5 +190,6 @@ void shipRadiusSpeed()
     //cout << "shipRadiusSpeed ftn&&&&&&&&&&& AFTER CHANGE &&&&&&&&&&&&&&&\n";
     //cout << g.ship.vel[0] << " ShipXVel\n";
     //cout << g.ship.vel[1] << " ShipYVel\n";
+    //cout << "adjusted speed: " << sqrt( ( g.ship.vel[0] * g.ship.vel[0] ) + ( g.ship.vel[1] * g.ship.vel[1] ) ) << endl;
 
 }

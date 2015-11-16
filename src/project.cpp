@@ -227,7 +227,7 @@ void check_resize(XEvent *e)
 
 void init()
 {
-	g.score = g.ship.radius;
+	//g.score = g.ship.radius;
 
 	cout << g.score << " = g.score (start)\n";
 
