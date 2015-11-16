@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 #include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include <vector>
 #include "ppm.h"
 #include "structs.h"
 using namespace std;
@@ -26,6 +28,7 @@ GLuint gameOverId;
 GLuint playerTextureId;
 GLuint particleTextureId[20];
 GLuint backgroundId;
+vector<string> tempFiles;
 
 void loadFiles()
 {
@@ -50,36 +53,32 @@ void loadFiles()
 				sprintf(t1, "convert images/%s images/%s", entry->d_name, t2);
 				system(t1);
 				strcat(t3, t2);
-				cout << t3 << endl;
 				strcpy(g.imageName[g.nimages++], t3);
 				strcpy(g.imageTemp[g.nt++], t3);
+				tempFiles.push_back(t3);
 			}
 		}
 		closedir(dp);
-	}
-	for (int i = 0; i < 9; ++i)
-	{
-		cout << "g.imageTemp[i]:" << g.imageTemp[i] << endl;
 	}
 }
 
 void cleanupTempFiles()
 {
-	for (int i = 0; i<g.nt; i++)
-	{
-		remove(g.imageTemp[i]);
-	}
+	system("rm -rf images/*.ppm");
 }
 
 
 void initTextures(void)
 {
+	for (int i = 0; i < 8; ++i)
+	{
+		cout << g.imageTemp[i] << endl;
+	}
 	//load the images file into a ppm structure.
-	startScreen = ppm6GetImage(g.imageTemp[3]);
-	gameOver = ppm6GetImage(g.imageTemp[5]);
-	playerImage = ppm6GetImage(g.imageTemp[4]);
+	startScreen = ppm6GetImage(g.imageTemp[1]);
+	gameOver = ppm6GetImage(g.imageTemp[2]);
+	playerImage = ppm6GetImage(g.imageTemp[7]);
 	background = ppm6GetImage(g.imageTemp[0]);
-	particleImage = ppm6GetImage(g.imageTemp[2]);
 	//
 	// Start Screen
 	glGenTextures(1, &startScreenId);
@@ -117,14 +116,19 @@ void initTextures(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
 	//
-	// Particle Texture 1
-	glGenTextures(1, &particleTextureId[0]);
-	w = particleImage->width;
-	h = particleImage->height;
-	glBindTexture(GL_TEXTURE_2D, particleTextureId[0]);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, particleImage->data);
+	// Particle Textures
+	for (int i = 3; i < 7; ++i)
+	{
+		ppm6CleanupImage(particleImage);
+		particleImage = ppm6GetImage(g.imageTemp[i]);
+		glGenTextures(1, &particleTextureId[i - 3]);
+		w = particleImage->width;
+		h = particleImage->height;
+		glBindTexture(GL_TEXTURE_2D, particleTextureId[i - 3]);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, particleImage->data);
+	}
 }
 
 void renderStartScreen()
@@ -192,7 +196,7 @@ void render()
 	Asteroid *a = g.ahead;
 	while (a)
 	{
-		glBindTexture(GL_TEXTURE_2D, particleTextureId[0]);
+		glBindTexture(GL_TEXTURE_2D, particleTextureId[a->textureId]);
 		/*if (a->radius < g.ship.radius)
 		{
     		a->color[0] = 0.9;
@@ -201,7 +205,7 @@ void render()
 		}
 		else
 		{
-    		a->color[0] = 0.3;
+    		a->co./lor[0] = 0.3;
     		a->color[1] = 0.4;
     		a->color[2] = 0.5;
 		}*/
