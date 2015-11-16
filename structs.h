@@ -109,6 +109,7 @@ struct Game
 	double score;
 	struct timespec bulletTimer;
 	int startScreen, gameOver;
+	int sBoost;
 	int done;
 	Game()
 	{

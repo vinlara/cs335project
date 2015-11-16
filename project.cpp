@@ -70,12 +70,13 @@ void cleanupXWindows(void);
 void check_resize(XEvent *e);
 extern void checkMouse(XEvent *e);
 extern int checkKeys(XEvent *e);
+extern int vinceCheckKeys(XEvent *e);
 void init();
 void initSounds(void);
 extern void renderStartScreen();
 extern void renderGameOver();
 void physics();
-void updateCamera();
+extern void updateCamera();
 void updateScore();
 extern void render();
 extern void normalize(Vec v);
@@ -83,6 +84,7 @@ void setup_screen_res(const int w, const int h);
 extern void deleteAsteroid(Asteroid *node);
 void set_title(void);
 extern void addAsteroid();
+extern void checkSBoost();
 
 int main(void)
 {
@@ -103,6 +105,7 @@ int main(void)
 			check_resize(&e);
 			checkMouse(&e);
 			g.done = checkKeys(&e);
+			g.done = vinceCheckKeys(&e);
 		}
 		if (g.startScreen)
 		{
@@ -554,7 +557,7 @@ void physics()
 	}
 }
 
-void updateCamera()
+/*void updateCamera()
 {
 	//cout << (float)xres << " xres\n";
 	//cout << (float)yres << " yres\n";
@@ -591,4 +594,4 @@ void updateCamera()
 			a = a->next;
 		}
 	}
-}
+}*/
