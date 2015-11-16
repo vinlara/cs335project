@@ -59,12 +59,19 @@ void initXWindows(void);
 void initOpenGL(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
+extern void checkMouse(XEvent *e);
+extern int checkKeys(XEvent *e);
+extern int vinceCheckKeys(XEvent *e);
 void init();
 void physics();
-void updateCamera();
+extern void updateCamera();
+void updateScore();
+extern void render();
+extern void normalize(Vec v);
 void setup_screen_res(const int w, const int h);
 void set_title(void);
 extern void addAsteroid();
+extern void checkSBoost();
 extern void deleteAsteroid(Asteroid *node);
 extern void asteroidRadiusSpeed(Asteroid *a);
 
@@ -87,6 +94,7 @@ int main(void)
 			check_resize(&e);
 			checkMouse(&e);
 			g.done = checkKeys(&e);
+			g.done = vinceCheckKeys(&e);
 		}
 		if (g.startScreen)
 		{
@@ -405,44 +413,5 @@ void physics()
 		if (a == NULL)
 			break;
 		a = a->next;
-	}
-}
-
-void updateCamera()
-{
-	//cout << (float)xres << " xres\n";
-	//cout << (float)yres << " yres\n";
-	//cout << std::dec << (g.ship.pos) << " g.ship.pos\n";
-	bool Move = false;
-	if(g.ship.pos[0] < (float)(xres)*.65+.1 && g.ship.pos[0] > (float)(xres)*.35-.1
-		&& g.ship.pos[1] < (float)(yres)*.65+.1 && g.ship.pos[1] > (float)(yres)*.35-.1)
-		{
-			//Update ship position
-			g.ship.pos[0] += g.ship.vel[0];
-			g.ship.pos[1] += g.ship.vel[1];
-			Move = false;
-		}
-		else
-		{
-			Move = true;
-			if(g.ship.pos[0] > (float)(xres)*.65+.1)
-				g.ship.pos[0] = (float)(xres)*.65;
-			if(g.ship.pos[0] < (float) (xres)*.35-.1)
-				g.ship.pos[0] = (float)(xres)*.35;
-			if(g.ship.pos[1] > (float)(yres)*.65+.1)
-				g.ship.pos[1] = (float)(yres)*.65;
-			if(g.ship.pos[1] < (float)(yres)*.35-.1)
-				g.ship.pos[1] = (float)(yres)*.35;
-		}
-
-	Asteroid *a = g.ahead;
-	if (Move)
-	{
-		while (a)
-		{
-			a->pos[0] -= g.ship.vel[0] * 2;
-			a->pos[1] -= g.ship.vel[1] * 2;
-			a = a->next;
-		}
 	}
 }
