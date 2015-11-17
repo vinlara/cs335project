@@ -24,6 +24,7 @@
 #include "ppm.h"
 #include "structs.h"
 #include "perryH.h"
+#include "ericS.h"
 extern "C" {
 	#include "fonts.h"
 }
@@ -94,7 +95,7 @@ int main(void)
 			XNextEvent(dpy, &e);
 			check_resize(&e);
 			checkMouse(&e);
-			g.done = checkKeys(&e);
+			checkKeys(&e);
 			vinceCheckKeys(&e);
 		}
 		if (g.startScreen)
@@ -234,9 +235,10 @@ void check_resize(XEvent *e)
 	}
 }
 
+/*
 void init()
 {
-	g.score = g.ship.radius;
+	//g.score = g.ship.radius;
 
 	cout << g.score << " = g.score (start)\n";
 
@@ -316,6 +318,7 @@ void init()
 
 	memset(keys, 0, 65536);
 }
+*/
 
 void physics()
 {
