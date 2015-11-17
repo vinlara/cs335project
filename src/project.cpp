@@ -7,7 +7,10 @@
 	Perry Huynh
 	Vincente Lara
 */
-
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include </usr/include/AL/alut.h>
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
@@ -34,6 +37,13 @@ int xres = 1600;
 int yres = 900;
 int keys[65536];
 
+ALuint alSource;
+ALuint alSource1;
+ALuint alSource2;
+ALuint alBuffer;
+ALuint alBuffer1;
+ALuint alBuffer2;
+
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
 struct timespec timeStart, timeCurrent;
@@ -56,6 +66,8 @@ Window win;
 GLXContext glc;
 Game g;
 
+extern void cleanup_sounds();
+extern void init_sounds();
 void initXWindows(void);
 void initOpenGL(void);
 void cleanupXWindows(void);
@@ -84,9 +96,11 @@ int main(void)
 	loadTempFiles();
 	initTextures();
 	init();
+	init_sounds();
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
+	alSourcePlay(alSource);
 	while (!g.done)
 	{
 		while (XPending(dpy))
