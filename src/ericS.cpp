@@ -326,8 +326,7 @@ int smithCheckKeys( XEvent *e )
 		case XK_r:
 		    if ( g.gameOver )
 		    {
-			g.score = 0.0;
-			g.startScreen = 1;
+			remakeGame();	
 		    }
 			break;
 
@@ -335,3 +334,20 @@ int smithCheckKeys( XEvent *e )
 	
 	return 0;
 }
+
+void remakeGame( Asteroid *a )
+{
+    g.score = 0.0;
+    
+    while ( g.ahead != NULL )
+    {
+	if ( )
+	{
+
+	}
+
+	g.gameOver = 0;
+		
+    }
+}
+
