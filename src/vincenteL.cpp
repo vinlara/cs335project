@@ -19,6 +19,12 @@
 //#include "log.h"
 #include "structs.h"
 
+#include <math.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include </usr/include/AL/alut.h>
+
 /*void checkSBoost()
 {
 	if( key == XK_b )
@@ -28,6 +34,14 @@
 		std::cout << "velocity increased";
 	}	
 }*/
+
+//Variables and funcitons
+//Needed to play sound with boost fucntion
+extern void play_on_boost();
+extern void stop_playing(ALuint to_stop);
+extern int bcount;
+extern ALuint alSource4;
+//
 
 extern double timeDiff(struct timespec *start, struct timespec *end);
 
@@ -64,6 +78,10 @@ int vinceCheckKeys(XEvent *e)
 		case XK_b:
 			//g.sBoost = 1;
 			g.sBoost ^= 1;
+			//Erik's Stuff, do NOT edit!
+			bcount++;
+			play_on_boost();
+			//
 			break;
 
 	}
@@ -81,6 +99,7 @@ void updateCamera()
 	//void checkSBoost();
 	if(g.sBoost)
 	{
+
 		struct timespec ct;
 		struct timespec bt;
 		clock_gettime(CLOCK_REALTIME, &bt);
@@ -97,6 +116,7 @@ void updateCamera()
 			//Update ship position
 			if(g.sBoost)
 			{
+
 				g.ship.pos[0] += g.ship.vel[0] * 2;
 				g.ship.pos[1] += g.ship.vel[1] * 2;
 				Move = false;

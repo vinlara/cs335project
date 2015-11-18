@@ -58,8 +58,6 @@ bool gameplay = false;
 bool gameovercont = false;
 bool boost = false;
 
-int bcount = 2;
-
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
 struct timespec timeStart, timeCurrent;
@@ -90,7 +88,7 @@ void initOpenGL(void);
 void cleanupXWindows(void);
 void check_resize(XEvent *e);
 extern void checkMouse(XEvent *e);
-extern int checkKeys(XEvent *e);
+extern int n(XEvent *e);
 extern int vinceCheckKeys(XEvent *e);
 void init();
 void physics();
@@ -128,7 +126,6 @@ int main(void)
 			checkMouse(&e);
 			checkKeys(&e);
 			vinceCheckKeys(&e);
-
 		}
 		if (g.startScreen)
 		{
@@ -177,6 +174,14 @@ int main(void)
 			{
 				physics();
 				physicsCountdown -= physicsRate;
+			}
+
+			if(g.sBoost){
+				play_on_boost();
+			}
+
+			else{
+				stop_playing(alSource4);
 			}
 
 			updateCamera();
