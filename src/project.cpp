@@ -128,7 +128,7 @@ int main(void)
 			checkMouse(&e);
 			checkKeys(&e);
 			vinceCheckKeys(&e);
-
+			smithCheckKeys(&e);
 		}
 		if (g.startScreen)
 		{
@@ -453,7 +453,11 @@ void physics()
 				//	<< a->radius << " asteroid radius\n";
 
 				if (a->radius > 0)
-					g.score += 0.5 * a->radius;
+                		{
+                    			int radiusDif = g.ship.radius - ( g.ship.radius - a->radius );
+					g.score += radiusDif;
+		    			//g.score += 0.5 * a->radius;
+                		}
 
 				//cout << g.score << " g.score (after add)\n"
 				//   	<< g.ship.radius << " ship radius\n\n";
