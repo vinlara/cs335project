@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include </usr/include/AL/alut.h>
 
+extern int bcount;
 
 extern ALuint alSource;
 extern ALuint alSource1;
@@ -28,6 +29,12 @@ extern ALuint alBuffer3;
 extern ALuint alBuffer4;
 extern ALuint alBuffer5;
 extern ALuint alBuffer6;
+
+
+void init_sounds();
+void play_on_boost();
+void stop_playing(ALuint);
+void cleanup_sounds();
 
 void init_opengl(void)
 {
@@ -173,3 +180,14 @@ void cleanup_sounds(){
 void stop_playing(ALuint to_stop){
 alSourceStop(to_stop);
 }
+
+void play_on_boost(){
+	if(bcount%2 == 0){
+		stop_playing(alSource4);
+	}
+	if(bcount%2 != 0){
+				alSourcePlay(alSource4);
+	}
+}
+
+

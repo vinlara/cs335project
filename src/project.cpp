@@ -56,6 +56,9 @@ ALuint alBuffer6;
 bool menu = false;
 bool gameplay = false;
 bool gameovercont = false;
+bool boost = false;
+
+int bcount = 2;
 
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
@@ -78,6 +81,7 @@ Display *dpy;
 Window win;
 GLXContext glc;
 Game g;
+extern void play_on_boost();
 extern void stop_playing(ALuint);
 extern void cleanup_sounds();
 extern void init_sounds();
@@ -124,6 +128,7 @@ int main(void)
 			checkMouse(&e);
 			checkKeys(&e);
 			vinceCheckKeys(&e);
+
 		}
 		if (g.startScreen)
 		{
@@ -145,6 +150,7 @@ int main(void)
 		else if (g.gameOver)
 		{
 			stop_playing(alSource1);
+			stop_playing(alSource4);
 			alSourcePlay(alSource5);
 			if(gameovercont == false){
 				alSourcePlay(alSource6);
@@ -172,9 +178,10 @@ int main(void)
 				physics();
 				physicsCountdown -= physicsRate;
 			}
+
 			updateCamera();
 			render();
-			//song_played = 
+			boost = false;
 		}
 		glXSwapBuffers(dpy, win);
 	}
