@@ -11,6 +11,9 @@
 	Vincente Lara
 */
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
 #include <iostream>
 #include <string.h>
 #include <cstdlib>
@@ -289,4 +292,46 @@ void shipRadiusSpeed()
     cout << g.ship.vel[1] << " ShipYVel\n";
     cout << "adjusted speed: " << sqrt( ( g.ship.vel[0] * g.ship.vel[0] ) + ( g.ship.vel[1] * g.ship.vel[1] ) ) << endl;
 
+}
+
+int smithCheckKeys( XEvent *e )
+{
+	static int shift=0;
+	int key = XLookupKeysym(&e->xkey, 0);
+	
+	if (e->type == KeyRelease)
+	{
+		keys[key]=0;
+		if (key == XK_Shift_L || key == XK_Shift_R)
+			shift=0;
+		return 0;
+	}
+
+	if (e->type == KeyPress)
+	{
+		keys[key]=1;
+		if (key == XK_Shift_L || key == XK_Shift_R) {
+			shift=1;
+			return 0;
+		}
+	}
+
+	else
+	{
+		return 0;
+	}
+	if (shift){}
+	switch(key)
+	{
+		case XK_r:
+		    if ( g.gameOver )
+		    {
+			g.score = 0.0;
+			g.startScreen = 1;
+		    }
+			break;
+
+	}
+	
+	return 0;
 }
