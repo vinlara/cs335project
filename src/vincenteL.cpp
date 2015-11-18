@@ -27,7 +27,7 @@ extern "C"
 //	float x, y, z;
 //};
 
-int pause = 0;
+int p = 0;
 float temp1[30];
 float temp2[30];
 int showC = 0;
@@ -40,6 +40,12 @@ struct Shape {
 };
 
 
+#include <math.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include </usr/include/AL/alut.h>
+
 /*void checkSBoost()
 {
 	if( key == XK_b )
@@ -49,6 +55,14 @@ struct Shape {
 		std::cout << "velocity increased";
 	}	
 }*/
+
+//Variables and funcitons
+//Needed to play sound with boost fucntion
+extern void play_on_boost();
+extern void stop_playing(ALuint to_stop);
+extern int bcount;
+extern ALuint alSource4;
+//
 
 extern double timeDiff(struct timespec *start, struct timespec *end);
 int vinceCheckKeys(XEvent *e);
@@ -79,8 +93,8 @@ void spaceWarp()
 
 void pauseMove()
 {
-	pause ^= 1;
-	if(pause)
+	p ^= 1;
+	if(p)
 	{
 		Asteroid *b = g.ahead;
 		while (b)
@@ -96,7 +110,7 @@ void pauseMove()
 		g.ship.vel[0] = 0;
 		g.ship.vel[1] = 0;
 	}
-	else if(!pause)
+	else if(!p)
 	{
 		Asteroid *b = g.ahead;
 		while (b)
@@ -172,6 +186,10 @@ int vinceCheckKeys(XEvent *e)
 			//g.sBoost = 1;
 			checkSBoost();
 			//g.sBoost ^= 1;
+			//Erik's Stuff, do NOT edit!
+			bcount++;
+			play_on_boost();
+			//
 			break;
 		case XK_w:
 			spaceWarp();
@@ -311,13 +329,14 @@ void updateCamera()
 	//cout << (float)yres << " yres\n";
 	//cout << std::dec << (g.ship.pos) << " g.ship.pos\n";
 	bool Move = false;
-	//if(pause)
+	//if(p)
 	//{
 	//	Move = true;
 	//}
 	//void checkSBoost();
 	if(g.sBoost)
 	{
+
 		struct timespec ct;
 		struct timespec bt;
 		clock_gettime(CLOCK_REALTIME, &bt);
@@ -335,6 +354,7 @@ void updateCamera()
 			//Update ship position
 			if(g.sBoost)
 			{
+
 				g.ship.pos[0] += g.ship.vel[0] * 2;
 				g.ship.pos[1] += g.ship.vel[1] * 2;
 				Move = false;
@@ -383,7 +403,7 @@ void updateCamera()
 				a->pos[1] -= g.ship.vel[1];
 				a = a->next;
 			}				
-			else if(pause)
+			else if(p)
 			{
 				g.ship.vel[0] = 0;
 				g.ship.vel[1] = 0;
