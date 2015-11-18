@@ -295,6 +295,7 @@ extern void render()
 		glPopMatrix();
 		a = a->next;
 	}
+	renderBoostBar();
 	updateScore();
 	std::cout << "rendering game" << std::endl;
 }
