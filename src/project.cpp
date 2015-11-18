@@ -88,6 +88,7 @@ extern void checkSBoost();
 extern void deleteAsteroid(Asteroid *node);
 extern void asteroidRadiusSpeed(Asteroid *a);
 void showSBoost();
+void renderBoostBar();
 
 int main(void)
 {

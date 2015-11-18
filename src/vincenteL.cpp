@@ -23,6 +23,18 @@ extern "C"
 	#include "fonts.h"
 }
 
+//struct Vec {
+//	float x, y, z;
+//};
+
+
+struct Shape {
+	float width, height;
+	float radius;
+	Vec center;
+};
+
+
 /*void checkSBoost()
 {
 	if( key == XK_b )
@@ -62,6 +74,7 @@ int vinceCheckKeys(XEvent *e)
 			shift=1;
 			return 0;
 		}
+		
 	}
 
 	else
@@ -84,11 +97,71 @@ int vinceCheckKeys(XEvent *e)
 
 extern void showSBoost()
 {
-	Rect boost;
-	boost.bot = yres - .25;
-	boost.left = 20;
-	boost.center = 0;
-	ggprint16(&boost, 16, 0x00ffff00, "Boost");
+	Rect boost1;
+	boost1.bot = yres - (yres*.90) + 30;
+	boost1.left = 20;
+	boost1.center = 0;
+	ggprint16(&boost1, 16, 0x00ffff00, "Press b for Boost");
+	
+	Rect boost2;
+	boost2.bot = yres - (yres*.90);
+	boost2.left = 20;
+	boost2.center = 0;
+	ggprint16(&boost2, 16, 0x00ffff00, "Boost:");
+}
+
+extern void renderBoostBar()
+{
+	Shape s;
+	float w;
+	float h;
+	
+	if(g.sBoost)
+	{
+		glColor3ub(90,140,90);
+		s.width = 10;
+		s.height = 10;
+		s.center[0] = 100; 
+		s.center[1] = yres - (yres*.90) + 10;
+		glPushMatrix();
+		glTranslatef(s.center[0], s.center[1], s.center[2]);
+		w = s.width;
+		h = s.height;
+		glBegin(GL_QUADS);
+		glVertex2i(-w,-h);
+		glVertex2i(-w, h);
+		glVertex2i( w, h);
+		glVertex2i( w,-h);
+		glVertex2i(-w,-h);
+		glEnd();
+		glPopMatrix();
+		
+		Rect boost3;
+		boost3.bot = yres - 40;
+		boost3.left = xres/2;
+		boost3.center = 0;
+		ggprint16(&boost3, 16, 0x00ffffff, "Boost Activated!!!!");
+	}
+	else
+	{
+		glColor3ub(90,140,90);
+		s.width = 10;
+		s.height = 10;
+		s.center[0] = 100; 
+		s.center[1] = yres - (yres*.90) + 10;
+		glPushMatrix();
+		glTranslatef(s.center[0], s.center[1], s.center[2]);
+		w = s.width;
+		h = s.height;
+		glBegin(GL_LINE_STRIP);
+		glVertex2i(-w,-h);
+		glVertex2i(-w, h);
+		glVertex2i( w, h);
+		glVertex2i( w,-h);
+		glVertex2i(-w,-h);
+		glEnd();
+		glPopMatrix();
+	}
 }
 
 void updateCamera()
