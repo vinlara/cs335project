@@ -40,9 +40,25 @@ int keys[65536];
 ALuint alSource;
 ALuint alSource1;
 ALuint alSource2;
+ALuint alSource3;
+ALuint alSource4;
+ALuint alSource5;
+ALuint alSource6;
+
 ALuint alBuffer;
 ALuint alBuffer1;
 ALuint alBuffer2;
+ALuint alBuffer3;
+ALuint alBuffer4;
+ALuint alBuffer5;
+ALuint alBuffer6;
+
+bool menu = false;
+bool gameplay = false;
+bool gameovercont = false;
+bool boost = false;
+
+int bcount = 2;
 
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
@@ -65,7 +81,8 @@ Display *dpy;
 Window win;
 GLXContext glc;
 Game g;
-
+extern void play_on_boost();
+extern void stop_playing(ALuint);
 extern void cleanup_sounds();
 extern void init_sounds();
 void initXWindows(void);
@@ -101,7 +118,8 @@ int main(void)
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
-	alSourcePlay(alSource);
+	//alSourcePlay(alSource);
+	//alSourcePlay(alSource2);
 	while (!g.done)
 	{
 		while (XPending(dpy))
@@ -112,13 +130,20 @@ int main(void)
 			checkMouse(&e);
 			checkKeys(&e);
 			vinceCheckKeys(&e);
+			smithCheckKeys(&e);
 		}
 		if (g.startScreen)
 		{
+			if(menu == false){
+				alSourcePlay(alSource);
+				menu = true;
+			}
+
 			if (g.helpScreen)
 			{
 				renderHelpScreen();
 			}
+
 			else
 			{
 				renderStartScreen();
@@ -126,7 +151,16 @@ int main(void)
 		}
 		else if (g.gameOver)
 		{
+			stop_playing(alSource1);
+			stop_playing(alSource4);
+			alSourcePlay(alSource5);
+			if(gameovercont == false){
+				alSourcePlay(alSource6);
+				gameovercont = true;
+			}
 			renderGameOver();
+
+			
 		}
 		else
 		{
@@ -134,17 +168,27 @@ int main(void)
 			timeSpan = timeDiff(&timeStart, &timeCurrent);
 			timeCopy(&timeStart, &timeCurrent);
 			physicsCountdown += timeSpan;
+			
+			if(gameplay == false){
+				stop_playing(alSource);
+				alSourcePlay(alSource1);
+				gameplay = true;
+			}
+
 			while (physicsCountdown >= physicsRate)
 			{
 				physics();
 				physicsCountdown -= physicsRate;
 			}
-			render();
+
 			updateCamera();
+			render();
+			boost = false;
 		}
 		glXSwapBuffers(dpy, win);
 	}
 	cleanupXWindows();
+	cleanup_sounds();
 	cleanup_fonts();
 	cleanupTempFiles();
 	return 0;
@@ -403,6 +447,7 @@ void physics()
 		{
 			if (g.ship.radius >= a->radius)
 			{
+				alSourcePlay(alSource2);
 				Asteroid *savea = a->next;
 
 				//cout << g.score << " g.score (before add)\n"
@@ -410,7 +455,11 @@ void physics()
 				//	<< a->radius << " asteroid radius\n";
 
 				if (a->radius > 0)
-					g.score += 0.5 * a->radius;
+                		{
+                    			int radiusDif = g.ship.radius - ( g.ship.radius - a->radius );
+					g.score += radiusDif;
+		    			//g.score += 0.5 * a->radius;
+                		}
 
 				//cout << g.score << " g.score (after add)\n"
 				//   	<< g.ship.radius << " ship radius\n\n";
@@ -426,6 +475,7 @@ void physics()
 			}
 			else
 			{
+				alSourcePlay(alSource3);
 				g.gameOver = 1;
 			}
 		}
