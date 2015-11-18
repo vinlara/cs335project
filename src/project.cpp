@@ -44,6 +44,8 @@ ALuint alBuffer;
 ALuint alBuffer1;
 ALuint alBuffer2;
 
+bool song_played = false;
+
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
 struct timespec timeStart, timeCurrent;
@@ -65,7 +67,7 @@ Display *dpy;
 Window win;
 GLXContext glc;
 Game g;
-
+extern void stop_playing(ALuint);
 extern void cleanup_sounds();
 extern void init_sounds();
 void initXWindows(void);
@@ -99,7 +101,8 @@ int main(void)
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
-	alSourcePlay(alSource);
+	//alSourcePlay(alSource);
+	//alSourcePlay(alSource2);
 	while (!g.done)
 	{
 		while (XPending(dpy))
@@ -124,6 +127,7 @@ int main(void)
 		}
 		else if (g.gameOver)
 		{
+			stop_playing(alSource2);
 			renderGameOver();
 		}
 		else
@@ -132,6 +136,10 @@ int main(void)
 			timeSpan = timeDiff(&timeStart, &timeCurrent);
 			timeCopy(&timeStart, &timeCurrent);
 			physicsCountdown += timeSpan;
+			if(song_played == false){
+				alSourcePlay(alSource2);
+				song_played = true;
+			}
 			while (physicsCountdown >= physicsRate)
 			{
 				physics();
@@ -139,10 +147,12 @@ int main(void)
 			}
 			updateCamera();
 			render();
+			//song_played = 
 		}
 		glXSwapBuffers(dpy, win);
 	}
 	cleanupXWindows();
+	cleanup_sounds();
 	cleanup_fonts();
 	cleanupTempFiles();
 	return 0;
@@ -401,6 +411,10 @@ void physics()
 		{
 			if (g.ship.radius >= a->radius)
 			{
+
+//------------------->		//PLAY SOUND HERE ERIK!!!     <--------------------
+
+				alSourcePlay(alSource1);
 				Asteroid *savea = a->next;
 
 				//cout << g.score << " g.score (before add)\n"

@@ -12,8 +12,14 @@
 #include <sys/stat.h>
 #include </usr/include/AL/alut.h>
 
-extern ALuint alSource, alSource1, alSource2;
-extern ALuint alBuffer, alBuffer1, alBuffer2;
+
+//Sources & Buffers
+extern ALuint alSource;
+extern ALuint alSource1;
+extern ALuint alSource2;
+extern ALuint alBuffer;
+extern ALuint alBuffer1;
+extern ALuint alBuffer2;
 
 void init_opengl(void)
 {
@@ -57,15 +63,18 @@ void init_sounds(){
 	//Buffer holds the sound information.
 //ALuint alBuffer;
 	alBuffer = alutCreateBufferFromFile("sounds/test.wav");
-	alBuffer1 = alutCreateBufferFromFile("sounds/game_over.wav");
+	alBuffer1 = alutCreateBufferFromFile("sounds/collision.wav");
+	alBuffer2 = alutCreateBufferFromFile("sounds/gameplay.wav");
 	//
 	//Source refers to the sound.
 //ALuint alSource;
 	//Generate a source, and store it in a buffer.
 	alGenSources(1, &alSource);
 	alGenSources(1, &alSource1);
+	alGenSources(1, &alSource2);
 	alSourcei(alSource, AL_BUFFER, alBuffer);
 	alSourcei(alSource1, AL_BUFFER, alBuffer1);
+	alSourcei(alSource2, AL_BUFFER, alBuffer2);
 	//Set volume and pitch to normal, no looping of sound.
 	alSourcef(alSource, AL_GAIN, 1.0f);
 	alSourcef(alSource, AL_PITCH, 1.0f);
@@ -73,9 +82,17 @@ void init_sounds(){
 	if (alGetError() != AL_NO_ERROR) {
 		printf("ERROR: setting source\n");
 	}
+
 	alSourcef(alSource1, AL_GAIN, 1.0f);
 	alSourcef(alSource1, AL_PITCH, 1.0f);
 	alSourcei(alSource1, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource2, AL_GAIN, 1.0f);
+	alSourcef(alSource2, AL_PITCH, 1.0f);
+	alSourcei(alSource2, AL_LOOPING, AL_TRUE);
 	if (alGetError() != AL_NO_ERROR) {
 		printf("ERROR: setting source\n");
 	}
@@ -85,8 +102,10 @@ void cleanup_sounds(){
 	//Cleanup.
 	//First delete the source.
 	alDeleteSources(1, &alSource);
+	alDeleteSources(1, &alSource1);
 	//Delete the buffer.
 	alDeleteBuffers(1, &alBuffer);
+	alDeleteBuffers(1, &alBuffer1);
 	//Close out OpenAL itself.
 	//Get active context.
 	ALCcontext *Context = alcGetCurrentContext();
@@ -100,3 +119,6 @@ void cleanup_sounds(){
 	alcCloseDevice(Device);
 }
 
+void stop_playing(ALuint to_stop){
+alSourceStop(to_stop);
+}
