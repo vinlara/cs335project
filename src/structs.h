@@ -57,6 +57,7 @@ void timeCopy(struct timespec *dest, struct timespec *source)
 //-----------------------------------------------------------------------------
 
 extern void shipRadiusSpeed();
+void renderBoostBar();
 extern int xres;
 extern int yres;
 
