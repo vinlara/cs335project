@@ -44,6 +44,7 @@ ALuint alSource3;
 ALuint alSource4;
 ALuint alSource5;
 ALuint alSource6;
+ALuint alSource7;
 
 ALuint alBuffer;
 ALuint alBuffer1;
@@ -52,6 +53,7 @@ ALuint alBuffer3;
 ALuint alBuffer4;
 ALuint alBuffer5;
 ALuint alBuffer6;
+ALuint alBuffer7;
 
 bool menu = false;
 bool gameplay = false;
