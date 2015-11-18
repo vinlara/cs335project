@@ -75,7 +75,7 @@ void init()
                 if ( a->radius < g.ship.radius )
                 {
                         a->color[0] = 0.9;
-			a->color[1] = 0.6;
+                        a->color[1] = 0.6;
                         a->color[2] = 0.3;
                 }
 
