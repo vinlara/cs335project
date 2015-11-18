@@ -12,14 +12,29 @@
 #include <sys/stat.h>
 #include </usr/include/AL/alut.h>
 
+extern int bcount;
 
-//Sources & Buffers
 extern ALuint alSource;
 extern ALuint alSource1;
 extern ALuint alSource2;
+extern ALuint alSource3;
+extern ALuint alSource4;
+extern ALuint alSource5;
+extern ALuint alSource6
+;
 extern ALuint alBuffer;
 extern ALuint alBuffer1;
 extern ALuint alBuffer2;
+extern ALuint alBuffer3;
+extern ALuint alBuffer4;
+extern ALuint alBuffer5;
+extern ALuint alBuffer6;
+
+
+void init_sounds();
+void play_on_boost();
+void stop_playing(ALuint);
+void cleanup_sounds();
 
 void init_opengl(void)
 {
@@ -61,38 +76,81 @@ void init_sounds(){
 	alListenerf(AL_GAIN, 1.0f);
 	//
 	//Buffer holds the sound information.
+
 //ALuint alBuffer;
-	alBuffer = alutCreateBufferFromFile("sounds/test.wav");
-	alBuffer1 = alutCreateBufferFromFile("sounds/collision.wav");
-	alBuffer2 = alutCreateBufferFromFile("sounds/gameplay.wav");
-	//
+	alBuffer = alutCreateBufferFromFile("sounds/menu.wav");
+	alBuffer1 = alutCreateBufferFromFile("sounds/gameplay.wav");
+	alBuffer2 = alutCreateBufferFromFile("sounds/collision.wav");
+	alBuffer3 = alutCreateBufferFromFile("sounds/badcollision.wav");
+	alBuffer4 = alutCreateBufferFromFile("sounds/boost.wav");
+	alBuffer5 = alutCreateBufferFromFile("sounds/gameover.wav");
+	alBuffer6 = alutCreateBufferFromFile("sounds/gameovercont.wav");
+
 	//Source refers to the sound.
 //ALuint alSource;
 	//Generate a source, and store it in a buffer.
 	alGenSources(1, &alSource);
 	alGenSources(1, &alSource1);
 	alGenSources(1, &alSource2);
+	alGenSources(1, &alSource3);
+	alGenSources(1, &alSource4);
+	alGenSources(1, &alSource5);
+	alGenSources(1, &alSource6);
+
 	alSourcei(alSource, AL_BUFFER, alBuffer);
 	alSourcei(alSource1, AL_BUFFER, alBuffer1);
 	alSourcei(alSource2, AL_BUFFER, alBuffer2);
+	alSourcei(alSource3, AL_BUFFER, alBuffer3);
+	alSourcei(alSource4, AL_BUFFER, alBuffer4);
+	alSourcei(alSource5, AL_BUFFER, alBuffer5);
+	alSourcei(alSource6, AL_BUFFER, alBuffer6);
+
 	//Set volume and pitch to normal, no looping of sound.
 	alSourcef(alSource, AL_GAIN, 1.0f);
 	alSourcef(alSource, AL_PITCH, 1.0f);
-	alSourcei(alSource, AL_LOOPING, AL_FALSE);
+	alSourcei(alSource, AL_LOOPING, AL_TRUE);
 	if (alGetError() != AL_NO_ERROR) {
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource1, AL_GAIN, 1.0f);
 	alSourcef(alSource1, AL_PITCH, 1.0f);
-	alSourcei(alSource1, AL_LOOPING, AL_FALSE);
+	alSourcei(alSource1, AL_LOOPING, AL_TRUE);
 	if (alGetError() != AL_NO_ERROR) {
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource2, AL_GAIN, 1.0f);
 	alSourcef(alSource2, AL_PITCH, 1.0f);
-	alSourcei(alSource2, AL_LOOPING, AL_TRUE);
+	alSourcei(alSource2, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource3, AL_GAIN, 1.0f);
+	alSourcef(alSource3, AL_PITCH, 1.0f);
+	alSourcei(alSource3, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource4, AL_GAIN, 1.0f);
+	alSourcef(alSource4, AL_PITCH, 1.0f);
+	alSourcei(alSource4, AL_LOOPING, AL_TRUE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource5, AL_GAIN, 1.0f);
+	alSourcef(alSource5, AL_PITCH, 1.0f);
+	alSourcei(alSource5, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource6, AL_GAIN, 1.0f);
+	alSourcef(alSource6, AL_PITCH, 1.0f);
+	alSourcei(alSource6, AL_LOOPING, AL_TRUE);
 	if (alGetError() != AL_NO_ERROR) {
 		printf("ERROR: setting source\n");
 	}
@@ -122,3 +180,14 @@ void cleanup_sounds(){
 void stop_playing(ALuint to_stop){
 alSourceStop(to_stop);
 }
+
+void play_on_boost(){
+	if(bcount%2 == 0){
+		stop_playing(alSource4);
+	}
+	if(bcount%2 != 0){
+				alSourcePlay(alSource4);
+	}
+}
+
+
