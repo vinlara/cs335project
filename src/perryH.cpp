@@ -1,5 +1,9 @@
 #include <iostream>
 #include <cmath>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include </usr/include/AL/alut.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +26,8 @@ GLuint gameOverId;
 GLuint backgroundId;
 GLuint playerTextureId;
 GLuint particleTextureId[10];
+extern ALuint alSource7;
+
 
 extern void loadTempFiles()
 {
@@ -289,6 +295,7 @@ extern void render()
 		glPopMatrix();
 		a = a->next;
 	}
+	renderBoostBar();
 	updateScore();
 	std::cout << "rendering game" << std::endl;
 }
@@ -368,6 +375,7 @@ extern int checkKeys(XEvent *e)
 			g.done = 1;;
 			break;
 		case XK_Return:
+			alSourcePlay(alSource7);
 			if (g.startScreen)
 			{
 				g.startScreen = 0;

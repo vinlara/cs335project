@@ -20,8 +20,9 @@ extern ALuint alSource2;
 extern ALuint alSource3;
 extern ALuint alSource4;
 extern ALuint alSource5;
-extern ALuint alSource6
-;
+extern ALuint alSource6;
+extern ALuint alSource7;
+
 extern ALuint alBuffer;
 extern ALuint alBuffer1;
 extern ALuint alBuffer2;
@@ -29,6 +30,7 @@ extern ALuint alBuffer3;
 extern ALuint alBuffer4;
 extern ALuint alBuffer5;
 extern ALuint alBuffer6;
+extern ALuint alBuffer7;
 
 
 void init_sounds();
@@ -85,6 +87,7 @@ void init_sounds(){
 	alBuffer4 = alutCreateBufferFromFile("sounds/boost.wav");
 	alBuffer5 = alutCreateBufferFromFile("sounds/gameover.wav");
 	alBuffer6 = alutCreateBufferFromFile("sounds/gameovercont.wav");
+	alBuffer7 = alutCreateBufferFromFile("sounds/enterkey.wav");
 
 	//Source refers to the sound.
 //ALuint alSource;
@@ -96,6 +99,7 @@ void init_sounds(){
 	alGenSources(1, &alSource4);
 	alGenSources(1, &alSource5);
 	alGenSources(1, &alSource6);
+	alGenSources(1, &alSource7);
 
 	alSourcei(alSource, AL_BUFFER, alBuffer);
 	alSourcei(alSource1, AL_BUFFER, alBuffer1);
@@ -104,7 +108,7 @@ void init_sounds(){
 	alSourcei(alSource4, AL_BUFFER, alBuffer4);
 	alSourcei(alSource5, AL_BUFFER, alBuffer5);
 	alSourcei(alSource6, AL_BUFFER, alBuffer6);
-
+	alSourcei(alSource7, AL_BUFFER, alBuffer7);
 	//Set volume and pitch to normal, no looping of sound.
 	alSourcef(alSource, AL_GAIN, 1.0f);
 	alSourcef(alSource, AL_PITCH, 1.0f);
@@ -151,6 +155,13 @@ void init_sounds(){
 	alSourcef(alSource6, AL_GAIN, 1.0f);
 	alSourcef(alSource6, AL_PITCH, 1.0f);
 	alSourcei(alSource6, AL_LOOPING, AL_TRUE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource7, AL_GAIN, 1.0f);
+	alSourcef(alSource7, AL_PITCH, 1.0f);
+	alSourcei(alSource7, AL_LOOPING, AL_FALSE);
 	if (alGetError() != AL_NO_ERROR) {
 		printf("ERROR: setting source\n");
 	}
