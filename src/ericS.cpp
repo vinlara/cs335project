@@ -326,7 +326,7 @@ int smithCheckKeys( XEvent *e )
 		case XK_r:
 		    if ( g.gameOver )
 		    {
-			remakeGame();	
+			//remakeGame();	
 		    }
 			break;
 
@@ -334,7 +334,7 @@ int smithCheckKeys( XEvent *e )
 	
 	return 0;
 }
-
+/*
 void remakeGame( Asteroid *a )
 {
     g.score = 0.0;
@@ -350,4 +350,4 @@ void remakeGame( Asteroid *a )
 		
     }
 }
-
+*/
