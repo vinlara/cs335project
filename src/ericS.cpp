@@ -31,6 +31,7 @@ void init()
     //build 30 asteroids...
     for ( int j=0; j<30; j++ )
     {
+
 	Asteroid *a = new Asteroid;
 	a->nverts = 8;
 	a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.8 * g.ship.radius  );
@@ -41,9 +42,11 @@ void init()
 	
 	for (int i=0; i<a->nverts; i++)
 	{
+
 	    a->vert[i][0] = sin( angle ) * ( r2 + rnd() * a->radius );
 	    a->vert[i][1] = cos( angle ) * ( r2 + rnd() * a->radius );
 	    angle += inc;
+	
 	}
 	
 	a->pos[0] = ( Flt ) ( rand() % xres );
@@ -67,29 +70,38 @@ void init()
 		    a->pos[0] > tmpx
 	       ) //left half
 	    {
+
 		a->pos[0] -= 1.25 * tmpx;
 		a->pos[2] = 0.0f;
+	    
 	    }
 	    
 	    else //right half
 	    {
+
 		a->pos[0] += 1.25 * tmpx;
 		a->pos[2] = 0.0f;
+	    
 	    }
+
 	}
 	
 	if ( a->radius < g.ship.radius )
 	{
+
 	    a->color[0] = 0.9;
 	    a->color[1] = 0.6;
 	    a->color[2] = 0.3;
+	
 	}
 	
 	else
 	{
+
 	    a->color[0] = 0.3;
 	    a->color[1] = 0.4;
 	    a->color[2] = 0.5;
+	
 	}
 	
 	a->vel[0] = ( Flt ) ( rnd() * 2.0 - 1.0 );
@@ -102,19 +114,24 @@ void init()
 	
 	if ( g.ahead != NULL )
 	{
+
 	    g.ahead->prev = a;
+	
 	}
 
 	g.ahead = a;
 	g.nasteroids++;
+
     }
     
     memset(keys, 0, 65536);
+
 }
 
 
 void addAsteroid ()
 {
+
     Asteroid *a = new Asteroid;
     a->nverts = 8;
     a->radius = ( rnd() * 2.0 * g.ship.radius ) - ( rnd() * 0.5 * g.ship.radius  );
@@ -128,9 +145,11 @@ void addAsteroid ()
     
     for ( int i=0; i<a->nverts; i++ )
     {
+
         a->vert[i][0] = sin( angle ) * ( r2 + rnd() * a->radius );
         a->vert[i][1] = cos( angle ) * ( r2 + rnd() * a->radius );
         angle += inc;
+    
     }
     
     a->pos[0] = (Flt)( rand() % xres );
@@ -153,30 +172,38 @@ void addAsteroid ()
 		a->pos[0] > tmpx
 	   ) //left half
 	{
+
 	    a->pos[0] -= tmpx;
 	    a->pos[2] = 0.0f;
+	
 	}
 
 	else //right half
 	{
+
 	    a->pos[0] += tmpx;
 	    a->pos[2] = 0.0f;
+	
 	}
 
     }
 
     if ( a->radius < g.ship.radius )
     {
+
         a->color[0] = 0.9;
         a->color[1] = 0.6;
         a->color[2] = 0.3;
+    
     }
 
     else
     {
+
 	a->color[0] = 0.3;
         a->color[1] = 0.4;
         a->color[2] = 0.5;
+    
     }
 
     a->vel[0] = (Flt)( rnd() * 2.0 - 1.0 );
@@ -190,7 +217,9 @@ void addAsteroid ()
 
     if (g.ahead != NULL)
     {
+
     	g.ahead->prev = a;
+    
     }
 
     g.ahead = a;
@@ -216,13 +245,17 @@ void deleteAsteroid( Asteroid *node )
 
 		if ( node->next == NULL )
 		{
+
 		    g.ahead = NULL;
+		
 		}
 
 		else
 		{
+
 		    node->next->prev = NULL;
 		    g.ahead = node->next;
+		
 		}
 
 	    }
@@ -232,13 +265,17 @@ void deleteAsteroid( Asteroid *node )
 
 		if ( node->next == NULL )
 		{
+
 		    node->prev->next = NULL;
+		
 		}
 
 		else
 		{
+
 		    node->prev->next = node->next;
 		    node->next->prev = node->prev;
+		
 		}
 
 	    }
@@ -247,6 +284,7 @@ void deleteAsteroid( Asteroid *node )
 	    node = NULL;
 
 	}
+
     }
 
 }
@@ -266,7 +304,9 @@ void asteroidRadiusSpeed( Asteroid *a )
 
     if ( radiusVel < 0 )
     {
+
 	radiusVel = 0.05;
+    
     }
 
     Flt xVel = a->vel[0];
@@ -305,7 +345,9 @@ void shipRadiusSpeed()
 
     if ( radiusVel < 0 )
     {
+
 	radiusVel = 0.01;
+    
     }
 
     Flt xVel = g.ship.vel[0];
@@ -332,6 +374,7 @@ void shipRadiusSpeed()
 
 int smithCheckKeys( XEvent *e )
 {
+
     static int shift=0;
     int key = XLookupKeysym(&e->xkey, 0);
     
@@ -339,10 +382,13 @@ int smithCheckKeys( XEvent *e )
     {
 
 	keys[key]=0;
+
 	if (key == XK_Shift_L || 
 		key == XK_Shift_R)
 	{
+
 	    shift=0;
+	
 	}
 
 	return 0;
@@ -351,33 +397,42 @@ int smithCheckKeys( XEvent *e )
     
     if (e->type == KeyPress)
     {
+
 	keys[key]=1;
 
 	if (key == XK_Shift_L || 
 		key == XK_Shift_R) 
 	{
+
 	    shift=1;
 	    return 0;
+	
 	}
 
     }
     
     else
     {
+
 	return 0;
+    
     }
 
     if (shift)
     {
+
     }
 
     switch(key)
     {
 
 	case XK_r:
+
 	    if ( g.gameOver )
 	    {
+
 		remakeGame();	
+	    
 	    }
 
 	    break;
@@ -394,6 +449,7 @@ void deleteAllAsteroid()
 
 	while ( g.ahead != NULL )
 	{
+
 	    Asteroid *temp = g.ahead->next;
 	    delete g.ahead;
 	    g.ahead = temp;
@@ -401,14 +457,18 @@ void deleteAllAsteroid()
 	    
 	    if (g.ahead == NULL)
 	    {
+
 		break;
+	    
 	    }
 
 	}
 
 	if ( g.nasteroids == 0 )
 	{
+
 	    cout << "all asteroids have been properly deleted\n";
+	
 	}
 
 }
@@ -426,4 +486,3 @@ void remakeGame()
     init();
 
 }
-
