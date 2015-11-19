@@ -62,7 +62,7 @@ extern void loadTempFiles()
 		}
 		closedir(dp);
 	}
-
+	
 	std::cout << "successfully converted files:" << std::endl;
 	for (int i = 0; i < g.nt; ++i)
 	{
