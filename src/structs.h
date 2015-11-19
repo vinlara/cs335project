@@ -112,6 +112,7 @@ struct Game
 	double score;
 	struct timespec bulletTimer;
 	int sBoost;
+	int invincible;
 	int startScreen, helpScreen, gameOver;
 	int done;
 	char imageName[MAX_IMAGES][64];
@@ -128,6 +129,7 @@ struct Game
 		gameOver = 0;
 		done = 0;
 		nt = 0;
+		invincible = 0;
 	}
 };
 

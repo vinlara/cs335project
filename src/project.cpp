@@ -181,8 +181,9 @@ int main(void)
 				physicsCountdown -= physicsRate;
 			}
 
-			updateCamera();
+		
 			render();
+			updateCamera();
 			boost = false;
 		}
 		glXSwapBuffers(dpy, win);
@@ -475,8 +476,11 @@ void physics()
 			}
 			else
 			{
-				alSourcePlay(alSource3);
-				g.gameOver = 1;
+				if(!g.invincible)
+				{
+					alSourcePlay(alSource3);
+					g.gameOver = 1;
+				}
 			}
 		}
 		if (a == NULL)
