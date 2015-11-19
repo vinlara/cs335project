@@ -10,7 +10,10 @@
 	Perry Huynh
 	Vincente Lara
 */
-
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include </usr/include/AL/alut.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
@@ -428,11 +431,14 @@ int smithCheckKeys( XEvent *e )
 
 	case XK_r:
 
+		rcount++;
 	    if ( g.gameOver )
 	    {
-
-		remakeGame();	
-	    
+		remakeGame();
+		stop_playing(alSource6);
+		gameovercont = false;
+		play_on_r();	
+	    alSourcePlay(alSource1);
 	    }
 
 	    break;

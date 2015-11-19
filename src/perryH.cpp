@@ -29,8 +29,10 @@ GLuint particleTextureId[10];
 
 //Stuff needed for Erik's functions, do NOT delete.
 extern ALuint alSource7;
+extern ALuint alSource13;
 extern void rendergametitle();
 extern void rendermorehelp();
+extern void rendergohelp();
 
 extern void loadTempFiles()
 {
@@ -253,6 +255,8 @@ extern void renderGameOver()
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
 
+	rendergohelp();
+
 	std::cout << "rendering screen_gameover" << std::endl;
 
 }
@@ -461,7 +465,7 @@ extern int checkKeys(XEvent *e)
 
 			if (g.startScreen)
 			{
-
+				alSourcePlay(alSource13);
 				g.helpScreen = 1;
 			
 			}
@@ -472,7 +476,7 @@ extern int checkKeys(XEvent *e)
 
 			if (g.helpScreen == 1)
 			{
-
+				alSourcePlay(alSource13);
 				g.helpScreen = 0;
 			
 			}
