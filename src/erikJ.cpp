@@ -71,8 +71,10 @@ void cleanup_sounds();
 void rendergametitle();
 void rendermorehelp();
 
+
 void init_opengl(void)
 {
+
 	//OpenGL initialization
 	glViewport(0, 0, 1280, 960);
 	//Initialize matrices
@@ -91,14 +93,20 @@ void init_opengl(void)
 	//Do this to allow fonts
 	//glEnable(GL_TEXTURE_2D);
 	//initialize_fonts();
+
 } 
 
-void init_sounds(){
+
+void init_sounds()
+{
 
 	//Get started right here.
 	alutInit(0, NULL);
-	if (alGetError() != AL_NO_ERROR) {
+	if (alGetError() != AL_NO_ERROR) 
+	{
+
 		printf("ERROR: alutInit()\n");
+	
 	}
 	//Clear error state.
 	alGetError();
@@ -153,76 +161,100 @@ void init_sounds(){
 	alSourcef(alSource, AL_GAIN, 1.0f);
 	alSourcef(alSource, AL_PITCH, 1.0f);
 	alSourcei(alSource, AL_LOOPING, AL_TRUE);
-	if (alGetError() != AL_NO_ERROR) {
-		printf("ERROR: setting source\n");
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
+	    printf("ERROR: setting source\n");
 	}
 
 	//But here I need looping sound
 	alSourcef(alSource1, AL_GAIN, 1.0f);
 	alSourcef(alSource1, AL_PITCH, 1.0f);
 	alSourcei(alSource1, AL_LOOPING, AL_TRUE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource2, AL_GAIN, 1.0f);
 	alSourcef(alSource2, AL_PITCH, 1.0f);
 	alSourcei(alSource2, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource3, AL_GAIN, 1.0f);
 	alSourcef(alSource3, AL_PITCH, 1.0f);
 	alSourcei(alSource3, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource4, AL_GAIN, 1.0f);
 	alSourcef(alSource4, AL_PITCH, 1.0f);
 	alSourcei(alSource4, AL_LOOPING, AL_TRUE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource5, AL_GAIN, 1.0f);
 	alSourcef(alSource5, AL_PITCH, 1.0f);
 	alSourcei(alSource5, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource6, AL_GAIN, 1.0f);
 	alSourcef(alSource6, AL_PITCH, 1.0f);
 	alSourcei(alSource6, AL_LOOPING, AL_TRUE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource7, AL_GAIN, 1.0f);
 	alSourcef(alSource7, AL_PITCH, 1.0f);
 	alSourcei(alSource7, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource8, AL_GAIN, 1.0f);
 	alSourcef(alSource8, AL_PITCH, 1.0f);
 	alSourcei(alSource8, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource9, AL_GAIN, 1.0f);
 	alSourcef(alSource9, AL_PITCH, 1.0f);
 	alSourcei(alSource9, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
+
 }
 
-void cleanup_sounds(){
+
+void cleanup_sounds()
+{
+
 	//Cleanup.
 	//First delete the source.
 	alDeleteSources(1, &alSource);
@@ -241,43 +273,79 @@ void cleanup_sounds(){
 	alcDestroyContext(Context);
 	//Close device.
 	alcCloseDevice(Device);
+
 }
 
-void stop_playing(ALuint to_stop){
+
+void stop_playing(ALuint to_stop)
+{
+
 	alSourceStop(to_stop);
+
 }
 
-void play_on_b(){
-	if(bcount%2 == 0){
+
+void play_on_b()
+{
+
+	if(bcount%2 == 0)
+	{
+
 		stop_playing(alSource4);
+	
 	}
-	if(bcount%2 != 0){
-				alSourcePlay(alSource4);
+
+	if(bcount%2 != 0)
+	{
+
+	    alSourcePlay(alSource4);
+	
 	}
+
 }
 
-void play_on_e(){
-	if(ecount > 0){
+
+void play_on_e()
+{
+
+	if(ecount > 0)
+	{
+
 		alSourcePlay(alSource8);
+	
 	}
+
 }
 
-void play_on_w(){
-	if(wcount > 0){
+
+void play_on_w()
+{
+
+	if(wcount > 0)
+	{
+
 		alSourcePlay(alSource9);
+	
 	}
+
 }
+
+
 void rendergametitle()
 {
+
 	Rect welcome;
 	welcome.bot = yres - 40;
 	welcome.left = xres / 2;
 	welcome.center = xres / 2;
 	ggprint16(&welcome, 16, 0x00ffffff, "Welcome to.....");
+
 }
+
 
 void rendermorehelp()
 {
+
 	Rect l1;
 	l1.bot = yres - ((yres/3));
 	l1.left = xres / 2;
@@ -313,4 +381,5 @@ void rendermorehelp()
 	l6.left = xres / 2;
 	l6.center = xres / 2;
 	ggprint16(&l6, 16, 0x00ffffff, "Feeling lost in space? Press CTRL to locate your planet.");
+
 }
