@@ -59,11 +59,12 @@ struct Shape {
 
 //Variables and funcitons
 //Needed to play sound with boost fucntion
-extern void play_on_boost();
-extern void stop_playing(ALuint to_stop);
-extern int bcount;
-extern ALuint alSource4;
-//
+extern void play_on_b();
+extern void play_on_e();
+extern void play_on_w();
+extern int bcount; 
+extern int ecount;
+extern int wcount;
 
 extern double timeDiff(struct timespec *start, struct timespec *end);
 int vinceCheckKeys(XEvent *e);
@@ -216,10 +217,12 @@ int vinceCheckKeys(XEvent *e)
 			//g.sBoost ^= 1;
 			//Erik's Stuff, do NOT edit!
 			bcount++;
-			play_on_boost();
+			play_on_b();
 			//
 			break;
 		case XK_w:
+			wcount++;
+			play_on_w();
 			spaceWarp();
 			break;
 		case XK_p:
@@ -227,6 +230,8 @@ int vinceCheckKeys(XEvent *e)
 			break;
 		case XK_e:
 			explReset();
+			ecount++;
+			play_on_e();
 			break;
 		case XK_Control_L:
 			showC ^= 1;
@@ -288,6 +293,15 @@ extern void showSBoost()
 		boost5.left = xres/2;
 		boost5.center = 0;
 		ggprint16(&boost5, 16, 0x00ffffff, "Invincible!!!");
+	}
+	
+	if(qm)
+	{
+		Rect boost6;
+		boost6.bot = yres - 40;
+		boost6.left = xres/2;
+		boost6.center = 0;
+		ggprint16(&boost6, 16, 0x00ffffff, "Showing Movement Direction");
 	}
 }
 
@@ -370,25 +384,25 @@ extern void renderBoostBar()
 		//glTranslatef(g.ship.pos[0] + g.ship.radius, g.ship.pos[1] + g.ship.radius, g.ship.pos[2]);
 		if(g.ship.vel[0] > 0 && g.ship.vel[1] > 0)
 		{ 
-			glTranslatef(g.ship.pos[0]  + float(g.ship.radius), 
-							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius), g.ship.pos[2]);
+			glTranslatef(g.ship.pos[0] + float(g.ship.radius), 
+							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius)-10, g.ship.pos[2]);
 		}
 	
 		if(g.ship.vel[0] < 0 && g.ship.vel[1] < 0)
 		{
-			glTranslatef(g.ship.pos[0]  - float(g.ship.radius), 
+			glTranslatef(g.ship.pos[0] - float(g.ship.radius), 
 							g.ship.pos[1] + g.ship.vel[1] - float(g.ship.radius), g.ship.pos[2]);
 		}
 	
 		if(g.ship.vel[0] < 0 && g.ship.vel[1] > 0)
 		{
-			glTranslatef(g.ship.pos[0]  - float(g.ship.radius), 
-							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius), g.ship.pos[2]);
+			glTranslatef(g.ship.pos[0] - float(g.ship.radius), 
+							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius)-10, g.ship.pos[2]);
 		}
 	
 		if(g.ship.vel[0] > 0 && g.ship.vel[1] < 0)
 		{
-			glTranslatef(g.ship.pos[0]  + float(g.ship.radius), 
+			glTranslatef(g.ship.pos[0] + float(g.ship.radius), 
 							g.ship.pos[1] + g.ship.vel[1] - float(g.ship.radius), g.ship.pos[2]);
 		}
 	}

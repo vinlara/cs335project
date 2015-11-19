@@ -45,6 +45,8 @@ ALuint alSource4;
 ALuint alSource5;
 ALuint alSource6;
 ALuint alSource7;
+ALuint alSource8;
+ALuint alSource9;
 
 ALuint alBuffer;
 ALuint alBuffer1;
@@ -54,13 +56,15 @@ ALuint alBuffer4;
 ALuint alBuffer5;
 ALuint alBuffer6;
 ALuint alBuffer7;
+ALuint alBuffer8;
+ALuint alBuffer9;
 
 bool menu = false;
 bool gameplay = false;
 bool gameovercont = false;
 bool boost = false;
 
-int bcount = 2;
+int bcount = 0, ecount = 0, wcount = 0;
 
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
@@ -84,7 +88,6 @@ Window win;
 GLXContext glc;
 Game g;
 extern void rendergametitle();
-extern void play_on_boost();
 extern void stop_playing(ALuint);
 extern void cleanup_sounds();
 extern void init_sounds();
@@ -121,8 +124,6 @@ int main(void)
 	srand(time(NULL));
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
-	//alSourcePlay(alSource);
-	//alSourcePlay(alSource2);
 	while (!g.done)
 	{
 		while (XPending(dpy))
