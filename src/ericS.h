@@ -12,6 +12,8 @@ extern int smithCheckKeys( XEvent *e );
 extern void stop_playing(ALuint);
 extern ALuint alSource1;
 extern ALuint alSource6;
+extern void play_on_r();
+extern int rcount;
 extern bool gameovercont;
 
 #endif

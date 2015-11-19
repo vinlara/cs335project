@@ -64,9 +64,16 @@ struct Shape {
 extern void play_on_b();
 extern void play_on_e();
 extern void play_on_w();
+extern void play_on_i();
+extern void play_on_s();
 extern int bcount; 
 extern int ecount;
 extern int wcount;
+extern int icount;
+extern int scount;
+extern ALuint alSource1;
+//extern ALuint alSource11;
+
 
 extern double timeDiff(struct timespec *start, struct timespec *end);
 int vinceCheckKeys(XEvent *e);
@@ -129,6 +136,7 @@ void pauseMove()
 
 		g.ship.vel[0] = 0;
 		g.ship.vel[1] = 0;
+		alSourcePause(alSource1);
 	
 	}
 
@@ -146,6 +154,7 @@ void pauseMove()
 			i++;
 		
 		}
+		alSourcePlay(alSource1);
 
 	}
 
@@ -262,7 +271,7 @@ int vinceCheckKeys(XEvent *e)
 
 		case XK_b:
 	
-    		    //g.sBoost = 1;
+    	    //g.sBoost = 1;
 		    checkSBoost();
 		    //g.sBoost ^= 1;
 		    //Erik's Stuff, do NOT edit!
@@ -278,7 +287,7 @@ int vinceCheckKeys(XEvent *e)
 		    break;
 	
 		case XK_p:
-	
+
 		    pauseMove();
 		    break;
 
@@ -296,6 +305,8 @@ int vinceCheckKeys(XEvent *e)
 
 		case XK_s:
 
+			scount++;
+			play_on_s();
 		    slowMo();
 		    break;
 
@@ -317,6 +328,8 @@ int vinceCheckKeys(XEvent *e)
 		case XK_i:
 
 		    iMode();
+		    icount++;
+		    play_on_i();
 		    break;
 
 	}
