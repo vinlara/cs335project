@@ -377,7 +377,7 @@ void physics()
 				if (a->radius > 0)
                 		{
                     			int radiusDif = g.ship.radius - a->radius;
-					g.score += 0.5 / radiusDif;
+					g.score += 1 / radiusDif;
 		    			//g.score += 0.5 * a->radius;
                 		}
 
@@ -397,7 +397,6 @@ void physics()
 			{
 				if(!g.invincible)
 				{
-				    deleteAllAsteroid();
 				    alSourcePlay(alSource3);
 				    g.gameOver = 1;
 				}
