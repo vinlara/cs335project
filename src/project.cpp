@@ -144,7 +144,7 @@ int main(void)
 
 			if (g.helpScreen)
 			{
-				renderHelpScreen();			
+				renderHelpScreen();
 
 			}
 
@@ -164,7 +164,7 @@ int main(void)
 			}
 			renderGameOver();
 
-			
+
 		}
 		else
 		{
@@ -172,7 +172,7 @@ int main(void)
 			timeSpan = timeDiff(&timeStart, &timeCurrent);
 			timeCopy(&timeStart, &timeCurrent);
 			physicsCountdown += timeSpan;
-			
+
 			if(gameplay == false){
 				stop_playing(alSource);
 				alSourcePlay(alSource1);
