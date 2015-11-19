@@ -32,6 +32,7 @@ float temp1[30];
 float temp2[30];
 int showC = 0;
 int slowM = 0;
+int qm = 0;
 
 struct Shape {
 	float width, height;
@@ -72,6 +73,10 @@ void checkSBoost()
 	struct timespec sb;
 	clock_gettime(CLOCK_REALTIME, &sb);
 	g.sBoost ^= 1;
+	if(slowM)
+	{
+		slowM = 0;
+	}
 }
 
 void spaceWarp()
@@ -100,8 +105,8 @@ void pauseMove()
 		while (b)
 			{
 				int i = 0;
-				temp1[i] = b->vel[0];
-				temp2[i] = b->vel[1];
+				temp1[i] = b->vel[0] - g.ship.vel[0];
+				temp2[i] = b->vel[1] - g.ship.vel[1];
 				b->vel[0] = 0;
 				b->vel[1] = 0;
 				b = b->next;
@@ -149,8 +154,31 @@ void showPlayer()
 void slowMo()
 {
 	slowM ^= 1;
+	if(g.sBoost)
+	{
+		g.sBoost = 0;
+	}
 }
 
+void grow()
+{
+	g.ship.radius += 5;
+}
+
+void shrink()
+{
+	g.ship.radius -= 5;
+}
+
+void qMove()
+{
+	qm ^= 1;
+}
+
+void iMode()
+{
+	g.invincible ^= 1;
+}
 int vinceCheckKeys(XEvent *e)
 {
 	//keyboard input?
@@ -205,6 +233,19 @@ int vinceCheckKeys(XEvent *e)
 			break;
 		case XK_s:
 			slowMo();
+			break;
+		case XK_equal:
+			grow();
+			break;
+		case XK_minus:
+			shrink();
+			break;
+		case XK_q:
+			qMove();
+			break;
+		case XK_i:
+			iMode();
+			break;
 
 	}
 	
@@ -230,6 +271,24 @@ extern void showSBoost()
 	boost3.left = 20;
 	boost3.center = 0;
 	ggprint16(&boost3, 16, 0x00ffff00, "press control to show position");
+	
+	if(slowM)
+	{
+		Rect boost4;
+		boost4.bot = yres - 40;
+		boost4.left = xres/2;
+		boost4.center = 0;
+		ggprint16(&boost4, 16, 0x00ffffff, "SLOW MO!!!");
+	}
+	
+	if(g.invincible)
+	{
+		Rect boost5;
+		boost5.bot = yres - 40;
+		boost5.left = xres/2;
+		boost5.center = 0;
+		ggprint16(&boost5, 16, 0x00ffffff, "Invincible!!!");
+	}
 }
 
 extern void renderBoostBar()
@@ -304,12 +363,37 @@ extern void renderBoostBar()
 	}
 	
 	
-	/*
-	glPushMatrix();
-	glColor3ub(90, 140, 90);
-	//glTranslatef(g.ship.pos[0] + g.ship.radius, g.ship.pos[1] + g.ship.radius, g.ship.pos[2]);
-	//if(g.ship.vel[0] > 
-	glTranslatef(g.ship.pos[0] + g.ship.vel[0] + float(g.ship.radius), g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius), g.ship.pos[2]);
+	if(qm)
+	{
+		glPushMatrix();
+		glColor3ub(90, 140, 90);
+		//glTranslatef(g.ship.pos[0] + g.ship.radius, g.ship.pos[1] + g.ship.radius, g.ship.pos[2]);
+		if(g.ship.vel[0] > 0 && g.ship.vel[1] > 0)
+		{ 
+			glTranslatef(g.ship.pos[0]  + float(g.ship.radius), 
+							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius), g.ship.pos[2]);
+		}
+	
+		if(g.ship.vel[0] < 0 && g.ship.vel[1] < 0)
+		{
+			glTranslatef(g.ship.pos[0]  - float(g.ship.radius), 
+							g.ship.pos[1] + g.ship.vel[1] - float(g.ship.radius), g.ship.pos[2]);
+		}
+	
+		if(g.ship.vel[0] < 0 && g.ship.vel[1] > 0)
+		{
+			glTranslatef(g.ship.pos[0]  - float(g.ship.radius), 
+							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius), g.ship.pos[2]);
+		}
+	
+		if(g.ship.vel[0] > 0 && g.ship.vel[1] < 0)
+		{
+			glTranslatef(g.ship.pos[0]  + float(g.ship.radius), 
+							g.ship.pos[1] + g.ship.vel[1] - float(g.ship.radius), g.ship.pos[2]);
+		}
+	}
+	
+	
 	//glRotatef(g.ship.vel[0], g.ship.radius, g.ship.radius, 1.0f);
 	glBegin(GL_TRIANGLES);
 	glVertex2f(10.0f, 10.0f);
@@ -317,7 +401,7 @@ extern void renderBoostBar()
 	glVertex2f(-10.0f,10.0f);
 	glEnd();
 	glPopMatrix();
-	*/
+	
 	
 }
 
