@@ -1,5 +1,9 @@
 #include <iostream>
 #include <cmath>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include </usr/include/AL/alut.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +26,11 @@ GLuint gameOverId;
 GLuint backgroundId;
 GLuint playerTextureId;
 GLuint particleTextureId[10];
+
+//Stuff needed for Erik's functions, do NOT delete.
+extern ALuint alSource7;
+extern void rendergametitle();
+extern void rendermorehelp();
 
 extern void loadTempFiles()
 {
@@ -53,7 +62,7 @@ extern void loadTempFiles()
 		}
 		closedir(dp);
 	}
-
+	
 	std::cout << "successfully converted files:" << std::endl;
 	for (int i = 0; i < g.nt; ++i)
 	{
@@ -163,7 +172,6 @@ extern void renderStartScreen()
 {
 	Rect startScreen;
 	Rect help;
-
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, startScreenId);
@@ -173,7 +181,7 @@ extern void renderStartScreen()
 	glTexCoord2f(1,1); glVertex2f(xres, 0);
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
-
+	rendergametitle();
 	startScreen.bot = yres / 5;
 	startScreen.left = xres / 2;
 	startScreen.center = xres / 2;
@@ -205,6 +213,8 @@ extern void renderHelpScreen()
 	helpRect.left = xres / 2;
 	helpRect.center = xres / 2;
 	ggprint16(&helpRect, 16, 0x00ffffff, "Press 'BackSpace' to go back");
+
+	rendermorehelp();
 
 	std::cout << "rendering screen_howtoplay" << std::endl;
 }
@@ -371,6 +381,7 @@ extern int checkKeys(XEvent *e)
 		case XK_Return:
 			if (g.startScreen)
 			{
+				alSourcePlay(alSource7);
 				g.startScreen = 0;
 			}
 			break;

@@ -1,6 +1,6 @@
 // Erik Juarez
 // Lab 6
-
+/*
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
@@ -11,6 +11,30 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include </usr/include/AL/alut.h>
+*/
+
+#include <iostream>
+#include <cmath>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include </usr/include/AL/alut.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sstream>
+#include <dirent.h>
+#include <GL/gl.h>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include "ppm.h"
+#include "structs.h"
+extern "C"
+{
+	#include "fonts.h"
+}
+
+using namespace std;
 
 extern int bcount;
 
@@ -20,8 +44,9 @@ extern ALuint alSource2;
 extern ALuint alSource3;
 extern ALuint alSource4;
 extern ALuint alSource5;
-extern ALuint alSource6
-;
+extern ALuint alSource6;
+extern ALuint alSource7;
+
 extern ALuint alBuffer;
 extern ALuint alBuffer1;
 extern ALuint alBuffer2;
@@ -29,12 +54,14 @@ extern ALuint alBuffer3;
 extern ALuint alBuffer4;
 extern ALuint alBuffer5;
 extern ALuint alBuffer6;
-
+extern ALuint alBuffer7;
 
 void init_sounds();
 void play_on_boost();
 void stop_playing(ALuint);
 void cleanup_sounds();
+void rendergametitle();
+void rendermorehelp();
 
 void init_opengl(void)
 {
@@ -85,6 +112,7 @@ void init_sounds(){
 	alBuffer4 = alutCreateBufferFromFile("sounds/boost.wav");
 	alBuffer5 = alutCreateBufferFromFile("sounds/gameover.wav");
 	alBuffer6 = alutCreateBufferFromFile("sounds/gameovercont.wav");
+	alBuffer7 = alutCreateBufferFromFile("sounds/enterkey.wav");
 
 	//Source refers to the sound.
 //ALuint alSource;
@@ -96,6 +124,7 @@ void init_sounds(){
 	alGenSources(1, &alSource4);
 	alGenSources(1, &alSource5);
 	alGenSources(1, &alSource6);
+	alGenSources(1, &alSource7);
 
 	alSourcei(alSource, AL_BUFFER, alBuffer);
 	alSourcei(alSource1, AL_BUFFER, alBuffer1);
@@ -104,7 +133,7 @@ void init_sounds(){
 	alSourcei(alSource4, AL_BUFFER, alBuffer4);
 	alSourcei(alSource5, AL_BUFFER, alBuffer5);
 	alSourcei(alSource6, AL_BUFFER, alBuffer6);
-
+	alSourcei(alSource7, AL_BUFFER, alBuffer7);
 	//Set volume and pitch to normal, no looping of sound.
 	alSourcef(alSource, AL_GAIN, 1.0f);
 	alSourcef(alSource, AL_PITCH, 1.0f);
@@ -154,6 +183,13 @@ void init_sounds(){
 	if (alGetError() != AL_NO_ERROR) {
 		printf("ERROR: setting source\n");
 	}
+
+	alSourcef(alSource7, AL_GAIN, 1.0f);
+	alSourcef(alSource7, AL_PITCH, 1.0f);
+	alSourcei(alSource7, AL_LOOPING, AL_FALSE);
+	if (alGetError() != AL_NO_ERROR) {
+		printf("ERROR: setting source\n");
+	}
 }
 
 void cleanup_sounds(){
@@ -178,7 +214,7 @@ void cleanup_sounds(){
 }
 
 void stop_playing(ALuint to_stop){
-alSourceStop(to_stop);
+	alSourceStop(to_stop);
 }
 
 void play_on_boost(){
@@ -190,4 +226,32 @@ void play_on_boost(){
 	}
 }
 
+void rendergametitle()
+{
+	Rect welcome;
+	welcome.bot = yres - 40;
+	welcome.left = xres / 2;
+	welcome.center = xres / 2;
+	ggprint16(&welcome, 16, 0x00ffffff, "Welcome to.....");
+}
 
+void rendermorehelp()
+{
+	Rect l1;
+	l1.bot = yres - ((yres/2));
+	l1.left = xres / 2;
+	l1.center = xres / 2;
+	ggprint16(&l1, 16, 0x00ffffff, "Move the mouse: control your planet");
+
+	Rect l2;
+	l2.bot = yres - ((yres/2)+40);
+	l2.left = xres / 2;
+	l2.center = xres / 2;
+	ggprint16(&l2, 16, 0x00ffffff, "Press button B: Activate boost (move faster)");
+
+	Rect l3;
+	l3.bot = yres - ((yres/2)+80);
+	l3.left = xres / 2;
+	l3.center = xres / 2;
+	ggprint16(&l3, 16, 0x00ffffff, "Press button R: Resets enemy planets to give you a quick advantage");
+}
