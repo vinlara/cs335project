@@ -422,6 +422,7 @@ void remakeGame()
     g.ship.pos[1] = (Flt) ( yres / 2 );
     g.ship.radius = 20.0;
     g.gameOver = 0;
+    deleteAllAsteroid();
     init();
 
 }
