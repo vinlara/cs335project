@@ -386,7 +386,7 @@ void physics()
 		dist = sqrt(d0*d0 + d1*d1);
 		if (dist < (a->radius + g.ship.radius))
 		{
-			if (g.ship.radius >= a->radius)
+			if (g.ship.radius > a->radius)
 			{
 				alSourcePlay(alSource2);
 				Asteroid *savea = a->next;
