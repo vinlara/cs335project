@@ -83,6 +83,7 @@ Display *dpy;
 Window win;
 GLXContext glc;
 Game g;
+extern void rendergametitle();
 extern void play_on_boost();
 extern void stop_playing(ALuint);
 extern void cleanup_sounds();
@@ -143,7 +144,8 @@ int main(void)
 
 			if (g.helpScreen)
 			{
-				renderHelpScreen();
+				renderHelpScreen();			
+
 			}
 
 			else
