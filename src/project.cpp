@@ -28,9 +28,11 @@
 #include "structs.h"
 #include "perryH.h"
 #include "ericS.h"
-extern "C" {
+extern "C" 
+{
 	#include "fonts.h"
 }
+
 using namespace std;
 
 int xres = 1600;
@@ -78,15 +80,17 @@ double timeDiff(struct timespec *start, struct timespec *end)
 	return (double)(end->tv_sec - start->tv_sec ) +
 			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
 }
-void timeCopy(struct timespec *dest, struct timespec *source)
 
+void timeCopy(struct timespec *dest, struct timespec *source)
 {
 	memcpy(dest, source, sizeof(struct timespec));
 }
+
 Display *dpy;
 Window win;
 GLXContext glc;
 Game g;
+
 extern void rendergametitle();
 extern void stop_playing(ALuint);
 extern void cleanup_sounds();
@@ -136,68 +140,75 @@ int main(void)
 			vinceCheckKeys(&e);
 			smithCheckKeys(&e);
 		}
+
 		if (g.startScreen)
 		{
-			if(menu == false){
-				alSourcePlay(alSource);
-				menu = true;
-			}
 
-			if (g.helpScreen)
-			{
-				renderHelpScreen();
+		    if(menu == false)
+		    {
+			alSourcePlay(alSource);
+			menu = true;
+		    }
 
-			}
+		    if (g.helpScreen)
+		    {
+			renderHelpScreen();
 
-			else
-			{
-				renderStartScreen();
-			}
+		    }
+
+		    else
+		    {
+			renderStartScreen();
+		    }
 		}
 		else if (g.gameOver)
 		{
-			stop_playing(alSource1);
-			stop_playing(alSource4);
-			alSourcePlay(alSource5);
-			if(gameovercont == false){
-				alSourcePlay(alSource6);
-				gameovercont = true;
-			}
-			renderGameOver();
-
-
+		    stop_playing(alSource1);
+		    stop_playing(alSource4);
+		    alSourcePlay(alSource5);
+		    if(gameovercont == false){
+			alSourcePlay(alSource6);
+			gameovercont = true;
+		    }
+		    renderGameOver();
+		    
+		    
 		}
 		else
 		{
-			clock_gettime(CLOCK_REALTIME, &timeCurrent);
-			timeSpan = timeDiff(&timeStart, &timeCurrent);
-			timeCopy(&timeStart, &timeCurrent);
-			physicsCountdown += timeSpan;
-
-			if(gameplay == false){
-				stop_playing(alSource);
-				alSourcePlay(alSource1);
-				gameplay = true;
-			}
-
-			while (physicsCountdown >= physicsRate)
-			{
-				physics();
-				physicsCountdown -= physicsRate;
-			}
-
-		
-			render();
-			updateCamera();
-			boost = false;
+		    clock_gettime(CLOCK_REALTIME, &timeCurrent);
+		    timeSpan = timeDiff(&timeStart, &timeCurrent);
+		    timeCopy(&timeStart, &timeCurrent);
+		    physicsCountdown += timeSpan;
+		    
+		    if(gameplay == false){
+			stop_playing(alSource);
+			alSourcePlay(alSource1);
+			gameplay = true;
+		    }
+		    
+		    while (physicsCountdown >= physicsRate)
+		    {
+			physics();
+			physicsCountdown -= physicsRate;
+		    }
+		    
+    		    
+		    render();
+		    updateCamera();
+		    boost = false;
 		}
+
 		glXSwapBuffers(dpy, win);
+
 	}
+
 	cleanupXWindows();
 	cleanup_sounds();
 	cleanup_fonts();
 	cleanupTempFiles();
 	return 0;
+
 }
 
 void cleanupXWindows(void)
@@ -226,6 +237,7 @@ void initXWindows(void)
 	XSetWindowAttributes swa;
 	setup_screen_res(xres, yres);
 	dpy = XOpenDisplay(NULL);
+
 	if (dpy == NULL)
 	{
 		std::cout << "\n\tcannot connect to X server" << std::endl;
@@ -234,6 +246,7 @@ void initXWindows(void)
 
 	Window root = DefaultRootWindow(dpy);
 	XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
+
 	if (vi == NULL)
 	{
 		std::cout << "\n\tno appropriate visual found\n" << std::endl;
@@ -250,11 +263,12 @@ void initXWindows(void)
 	set_title();
 	glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 	glXMakeCurrent(dpy, win, glc);
+
 }
 
 void reshape_window(int width, int height)
 {
-	//window has been resized.
+        //window has been resized.
 	setup_screen_res(width, height);
 	//
 	glViewport(0, 0, (GLint)width, (GLint)height);
@@ -290,9 +304,11 @@ void check_resize(XEvent *e)
 {
 	//The ConfigureNotify is sent by the
 	//server if the window is resized.
+	
 	if (e->type != ConfigureNotify)
 		return;
 	XConfigureEvent xce = e->xconfigure;
+	
 	if (xce.width != xres || xce.height != yres)
 	{
 		//Window size did change.
@@ -307,18 +323,22 @@ void physics()
 	//g.ship.pos[0] += g.ship.vel[0];
 	//g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
+	
 	if (g.ship.pos[0] < 0.0)
 	{
 		g.ship.pos[0] += (float)xres;
 	}
+	
 	else if (g.ship.pos[0] > (float)xres)
 	{
 		g.ship.pos[0] -= (float)xres;
 	}
+	
 	else if (g.ship.pos[1] < 0.0)
 	{
 		g.ship.pos[1] += (float)yres;
 	}
+	
 	else if (g.ship.pos[1] > (float)yres)
        	{
 		g.ship.pos[1] -= (float)yres;
