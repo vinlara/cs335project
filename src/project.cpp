@@ -49,6 +49,10 @@ ALuint alSource6;
 ALuint alSource7;
 ALuint alSource8;
 ALuint alSource9;
+ALuint alSource10;
+ALuint alSource11;
+ALuint alSource12;
+ALuint alSource13;
 
 ALuint alBuffer;
 ALuint alBuffer1;
@@ -60,6 +64,10 @@ ALuint alBuffer6;
 ALuint alBuffer7;
 ALuint alBuffer8;
 ALuint alBuffer9;
+ALuint alBuffer10;
+ALuint alBuffer11;
+ALuint alBuffer12;
+ALuint alBuffer13;
 
 bool menu = false;
 bool gameplay = false;
@@ -67,6 +75,7 @@ bool gameovercont = false;
 bool boost = false;
 
 int bcount = 0, ecount = 0, wcount = 0;
+int rcount = 0, icount = 0, scount = 0;
 
 const double physicsRate = 1.0 / 60.0;
 const double oobillion = 1.0 / 1e9;
@@ -165,10 +174,12 @@ int main(void)
 		{
 		    stop_playing(alSource1);
 		    stop_playing(alSource4);
-		    if(gameovercont == false){
-			 alSourcePlay(alSource5);
-			alSourcePlay(alSource6);
-			gameovercont = true;
+		    stop_playing(alSource12);
+		    if(gameovercont == false)
+		    {
+				alSourcePlay(alSource5);
+				alSourcePlay(alSource6);
+				gameovercont = true;
 		    }
 		    renderGameOver();
 		    
@@ -202,9 +213,8 @@ int main(void)
 		glXSwapBuffers(dpy, win);
 
 	}
-
-	cleanupXWindows();
 	cleanup_sounds();
+	cleanupXWindows();
 	cleanup_fonts();
 	cleanupTempFiles();
 	return 0;

@@ -431,12 +431,13 @@ int smithCheckKeys( XEvent *e )
 
 	case XK_r:
 
+		rcount++;
 	    if ( g.gameOver )
 	    {
-
 		remakeGame();
 		stop_playing(alSource6);
-		gameovercont = false;	
+		gameovercont = false;
+		play_on_r();	
 	    alSourcePlay(alSource1);
 	    }
 
