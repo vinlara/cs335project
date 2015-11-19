@@ -165,8 +165,8 @@ int main(void)
 		{
 		    stop_playing(alSource1);
 		    stop_playing(alSource4);
-		    alSourcePlay(alSource5);
 		    if(gameovercont == false){
+			 alSourcePlay(alSource5);
 			alSourcePlay(alSource6);
 			gameovercont = true;
 		    }
@@ -416,9 +416,9 @@ void physics()
 			}
 			else
 			{
+				alSourcePlay(alSource3);
 				if(!g.invincible)
 				{
-				    alSourcePlay(alSource3);
 				    g.gameOver = 1;
 				}
 			}
