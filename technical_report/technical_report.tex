@@ -375,9 +375,46 @@ if ( a->pos[0] <= ( 3.0 * tmpx ) &&
 \newpage
 \subsection*{3.9 Sounds}
 \addcontentsline{toc}{subsection}{3.9 Sounds}
-We were initially using the FMOD library for the sounds for our game, but then we found out that we were not allowed to use it, so we had to switch to OpenAL. \bigskip
+We were initially planned and used the FMOD library for the playback of the sounds of our game. However we found out that the library was was not free and open source, so the professor would not accept it as a valid library to play sounds in the game. Since this was the case we had to switch to a free and open source library, so we decided to use OpenAL. We had already begun using FMOD for our game's sound so we had to migrate everything to OpenAL as soon as possible since it was a couple days until the project was due. The sounds for the game were then re implemented using OpenAL and the OpenAL Utility Toolkit. \bigskip
 
-The sounds for the game were then reimplemented using OpenAL and the OpenAL Utility Toolkit. The sound files came from Nintendo's Kirby series. There are various sounds and looping songs for different events in the game, including the start screen, leaving the start screen, the main game screen, collision with objects, and losing the game.
+The sounds for the game came from Nintendo's Kirby series. The various sounds play when a certain action in the game screen occurs like a collision with another object (when you devour another planet) and there are many other sounds that loop while there is an action being executed i.e. during the start screen, game over screen, play screen, etc.) \bigskip
+
+The way OpenAL works is very similar to OpenGL but instead of working with graphics you work with sound. In order to be able to play sounds you must first initialize the audio devices and set the position, orientation, gain, and many other factors in consideration to the listener. \bigskip
+
+\begin{lstlisting}
+float vec[6] = {0.0f,0.0f,1.0f, 0.0f,1.0f,0.0f};
+alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+alListenerfv(AL_ORIENTATION, vec);
+alListenerf(AL_GAIN, 1.0f);
+\end{lstlisting}
+
+\medskip This is due to the fact that OpenAL supports multichannel audio for a 7.1 surround sound output. After that there must be an ALuint source and buffer. Then a buffer is created from an audio file (OpenAL supports many types) and then the buffer is assigned to a source. The source then has many parameters which can be adjusted including but not limited to volume, pitch, and looping. \bigskip
+
+\begin{lstlisting}
+alSourcef(alSource, AL_GAIN, 1.0f);
+alSourcef(alSource, AL_PITCH, 1.0f);
+alSourcei(alSource, AL_LOOPING, AL_FALSE);
+\end{lstlisting}
+
+\medskip After finishing using all the sounds just like OpenGL one must clear all the objects created by the program which includes deleting all the sources, all the buffers, and finally closing all the devices currently active. \bigskip
+
+One of the main problems encountered with the sounds was the fact that if we wanted to play a sound in an event which took place inside a loop i.e. the start screen then the sound would not be played but instead a rather repetition of the first part of the sound would play (the sound was being played over and over at the beginning of the loop). 
+
+\begin{lstlisting}
+bool gameplay = false;
+
+if (gameplay == false)
+{
+	stop_playing(alSource);
+	alSourcePlay(alSource1);
+	gameplay = true;
+}
+\end{lstlisting}
+
+The solution for this was not as elegant as we hoped but it worked it consisted of creating a boolean value and then setting it to true after playing it. While there were many other challenges this one was the one that was most challenging due to the fact that it was so simple we wanted to make it complicated. \bigskip
+
+Overall sounds using OpenAL was a great experience and while there are many improvements both in efficiency and style which can be done to our code. Being the first time using it is absolutely awesome. 
+
 
 % Score
 \newpage
