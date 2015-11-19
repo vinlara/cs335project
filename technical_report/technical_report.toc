@@ -15,11 +15,11 @@
 \contentsline {subsection}{3.7 Spawning of Enemy Objects}{13}
 \contentsline {subsection}{3.8 Spawn Protection}{14}
 \contentsline {subsection}{3.9 Sounds}{15}
-\contentsline {subsection}{3.10 Score}{16}
-\contentsline {section}{4. Testing}{17}
-\contentsline {section}{5. Delivery/Maintenance}{18}
-\contentsline {section}{6. Screenshots}{19}
-\contentsline {subsection}{6.1 Start Screen}{19}
-\contentsline {subsection}{6.2 Help Screen}{20}
-\contentsline {subsection}{6.3 Main Game Screen}{21}
-\contentsline {subsection}{6.4 Game Over Screen}{22}
+\contentsline {subsection}{3.10 Score}{17}
+\contentsline {section}{4. Testing}{18}
+\contentsline {section}{5. Delivery/Maintenance}{19}
+\contentsline {section}{6. Screenshots}{20}
+\contentsline {subsection}{6.1 Start Screen}{20}
+\contentsline {subsection}{6.2 Help Screen}{21}
+\contentsline {subsection}{6.3 Main Game Screen}{22}
+\contentsline {subsection}{6.4 Game Over Screen}{23}

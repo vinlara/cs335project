@@ -29,22 +29,28 @@ GLuint particleTextureId[10];
 
 //Stuff needed for Erik's functions, do NOT delete.
 extern ALuint alSource7;
+extern ALuint alSource13;
 extern void rendergametitle();
 extern void rendermorehelp();
+extern void rendergohelp();
 
 extern void loadTempFiles()
 {
+
 	struct dirent *entry;
 	DIR *dp = opendir("./images/");
 	g.nimages = 0;
 
 	if (dp)
 	{
+
 		std::cout << "\nentering directory: images/\n" << std::endl;
 		while ((entry = readdir(dp)) != NULL && g.nimages < MAX_IMAGES)
 		{
+
 			if (strstr(entry->d_name, ".png"))
 			{
+
 				char t1[256];
 				char t2[256];
 				char t3[256] = "images/";
@@ -59,31 +65,40 @@ extern void loadTempFiles()
 				strcpy(g.imageName[g.nimages++], t3);
 				strcpy(g.imageTemp[g.nt++], t3);
 			}
+
 		}
+
 		closedir(dp);
 	}
 	
 	std::cout << "successfully converted files:" << std::endl;
 	for (int i = 0; i < g.nt; ++i)
 	{
+
 		std::cout << g.imageTemp[i] << std::endl;
+	
 	}
 
 	std::cout << std::endl;
+
 }
 
 extern void cleanupTempFiles()
 {
+
 	for (int i = 0; i<g.nt; i++)
 	{
+
 		remove(g.imageTemp[i]);
 		std::cout << "successfully removed file: " << g.imageTemp[i] << std::endl;
+	
 	}
+	
 }
 
 extern void initTextures(void)
 {
-	//
+
 	// Start Screen
 	ppm = ppm6GetImage("images/screen_begin.ppm");
 	std::cout << "successfully loaded file: images/screen_begin.ppm" << std::endl;
@@ -145,6 +160,7 @@ extern void initTextures(void)
 	// Particle Textures
 	for (int i = 0; i < 6; ++i)
 	{
+
 		std::stringstream tempStr;
 		tempStr<<(i + 1);
 		std::string str = tempStr.str();
@@ -164,12 +180,16 @@ extern void initTextures(void)
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, ppm->data);
+
 	}
+
 	std::cout << std::endl;
+
 }
 
 extern void renderStartScreen()
 {
+
 	Rect startScreen;
 	Rect help;
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -193,10 +213,12 @@ extern void renderStartScreen()
 	ggprint16(&help, 16, 0x00ffffff, "Press 'h' for Help");
 
 	std::cout << "rendering screen_start" << std::endl;
+
 }
 
 extern void renderHelpScreen()
 {
+
 	Rect helpRect;
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -217,10 +239,12 @@ extern void renderHelpScreen()
 	rendermorehelp();
 
 	std::cout << "rendering screen_howtoplay" << std::endl;
+
 }
 
 extern void renderGameOver()
 {
+
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, gameOverId);
@@ -231,20 +255,26 @@ extern void renderGameOver()
 	glTexCoord2f(1,0); glVertex2f(xres, yres);
 	glEnd();
 
+	rendergohelp();
+
 	std::cout << "rendering screen_gameover" << std::endl;
+
 }
 
 extern void updateScore()
 {
+
 	Rect score;
 	score.bot = yres - 40;
 	score.left = 20;
 	score.center = 0;
 	ggprint16(&score, 16, 0x00ffff00, "Score: %i", (int)g.score);
+
 }
 
 extern void render()
 {
+
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glColor3f(1.0, 1.0, 1.0);
@@ -267,11 +297,14 @@ extern void render()
 
 	for (int i = 0; i <= 500; i++)
 	{
+
 		glVertex2f(x, y);
 		glTexCoord2f(x, y);
 		x = (float)g.ship.radius * cos(i * PI / 180.f);
 		y = (float)g.ship.radius * sin(i * PI / 180.f);
+	
 	}
+
 	glEnd();
 	glPopMatrix();
 
@@ -279,6 +312,7 @@ extern void render()
 	Asteroid *a = g.ahead;
 	while (a)
 	{
+
 		glPushMatrix();
 		glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
 
@@ -290,41 +324,56 @@ extern void render()
 
 		for (int i = 0; i <= 500; i++)
 		{
+
 			glVertex2f(x, y);
 			glTexCoord2f(x, y);
 			x = (float)a->radius * cos(i * PI / 180.f);
 			y = (float)a->radius * sin(i * PI / 180.f);
+		
 		}
+
 		glEnd();
 		glPopMatrix();
 		a = a->next;
+	
 	}
+
 	renderBoostBar();
 	updateScore();
 	std::cout << "rendering game" << std::endl;
+
 }
+
 
 extern void normalize(Vec v)
 {
+
 	Flt len = v[0]*v[0] + v[1]*v[1];
+	
 	if (len == 0.0f)
 	{
+
 		v[0] = 1.0;
 		v[1] = 0.0;
 		return;
+	
 	}
+
 	len = 1.0f / sqrt(len);
 	v[0] *= len * 2;
 	v[1] *= len * 2;
+
 }
 
 extern void checkMouse(XEvent *e)
 {
+
 	static int savex = 0;
 	static int savey = 0;
 
 	if (savex != e->xbutton.x || savey != e->xbutton.y)
 	{
+
 		//Mouse moved
 		savex = e->xbutton.x;
 		savey = e->xbutton.y;
@@ -339,64 +388,103 @@ extern void checkMouse(XEvent *e)
 		shipRadiusSpeed();
 		normalize(g.ship.vel);
 		return;
+	
 	}
+
 }
 
 extern int checkKeys(XEvent *e)
 {
+
 	//keyboard input?
 	static int shift=0;
 	int key = XLookupKeysym(&e->xkey, 0);
 	//Log("key: %i\n", key);
 	if (e->type == KeyRelease)
 	{
+
 		keys[key]=0;
 		if (key == XK_Shift_L || key == XK_Shift_R)
 		{
+
 			shift=0;
+		
 		}
+
 		return 0;
+	
 	}
+	
 	if (e->type == KeyPress)
 	{
+
 		keys[key]=1;
+	
 		if (key == XK_Shift_L || key == XK_Shift_R)
 		{
+
 			shift=1;
 			return 0;
+		
 		}
+
 	}
+
 	else
 	{
+
 		return 0;
+	
 	}
+
 	if (shift)
 	{
 	}
+
 	switch(key)
 	{
+
 		case XK_Escape:
+
 			g.done = 1;;
 			break;
+		
 		case XK_Return:
+
 			if (g.startScreen)
 			{
+
 				alSourcePlay(alSource7);
 				g.startScreen = 0;
+			
 			}
+
 			break;
+
 		case XK_h:
+
 			if (g.startScreen)
 			{
+				alSourcePlay(alSource13);
 				g.helpScreen = 1;
+			
 			}
+
 			break;
+
 		case XK_BackSpace:
+
 			if (g.helpScreen == 1)
 			{
+				alSourcePlay(alSource13);
 				g.helpScreen = 0;
+			
 			}
+
 			break;
+
 	}
+
 	return 0;
+
 }

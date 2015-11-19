@@ -1,17 +1,4 @@
 // Erik Juarez
-// Lab 6
-/*
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-#include <GL/glx.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include </usr/include/AL/alut.h>
-*/
 
 #include <iostream>
 #include <cmath>
@@ -37,15 +24,26 @@ extern "C"
 using namespace std;
 
 extern int bcount;
+extern int ecount;
+extern int wcount;
+extern int rcount;
+extern int icount;
+extern int scount;
 
-extern ALuint alSource;
-extern ALuint alSource1;
-extern ALuint alSource2;
-extern ALuint alSource3;
-extern ALuint alSource4;
-extern ALuint alSource5;
-extern ALuint alSource6;
-extern ALuint alSource7;
+extern ALuint alSource;		//menu.wav
+extern ALuint alSource1;	//gameplay.wav
+extern ALuint alSource2;	//collision.wav
+extern ALuint alSource3;	//badcollision.wav
+extern ALuint alSource4;	//boost.wav
+extern ALuint alSource5;	//gameover.wav
+extern ALuint alSource6;	//gameovercont.wav
+extern ALuint alSource7;	//enterkey.wav
+extern ALuint alSource8;	//eraseplanets.wav
+extern ALuint alSource9;	//warp.wav
+extern ALuint alSource10;	//restart.wav
+extern ALuint alSource11;	//invencible.wav
+extern ALuint alSource12;	//smo.wav
+extern ALuint alSource13;	//smo.wav
 
 extern ALuint alBuffer;
 extern ALuint alBuffer1;
@@ -55,16 +53,27 @@ extern ALuint alBuffer4;
 extern ALuint alBuffer5;
 extern ALuint alBuffer6;
 extern ALuint alBuffer7;
+extern ALuint alBuffer8;
+extern ALuint alBuffer9;
+extern ALuint alBuffer10;
+extern ALuint alBuffer11;
+extern ALuint alBuffer12;
+extern ALuint alBuffer13;
 
 void init_sounds();
-void play_on_boost();
+void play_on_b();
+void play_on_e();
+void play_on_w();
+void play_on_r();
 void stop_playing(ALuint);
 void cleanup_sounds();
 void rendergametitle();
 void rendermorehelp();
 
+
 void init_opengl(void)
 {
+
 	//OpenGL initialization
 	glViewport(0, 0, 1280, 960);
 	//Initialize matrices
@@ -83,14 +92,20 @@ void init_opengl(void)
 	//Do this to allow fonts
 	//glEnable(GL_TEXTURE_2D);
 	//initialize_fonts();
+
 } 
 
-void init_sounds(){
+
+void init_sounds()
+{
 
 	//Get started right here.
 	alutInit(0, NULL);
-	if (alGetError() != AL_NO_ERROR) {
+	if (alGetError() != AL_NO_ERROR) 
+	{
+
 		printf("ERROR: alutInit()\n");
+	
 	}
 	//Clear error state.
 	alGetError();
@@ -104,7 +119,7 @@ void init_sounds(){
 	//
 	//Buffer holds the sound information.
 
-//ALuint alBuffer;
+	//ALuint alBuffer;
 	alBuffer = alutCreateBufferFromFile("sounds/menu.wav");
 	alBuffer1 = alutCreateBufferFromFile("sounds/gameplay.wav");
 	alBuffer2 = alutCreateBufferFromFile("sounds/collision.wav");
@@ -113,9 +128,15 @@ void init_sounds(){
 	alBuffer5 = alutCreateBufferFromFile("sounds/gameover.wav");
 	alBuffer6 = alutCreateBufferFromFile("sounds/gameovercont.wav");
 	alBuffer7 = alutCreateBufferFromFile("sounds/enterkey.wav");
+	alBuffer8 = alutCreateBufferFromFile("sounds/eraseplanets.wav");
+	alBuffer9 = alutCreateBufferFromFile("sounds/warp.wav");
+	alBuffer10 = alutCreateBufferFromFile("sounds/restart.wav");
+	alBuffer11 = alutCreateBufferFromFile("sounds/inv.wav");
+	alBuffer12 = alutCreateBufferFromFile("sounds/smo.wav");
+	alBuffer13 = alutCreateBufferFromFile("sounds/hscreen.wav");
 
 	//Source refers to the sound.
-//ALuint alSource;
+	//ALuint alSource;
 	//Generate a source, and store it in a buffer.
 	alGenSources(1, &alSource);
 	alGenSources(1, &alSource1);
@@ -125,6 +146,12 @@ void init_sounds(){
 	alGenSources(1, &alSource5);
 	alGenSources(1, &alSource6);
 	alGenSources(1, &alSource7);
+	alGenSources(1, &alSource8);
+	alGenSources(1, &alSource9);
+	alGenSources(1, &alSource10);
+	alGenSources(1, &alSource11);
+	alGenSources(1, &alSource12);
+	alGenSources(1, &alSource13);
 
 	alSourcei(alSource, AL_BUFFER, alBuffer);
 	alSourcei(alSource1, AL_BUFFER, alBuffer1);
@@ -134,72 +161,179 @@ void init_sounds(){
 	alSourcei(alSource5, AL_BUFFER, alBuffer5);
 	alSourcei(alSource6, AL_BUFFER, alBuffer6);
 	alSourcei(alSource7, AL_BUFFER, alBuffer7);
+	alSourcei(alSource8, AL_BUFFER, alBuffer8);
+	alSourcei(alSource9, AL_BUFFER, alBuffer9);
+	alSourcei(alSource10, AL_BUFFER, alBuffer10);
+	alSourcei(alSource11, AL_BUFFER, alBuffer11);
+	alSourcei(alSource12, AL_BUFFER, alBuffer12);
+	alSourcei(alSource13, AL_BUFFER, alBuffer13);
+
 	//Set volume and pitch to normal, no looping of sound.
 	alSourcef(alSource, AL_GAIN, 1.0f);
 	alSourcef(alSource, AL_PITCH, 1.0f);
 	alSourcei(alSource, AL_LOOPING, AL_TRUE);
-	if (alGetError() != AL_NO_ERROR) {
-		printf("ERROR: setting source\n");
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
+	    printf("ERROR: setting source\n");
 	}
 
+	//But here I need looping sound
 	alSourcef(alSource1, AL_GAIN, 1.0f);
 	alSourcef(alSource1, AL_PITCH, 1.0f);
 	alSourcei(alSource1, AL_LOOPING, AL_TRUE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource2, AL_GAIN, 1.0f);
 	alSourcef(alSource2, AL_PITCH, 1.0f);
 	alSourcei(alSource2, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource3, AL_GAIN, 1.0f);
 	alSourcef(alSource3, AL_PITCH, 1.0f);
 	alSourcei(alSource3, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource4, AL_GAIN, 1.0f);
 	alSourcef(alSource4, AL_PITCH, 1.0f);
 	alSourcei(alSource4, AL_LOOPING, AL_TRUE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource5, AL_GAIN, 1.0f);
 	alSourcef(alSource5, AL_PITCH, 1.0f);
 	alSourcei(alSource5, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource6, AL_GAIN, 1.0f);
 	alSourcef(alSource6, AL_PITCH, 1.0f);
 	alSourcei(alSource6, AL_LOOPING, AL_TRUE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
 
 	alSourcef(alSource7, AL_GAIN, 1.0f);
 	alSourcef(alSource7, AL_PITCH, 1.0f);
 	alSourcei(alSource7, AL_LOOPING, AL_FALSE);
-	if (alGetError() != AL_NO_ERROR) {
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
 		printf("ERROR: setting source\n");
 	}
+
+	alSourcef(alSource8, AL_GAIN, 1.0f);
+	alSourcef(alSource8, AL_PITCH, 1.0f);
+	alSourcei(alSource8, AL_LOOPING, AL_FALSE);
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource9, AL_GAIN, 1.0f);
+	alSourcef(alSource9, AL_PITCH, 1.0f);
+	alSourcei(alSource9, AL_LOOPING, AL_FALSE);
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource10, AL_GAIN, 1.0f);
+	alSourcef(alSource10, AL_PITCH, 1.0f);
+	alSourcei(alSource10, AL_LOOPING, AL_FALSE);
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource11, AL_GAIN, 1.0f);
+	alSourcef(alSource11, AL_PITCH, 1.0f);
+	alSourcei(alSource11, AL_LOOPING, AL_TRUE);
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource12, AL_GAIN, 1.0f);
+	alSourcef(alSource12, AL_PITCH, 1.0f);
+	alSourcei(alSource12, AL_LOOPING, AL_TRUE);
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
+		printf("ERROR: setting source\n");
+	}
+
+	alSourcef(alSource12, AL_GAIN, 1.0f);
+	alSourcef(alSource12, AL_PITCH, 1.0f);
+	alSourcei(alSource12, AL_LOOPING, AL_FALSE);
+	
+	if (alGetError() != AL_NO_ERROR) 
+	{
+		printf("ERROR: setting source\n");
+	}
+
 }
 
-void cleanup_sounds(){
+
+void cleanup_sounds()
+{
+
 	//Cleanup.
-	//First delete the source.
+	//First delete the sources.
 	alDeleteSources(1, &alSource);
 	alDeleteSources(1, &alSource1);
-	//Delete the buffer.
+	alDeleteSources(1, &alSource2);
+	alDeleteSources(1, &alSource3);
+	alDeleteSources(1, &alSource4);
+	alDeleteSources(1, &alSource5);
+	alDeleteSources(1, &alSource6);
+	alDeleteSources(1, &alSource7);
+	alDeleteSources(1, &alSource8);
+	alDeleteSources(1, &alSource9);
+	alDeleteSources(1, &alSource10);
+	alDeleteSources(1, &alSource11);
+	alDeleteSources(1, &alSource12);
+	alDeleteSources(1, &alSource13);
+	//Delete the buffers.
 	alDeleteBuffers(1, &alBuffer);
 	alDeleteBuffers(1, &alBuffer1);
+	alDeleteBuffers(1, &alBuffer2);
+	alDeleteBuffers(1, &alBuffer3);
+	alDeleteBuffers(1, &alBuffer4);
+	alDeleteBuffers(1, &alBuffer5);
+	alDeleteBuffers(1, &alBuffer6);
+	alDeleteBuffers(1, &alBuffer7);
+	alDeleteBuffers(1, &alBuffer8);
+	alDeleteBuffers(1, &alBuffer9);
+	alDeleteBuffers(1, &alBuffer10);
+	alDeleteBuffers(1, &alBuffer11);
+	alDeleteBuffers(1, &alBuffer12);
+	alDeleteBuffers(1, &alBuffer13);
+	
 	//Close out OpenAL itself.
 	//Get active context.
 	ALCcontext *Context = alcGetCurrentContext();
@@ -211,32 +345,131 @@ void cleanup_sounds(){
 	alcDestroyContext(Context);
 	//Close device.
 	alcCloseDevice(Device);
+
 }
 
-void stop_playing(ALuint to_stop){
+
+void stop_playing(ALuint to_stop)
+{
 	alSourceStop(to_stop);
+
 }
 
-void play_on_boost(){
-	if(bcount%2 == 0){
+
+void play_on_b()
+{
+
+	if(bcount%2 == 0)
+	{
+
 		stop_playing(alSource4);
+	
 	}
-	if(bcount%2 != 0){
-				alSourcePlay(alSource4);
+
+	if(bcount%2 != 0)
+	{
+
+	    alSourcePlay(alSource4);
+	
 	}
+
 }
+
+
+void play_on_i()
+{
+
+	if(icount%2 == 0)
+	{
+
+		stop_playing(alSource11);
+	
+	}
+
+	if(icount%2 != 0)
+	{
+
+	    alSourcePlay(alSource11);
+	
+	}
+
+}
+
+
+void play_on_s()
+{
+
+	if(scount%2 == 0)
+	{
+
+		stop_playing(alSource12);
+	
+	}
+
+	if(scount%2 != 0)
+	{
+
+	    alSourcePlay(alSource12);
+	
+	}
+
+}
+
+
+void play_on_e()
+{
+
+	if(ecount > 0)
+	{
+
+		alSourcePlay(alSource8);
+	
+	}
+
+}
+
+
+void play_on_w()
+{
+
+	if(wcount > 0)
+	{
+
+		alSourcePlay(alSource9);
+	
+	}
+
+}
+
+
+void play_on_r()
+{
+
+	if(rcount > 0)
+	{
+
+		alSourcePlay(alSource10);
+	
+	}
+
+}
+
 
 void rendergametitle()
 {
+
 	Rect welcome;
 	welcome.bot = yres - 40;
 	welcome.left = xres / 2;
 	welcome.center = xres / 2;
 	ggprint16(&welcome, 16, 0x00ffffff, "Welcome to.....");
+
 }
+
 
 void rendermorehelp()
 {
+
 	Rect l1;
 	l1.bot = yres - ((yres/3));
 	l1.left = xres / 2;
@@ -272,4 +505,22 @@ void rendermorehelp()
 	l6.left = xres / 2;
 	l6.center = xres / 2;
 	ggprint16(&l6, 16, 0x00ffffff, "Feeling lost in space? Press CTRL to locate your planet.");
+
+}
+
+
+void rendergohelp()
+{
+
+	Rect g1;
+	g1.bot = yres - ((yres/3)+150);
+	g1.left = xres / 2;
+	g1.center = xres / 2;
+	ggprint16(&g1, 16, 0x00ffffff, "Press R to Play Again!");
+
+	Rect g2;
+	g2.bot = yres - ((yres/3)+300);
+	g2.left = xres / 2;
+	g2.center = xres / 2;
+	ggprint16(&g2, 16, 0x00ffffff, "Press ESC to quit :'(");
 }
