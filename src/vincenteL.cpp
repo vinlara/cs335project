@@ -289,6 +289,15 @@ extern void showSBoost()
 		boost5.center = 0;
 		ggprint16(&boost5, 16, 0x00ffffff, "Invincible!!!");
 	}
+	
+	if(qm)
+	{
+		Rect boost6;
+		boost6.bot = yres - 40;
+		boost6.left = xres/2;
+		boost6.center = 0;
+		ggprint16(&boost6, 16, 0x00ffffff, "Showing Movement Direction");
+	}
 }
 
 extern void renderBoostBar()
@@ -370,25 +379,25 @@ extern void renderBoostBar()
 		//glTranslatef(g.ship.pos[0] + g.ship.radius, g.ship.pos[1] + g.ship.radius, g.ship.pos[2]);
 		if(g.ship.vel[0] > 0 && g.ship.vel[1] > 0)
 		{ 
-			glTranslatef(g.ship.pos[0]  + float(g.ship.radius), 
-							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius), g.ship.pos[2]);
+			glTranslatef(g.ship.pos[0] + float(g.ship.radius), 
+							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius)-10, g.ship.pos[2]);
 		}
 	
 		if(g.ship.vel[0] < 0 && g.ship.vel[1] < 0)
 		{
-			glTranslatef(g.ship.pos[0]  - float(g.ship.radius), 
+			glTranslatef(g.ship.pos[0] - float(g.ship.radius), 
 							g.ship.pos[1] + g.ship.vel[1] - float(g.ship.radius), g.ship.pos[2]);
 		}
 	
 		if(g.ship.vel[0] < 0 && g.ship.vel[1] > 0)
 		{
-			glTranslatef(g.ship.pos[0]  - float(g.ship.radius), 
-							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius), g.ship.pos[2]);
+			glTranslatef(g.ship.pos[0] - float(g.ship.radius), 
+							g.ship.pos[1] + g.ship.vel[1] + float(g.ship.radius)-10, g.ship.pos[2]);
 		}
 	
 		if(g.ship.vel[0] > 0 && g.ship.vel[1] < 0)
 		{
-			glTranslatef(g.ship.pos[0]  + float(g.ship.radius), 
+			glTranslatef(g.ship.pos[0] + float(g.ship.radius), 
 							g.ship.pos[1] + g.ship.vel[1] - float(g.ship.radius), g.ship.pos[2]);
 		}
 	}
