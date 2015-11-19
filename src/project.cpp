@@ -377,7 +377,7 @@ void physics()
 				if (a->radius > 0)
                 		{
                     			int radiusDif = g.ship.radius - a->radius;
-					g.score += 1 / radiusDif;
+					g.score += 10.0 / radiusDif;
 		    			//g.score += 0.5 * a->radius;
                 		}
 
