@@ -116,7 +116,7 @@ The design of the game was inspired from games such as Agar.io and Katamari Fore
 
 In order to implement this, we found it best to use and modify the Asteroids framework, to make the game similar to Agar.io, but using X11, OpenGL, and OpenAL in C++. \bigskip
 
-When gaining mass, we decided to take into account the size of the absorbed object, so absorbing something significantly smaller than you would amount to little to no increase in size while absorbing something nearly as big as you would amount to a relatively large increase in size. We also opted to use an inverse exponential function when increasing the player's size, rather than simply incrementing by one. We also wanted the size of the enemy objects that are spawned throughout the game to be relative to the player's current size. The size of object would also affect its own velocity. \bigskip
+When gaining mass, we decided to take into account the size of the absorbed object, so absorbing something significantly smaller than you would amount to little to no increase in size while absorbing something nearly as big as you would amount to a relatively large increase in size. We also opted to use an inverse exponential function when increasing the player's score and then using the score in a logarithmic function to increase the player's size, rather than simply incrementing by one. We also wanted the size of the enemy objects that are spawned throughout the game to be relative to the player's current size. The size of object would also affect its own velocity. \bigskip
 
 One feature that we definitely needed to implement was a sort of spawn protection, so that as the enemy objects are spawned, they do not spawn directly on top of you and immediately kill you. \bigskip
 
@@ -283,14 +283,14 @@ Flt radiusVel = ( ( 500.0 / ( g.ship.radius + 100.0 ) ) - 2.0 )
 \end{lstlisting}
 
 \medskip
-The first problem encountered with the velocity is that the speed is calculated by adding the squares of the \textit{x} and \textit{y} coordinates of the vector. We take the ratio of the \textit{x} and \textit{y} coordinates of the vector and compare them to the magnitude of that speed. The ratio of the coordinate to the total speed is the same regardless of what you scale it up or down to. We then multiply the ratio of \textit{x} to speed and \textit{y} to speed by the calculated radius velocity and we get the result of the same directional movement with a properly scaled speed. \bigskip
+The first problem encountered with the velocity is that the speed is calculated by adding the squares of the \textit{x} and \textit{y} coordinates of the vector. We take the ratio of the \textit{x} and \textit{y} coordinates of the vector and compare them to the magnitude of that speed. The ratio of the coordinate to the total speed is the same regardless of what you scale it up or down to. We then multiply the ratio of \textit{x-to-speed} and \textit{y-to-speed} by the calculated radius velocity and we get the result of the same directional movement with a properly scaled speed. \bigskip
 
 \begin{lstlisting}
 Flt radiusVel = ( ( 500.0 / ( g.ship.radius + 100.0 ) ) - 2.0 );
 
 if ( radiusVel < 0 )
 {
-	radiusVel = 0.05;
+	radiusVel = 0.01;
 }
 
 Flt xVel = g.ship.vel[0];
@@ -309,7 +309,7 @@ g.ship.vel[1] = yRatio;
 \newpage
 \subsection*{3.5 Growth}
 \addcontentsline{toc}{subsection}{3.5 Growth}
-For the player's growth, we decided to use an inverse logarithmic function, in order to have it so absorbing a small object amount to little gain in size, and absorbing an object relatively close to the player's size results in a high gain in size. \bigskip
+For the player's growth, we decided to use an inverse logarithmic function when increasing the player's score, in order to have it so absorbing a small object amount to little gain in size, and absorbing an object relatively close to the player's size results in a high gain in size. \bigskip
 
 \includegraphics[width=\textwidth]{inverse_log_graph}
 
@@ -396,7 +396,7 @@ The methods of testing utilized in the project included both white-box and black
 
 A practice that greatly helped our group throughout the coding and testing process was pair programming. Having another set of eyes parse through the code while the main developer was coding was extremely helpful in spotting any issues that arose during coding and debugging. \bigskip
 
-Testing was also done by compiling and running the game on various different computers and Linux distributions, such as Ubuntu and Arch Linux. Some issues arose when accessing the OpenAL library files with some of the Linux distributions we tested because they resided in a different directory, so the \textit{Makefile} had to altered to successfully compile. We also found an interesting bugs with certain Linux distrubutions such as Ubuntu, where using the the computer's function keys to change the volume would result in a segfault.
+Testing was also done by compiling and running the game on various different computers and Linux distributions, such as Ubuntu and Arch Linux. Some issues arose when accessing the OpenAL library files with some of the Linux distributions we tested because they resided in a different directory, so the \textit{Makefile} had to altered to successfully compile. We also found an interesting bugs with certain Linux distrubutions such as Ubuntu, where using the the computer's function keys to change the volume would result in a segfault. Another bug that took us a long time to find was the growth of the player upon absorbing another object. We 
 
 %-------------------------------------------------------------------------------
 % DELIVERY/MAINTENANCE
