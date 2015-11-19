@@ -59,11 +59,12 @@ struct Shape {
 
 //Variables and funcitons
 //Needed to play sound with boost fucntion
-extern void play_on_boost();
-extern void stop_playing(ALuint to_stop);
-extern int bcount;
-extern ALuint alSource4;
-//
+extern void play_on_b();
+extern void play_on_e();
+extern void play_on_w();
+extern int bcount; 
+extern int ecount;
+extern int wcount;
 
 extern double timeDiff(struct timespec *start, struct timespec *end);
 int vinceCheckKeys(XEvent *e);
@@ -216,10 +217,12 @@ int vinceCheckKeys(XEvent *e)
 			//g.sBoost ^= 1;
 			//Erik's Stuff, do NOT edit!
 			bcount++;
-			play_on_boost();
+			play_on_b();
 			//
 			break;
 		case XK_w:
+			wcount++;
+			play_on_w();
 			spaceWarp();
 			break;
 		case XK_p:
@@ -227,6 +230,8 @@ int vinceCheckKeys(XEvent *e)
 			break;
 		case XK_e:
 			explReset();
+			ecount++;
+			play_on_e();
 			break;
 		case XK_Control_L:
 			showC ^= 1;
