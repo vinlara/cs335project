@@ -238,20 +238,38 @@ void rendergametitle()
 void rendermorehelp()
 {
 	Rect l1;
-	l1.bot = yres - ((yres/2));
+	l1.bot = yres - ((yres/3));
 	l1.left = xres / 2;
 	l1.center = xres / 2;
-	ggprint16(&l1, 16, 0x00ffffff, "Move the mouse: control your planet");
+	ggprint16(&l1, 16, 0x00ffffff, "Move the mouse: control your planet.");
 
 	Rect l2;
-	l2.bot = yres - ((yres/2)+40);
+	l2.bot = yres - ((yres/3)+60);
 	l2.left = xres / 2;
 	l2.center = xres / 2;
-	ggprint16(&l2, 16, 0x00ffffff, "Press button B: Activate boost (move faster)");
+	ggprint16(&l2, 16, 0x00ffffff, "Press button B: Activate boost (move faster).");
 
 	Rect l3;
-	l3.bot = yres - ((yres/2)+80);
+	l3.bot = yres - ((yres/3)+120);
 	l3.left = xres / 2;
 	l3.center = xres / 2;
-	ggprint16(&l3, 16, 0x00ffffff, "Press button R: Resets enemy planets to give you a quick advantage");
+	ggprint16(&l3, 16, 0x00ffffff, "Press button E: Erases enemy planets to give you a quick advantage.");
+
+	Rect l4;
+	l4.bot = yres - ((yres/3)+180);
+	l4.left = xres / 2;
+	l4.center = xres / 2;
+	ggprint16(&l4, 16, 0x00ffffff, "Press button W: Warps your planet around the screen.");
+
+	Rect l5;
+	l5.bot = yres - ((yres/3)+240);
+	l5.left = xres / 2;
+	l5.center = xres / 2;
+	ggprint16(&l5, 16, 0x00ffffff, "Press button P: Pauses the other planets.");
+
+	Rect l6;
+	l6.bot = yres - ((yres/3)+300);
+	l6.left = xres / 2;
+	l6.center = xres / 2;
+	ggprint16(&l6, 16, 0x00ffffff, "Feeling lost in space? Press CTRL to locate your planet.");
 }
