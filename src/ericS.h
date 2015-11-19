@@ -6,6 +6,9 @@ extern void asteroidRadiusSpeed( Asteroid *a );
 extern void shipRadiusSpeed();
 extern void addAsteroid();
 extern void deleteAsteroid();
+extern void deleteAllAsteroid();
+extern void remakeGame();
 extern int smithCheckKeys( XEvent *e );
+
 
 #endif
