@@ -83,6 +83,7 @@ Display *dpy;
 Window win;
 GLXContext glc;
 Game g;
+extern void rendergametitle();
 extern void play_on_boost();
 extern void stop_playing(ALuint);
 extern void cleanup_sounds();
@@ -144,6 +145,7 @@ int main(void)
 			if (g.helpScreen)
 			{
 				renderHelpScreen();
+
 			}
 
 			else
@@ -162,7 +164,7 @@ int main(void)
 			}
 			renderGameOver();
 
-			
+
 		}
 		else
 		{
@@ -170,7 +172,7 @@ int main(void)
 			timeSpan = timeDiff(&timeStart, &timeCurrent);
 			timeCopy(&timeStart, &timeCurrent);
 			physicsCountdown += timeSpan;
-			
+
 			if(gameplay == false){
 				stop_playing(alSource);
 				alSourcePlay(alSource1);
